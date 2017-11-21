@@ -227,6 +227,12 @@
 			"revisionTime": "2017-07-27T06:48:18Z"
 		},
 		{
+			"checksumSHA1": "BkXphDj0I6VmogVzOSg8xfBHXdQ=",
+			"path": "github.com/cenk/backoff",
+			"revision": "309aa717adbf351e92864cbedf9cca0b769a4b5a",
+			"revisionTime": "2017-10-07T11:45:50Z"
+		},
+		{
 			"checksumSHA1": "dvabztWVQX8f6oMLRyv4dLH+TGY=",
 			"path": "github.com/davecgh/go-spew/spew",
 			"revision": "346938d642f2ec3594ed81d874461961cd0faa76",
@@ -245,6 +251,12 @@
 			"path": "github.com/go-ini/ini",
 			"revision": "766e555c68dc8bda90d197ee8946c37519c19409",
 			"revisionTime": "2017-01-17T13:00:17Z"
+		},
+		{
+			"checksumSHA1": "p3IB18uJRs4dL2K5yx24MrLYE9A=",
+			"path": "github.com/google/go-querystring/query",
+			"revision": "53e6ce116135b80d037921a7fdd5138cf32d7a8a",
+			"revisionTime": "2017-01-11T10:11:55Z"
 		},
 		{
 			"checksumSHA1": "cdOCt0Yb+hdErz8NAQqayxPmRsY=",
@@ -523,6 +535,24 @@
 			"revisionTime": "2016-08-03T19:07:31Z"
 		},
 		{
+			"checksumSHA1": "1xBN2GxIWp5EiHd6jhfI+VhMl5I=",
+			"path": "github.com/kevholditch/gokong",
+			"revision": "50a15f5da4b46d2c9faf7287ae6a1ced372e8d70",
+			"revisionTime": "2017-11-20T21:45:23Z"
+		},
+		{
+			"checksumSHA1": "IfZcD4U1dtllJKlPNeD2aU4Jn98=",
+			"path": "github.com/lib/pq",
+			"revision": "8c6ee72f3e6bcb1542298dd5f76cb74af9742cec",
+			"revisionTime": "2017-11-13T04:44:40Z"
+		},
+		{
+			"checksumSHA1": "AU3fA8Sm33Vj9PBoRPSeYfxLRuE=",
+			"path": "github.com/lib/pq/oid",
+			"revision": "8c6ee72f3e6bcb1542298dd5f76cb74af9742cec",
+			"revisionTime": "2017-11-13T04:44:40Z"
+		},
+		{
 			"checksumSHA1": "guxbLo8KHHBeM0rzou4OTzzpDNs=",
 			"path": "github.com/mitchellh/copystructure",
 			"revision": "5af94aef99f597e6a9e1f6ac6be6ce0f3c96b49d",
@@ -550,6 +580,24 @@
 			"path": "github.com/mitchellh/reflectwalk",
 			"revision": "92573fe8d000a145bfebc03a16bc22b34945867f",
 			"revisionTime": "2016-10-03T17:45:16Z"
+		},
+		{
+			"checksumSHA1": "CxNwJP++vjUAyy3bbJnNss1Il9Q=",
+			"path": "github.com/moul/http2curl",
+			"revision": "9ac6cf4d929b2fa8fd2d2e6dec5bb0feb4f4911d",
+			"revisionTime": "2017-09-19T18:10:01Z"
+		},
+		{
+			"checksumSHA1": "UmYMPKuYIY/PPRYaixh8FuR0X64=",
+			"path": "github.com/parnurzeal/gorequest",
+			"revision": "a578a48e8d6ca8b01a3b18314c43c6716bb5f5a3",
+			"revisionTime": "2017-02-20T17:20:57Z"
+		},
+		{
+			"checksumSHA1": "rJab1YdNhQooDiBWNnt7TLWPyBU=",
+			"path": "github.com/pkg/errors",
+			"revision": "f15c970de5b76fac0b59abb32d62c17cc7bed265",
+			"revisionTime": "2017-10-18T19:55:50Z"
 		},
 		{
 			"checksumSHA1": "u5s2PZ7fzCOqQX7bVPf9IJ+qNLQ=",
@@ -630,6 +678,18 @@
 			"revisionTime": "2017-08-04T00:04:37Z"
 		},
 		{
+			"checksumSHA1": "iN//qSunKGImecnRCcQrGTFgJMk=",
+			"path": "golang.org/x/net/publicsuffix",
+			"revision": "9dfe39835686865bff950a07b394c12a98ddc811",
+			"revisionTime": "2017-11-15T06:26:45Z"
+		},
+		{
+			"checksumSHA1": "PuIHDAaZRDT3YPCUL1nzTmlmv/E=",
+			"path": "gopkg.in/ory-am/dockertest.v3",
+			"revision": "a7951f7a8442f0e70d36e499ed4d744f00af2963",
+			"revisionTime": "2017-07-29T08:02:57Z"
+		},
+		{
 			"checksumSHA1": "wICWAGQfZcHD2y0dHesz9R2YSiw=",
 			"path": "k8s.io/kubernetes/pkg/apimachinery",
 			"revision": "b0b7a323cc5a4a2019b2e9520c21c7830b7f708e",
@@ -638,5 +698,5 @@
 			"versionExact": "v1.6.1"
 		}
 	],
-	"rootPath": "github.com/terraform-providers/terraform-provider-template"
+	"rootPath": "github.com/kevholditch/terraform-provider-kong"
 }
