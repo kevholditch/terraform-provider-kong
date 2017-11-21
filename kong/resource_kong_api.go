@@ -96,7 +96,7 @@ func resourceKongApiCreate(d *schema.ResourceData, meta interface{}) error {
 
 	d.SetId(api.Id)
 
-	return nil
+	return resourceKongApiRead(d, meta)
 }
 
 func resourceKongApiUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -114,7 +114,7 @@ func resourceKongApiUpdate(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error updating kong api: %s", err)
 	}
 
-	return nil
+	return resourceKongApiRead(d, meta)
 }
 
 func resourceKongApiRead(d *schema.ResourceData, meta interface{}) error {
