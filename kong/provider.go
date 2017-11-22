@@ -13,7 +13,7 @@ func Provider() terraform.ResourceProvider {
 			"kong_admin_uri": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				DefaultFunc: envDefaultFunc("KONG_ADMIN_ADDR"),
+				DefaultFunc: envDefaultFuncWithDefault("KONG_ADMIN_ADDR", "http://localhost:8001"),
 				Description: "The address of the kong admin url e.g. http://localhost:8001",
 			},
 		},
@@ -26,9 +26,10 @@ func Provider() terraform.ResourceProvider {
 	}
 }
 
-func envDefaultFunc(k string) schema.SchemaDefaultFunc {
+
+func envDefaultFuncWithDefault(key string, defaultValue string) schema.SchemaDefaultFunc {
 	return func() (interface{}, error) {
-		if v := os.Getenv(k); v != "" {
+		if v := os.Getenv(key); v != "" {
 			if v == "true" {
 				return true, nil
 			} else if v == "false" {
@@ -36,7 +37,7 @@ func envDefaultFunc(k string) schema.SchemaDefaultFunc {
 			}
 			return v, nil
 		}
-		return nil, nil
+		return defaultValue, nil
 	}
 }
 

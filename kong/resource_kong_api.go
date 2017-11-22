@@ -113,7 +113,7 @@ func resourceKongApiUpdate(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return fmt.Errorf("Error updating kong api: %s", err)
 	}
-
+	
 	return resourceKongApiRead(d, meta)
 }
 
