@@ -2,7 +2,7 @@ GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
 
 default: build test testacc
 
-travisbuild: deps build test testacc
+travisbuild: deps default
 
 test: fmtcheck
 	go test -v . ./kong
@@ -25,8 +25,8 @@ release:
     goreleaser; \
 
 deps:
-    go get -u golang.org/x/net/context
-	go get -u github.com/mitchellh/gox
+	go get -u golang.org/x/net/context; \
+    go get -u github.com/mitchellh/gox; \
 
 clean:
 	rm -rf pkg/
