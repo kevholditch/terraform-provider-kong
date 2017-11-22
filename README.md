@@ -1,11 +1,6 @@
-Terraform Provider
-==================
-
-- Website: https://www.terraform.io
-- [![Gitter chat](https://badges.gitter.im/hashicorp-terraform/Lobby.png)](https://gitter.im/hashicorp-terraform/Lobby)
-- Mailing list: [Google Groups](http://groups.google.com/group/terraform-tool)
-
-<img src="https://cdn.rawgit.com/hashicorp/terraform-website/master/content/source/assets/images/logo-hashicorp.svg" width="600px">
+Terraform Provider Kong
+=======================
+The Kong Terraform Provider tested against real Kong!
 
 Requirements
 ------------
@@ -23,51 +18,33 @@ provider "template" {
 }
 ```
 
-Building The Provider
----------------------
 
-Clone repository to: `$GOPATH/src/github.com/hashicorp/terraform-provider-$PROVIDER_NAME`
-
-```sh
-$ mkdir -p $GOPATH/src/github.com/hashicorp; cd $GOPATH/src/github.com/hashicorp
-$ git clone git@github.com:hashicorp/terraform-provider-$PROVIDER_NAME
+To configure the provider:
+```hcl
+provider "kong" {
+    kong_admin_uri = "http://myKong:8001"
+}
 ```
 
-Enter the provider directory and build the provider
+By convention the provider will first check the env variable `KONG_ADMIN_ADDR` if that variable is not set then it will default to `http://localhost:8001` if
+you do not provide a provider block as above.
 
-```sh
-$ cd $GOPATH/src/github.com/hashicorp/terraform-provider-$PROVIDER_NAME
-$ make build
+To create an api:
+```hcl
+resource "kong_api" "api" {
+    name 	= "TestApi"
+    hosts   = [ "example.com" ]
+    uris 	= [ "/example" ]
+    methods = [ "GET", "POST" ]
+    upstream_url = "http://localhost:4140"
+    strip_uri = false
+    preserve_host = false
+    retries = 3
+    upstream_connect_timeout = 60000
+    upstream_send_timeout = 30000
+    upstream_read_timeout = 10000
+    https_only = false
+    http_if_terminated = false
+}
 ```
-
-Using the provider
-----------------------
-## Fill in for each provider
-
-Developing the Provider
----------------------------
-
-If you wish to work on the provider, you'll first need [Go](http://www.golang.org) installed on your machine (version 1.8+ is *required*). You'll also need to correctly setup a [GOPATH](http://golang.org/doc/code.html#GOPATH), as well as adding `$GOPATH/bin` to your `$PATH`.
-
-To compile the provider, run `make build`. This will build the provider and put the provider binary in the `$GOPATH/bin` directory.
-
-```sh
-$ make bin
-...
-$ $GOPATH/bin/terraform-provider-$PROVIDER_NAME
-...
-```
-
-In order to test the provider, you can simply run `make test`.
-
-```sh
-$ make test
-```
-
-In order to run the full suite of Acceptance tests, run `make testacc`.
-
-*Note:* Acceptance tests create real resources, and often cost money to run.
-
-```sh
-$ make testacc
-```
+The api resource maps directly onto the json for creating an API in Kong.  For more information on the parameters [see the Kong Api create documentation](https://getkong.org/docs/0.11.x/admin-api/#add-api).
