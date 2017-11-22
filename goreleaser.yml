@@ -8,5 +8,3 @@ builds:
       - amd64
 archive:
   format: zip
-  files:
-    -
