@@ -21,7 +21,7 @@ type ApiRequest struct {
 	Uris                   []string `json:"uris,omitempty"`
 	Methods                []string `json:"methods,omitempty"`
 	UpstreamUrl            string   `json:"upstream_url"`
-	StripUri               bool     `json:"strip_uri,omitempty"`
+	StripUri               bool     `json:"strip_uri"`
 	PreserveHost           bool     `json:"preserve_host,omitempty"`
 	Retries                int      `json:"retries,omitempty"`
 	UpstreamConnectTimeout int      `json:"upstream_connect_timeout,omitempty"`

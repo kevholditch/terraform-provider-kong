@@ -26,7 +26,6 @@ func Provider() terraform.ResourceProvider {
 	}
 }
 
-
 func envDefaultFuncWithDefault(key string, defaultValue string) schema.SchemaDefaultFunc {
 	return func() (interface{}, error) {
 		if v := os.Getenv(key); v != "" {

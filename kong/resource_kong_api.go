@@ -17,67 +17,77 @@ func resourceKongApi() *schema.Resource {
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
+				ForceNew: false,
 			},
 			"hosts": &schema.Schema{
 				Type:     schema.TypeList,
-				Required: false,
+				Optional: true,
 				ForceNew: false,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"uris": &schema.Schema{
 				Type:     schema.TypeList,
-				Required: false,
+				Optional: true,
 				ForceNew: false,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"methods": &schema.Schema{
 				Type:     schema.TypeList,
-				Required: false,
+				Optional: true,
 				ForceNew: false,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"upstream_url": &schema.Schema{
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: false,
 			},
 			"strip_uri": &schema.Schema{
 				Type:     schema.TypeBool,
-				Required: false,
+				Optional: true,
 				ForceNew: false,
+				Default:  true,
 			},
 			"preserve_host": &schema.Schema{
 				Type:     schema.TypeBool,
-				Required: false,
+				Optional: true,
 				ForceNew: false,
 			},
 			"retries": &schema.Schema{
 				Type:     schema.TypeInt,
-				Required: false,
+				Optional: true,
 				ForceNew: false,
+				Default:  5,
 			},
 			"upstream_connect_timeout": &schema.Schema{
 				Type:     schema.TypeInt,
-				Required: false,
+				Optional: true,
 				ForceNew: false,
+				Default:  60000,
 			},
 			"upstream_send_timeout": &schema.Schema{
 				Type:     schema.TypeInt,
-				Required: false,
+				Optional: true,
 				ForceNew: false,
+				Default:  60000,
 			},
 			"upstream_read_timeout": &schema.Schema{
 				Type:     schema.TypeInt,
-				Required: false,
+				Optional: true,
 				ForceNew: false,
+				Default:  60000,
 			},
 			"https_only": &schema.Schema{
 				Type:     schema.TypeBool,
-				Required: false,
+				Optional: true,
 				ForceNew: false,
+				Default:  false,
 			},
 			"http_if_terminated": &schema.Schema{
 				Type:     schema.TypeBool,
-				Required: false,
+				Optional: true,
 				ForceNew: false,
+				Default:  true,
 			},
 		},
 	}
@@ -113,7 +123,7 @@ func resourceKongApiUpdate(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return fmt.Errorf("Error updating kong api: %s", err)
 	}
-	
+
 	return resourceKongApiRead(d, meta)
 }
 
@@ -164,57 +174,19 @@ func createKongApiRequestFromResourceData(d *schema.ResourceData) *gokong.ApiReq
 
 	apiRequest := &gokong.ApiRequest{}
 
-	if attr, ok := d.GetOk("name"); ok {
-		apiRequest.Name = attr.(string)
-	}
-
-	if attr, ok := d.GetOk("hosts"); ok {
-		apiRequest.Hosts = attr.([]string)
-	}
-
-	if attr, ok := d.GetOk("uris"); ok {
-		apiRequest.Uris = attr.([]string)
-	}
-
-	if attr, ok := d.GetOk("methods"); ok {
-		apiRequest.Methods = attr.([]string)
-	}
-
-	if attr, ok := d.GetOk("upstream_url"); ok {
-		apiRequest.UpstreamUrl = attr.(string)
-	}
-
-	if attr, ok := d.GetOk("strip_uri"); ok {
-		apiRequest.StripUri = attr.(bool)
-	}
-
-	if attr, ok := d.GetOk("preserve_host"); ok {
-		apiRequest.PreserveHost = attr.(bool)
-	}
-
-	if attr, ok := d.GetOk("retries"); ok {
-		apiRequest.Retries = attr.(int)
-	}
-
-	if attr, ok := d.GetOk("upstream_connect_timeout"); ok {
-		apiRequest.UpstreamConnectTimeout = attr.(int)
-	}
-
-	if attr, ok := d.GetOk("upstream_send_timeout"); ok {
-		apiRequest.UpstreamSendTimeout = attr.(int)
-	}
-
-	if attr, ok := d.GetOk("upstream_read_timeout"); ok {
-		apiRequest.UpstreamReadTimeout = attr.(int)
-	}
-
-	if attr, ok := d.GetOk("https_only"); ok {
-		apiRequest.HttpsOnly = attr.(bool)
-	}
-
-	if attr, ok := d.GetOk("http_if_terminated"); ok {
-		apiRequest.HttpIfTerminated = attr.(bool)
-	}
+	apiRequest.Name = readStringFromResource(d, "name")
+	apiRequest.Hosts = readArrayFromResource(d, "hosts")
+	apiRequest.Uris = readArrayFromResource(d, "uris")
+	apiRequest.Methods = readArrayFromResource(d, "methods")
+	apiRequest.UpstreamUrl = readStringFromResource(d, "upstream_url")
+	apiRequest.StripUri = readBoolFromResource(d, "strip_uri")
+	apiRequest.PreserveHost = readBoolFromResource(d, "preserve_host")
+	apiRequest.Retries = readIntFromResource(d, "retries")
+	apiRequest.UpstreamConnectTimeout = readIntFromResource(d, "upstream_connect_timeout")
+	apiRequest.UpstreamSendTimeout = readIntFromResource(d, "upstream_send_timeout")
+	apiRequest.UpstreamReadTimeout = readIntFromResource(d, "upstream_read_timeout")
+	apiRequest.HttpsOnly = readBoolFromResource(d, "https_only")
+	apiRequest.HttpIfTerminated = readBoolFromResource(d, "http_if_terminated")
 
 	return apiRequest
 }

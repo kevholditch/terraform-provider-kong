@@ -1,13 +1,13 @@
 package kong
 
 import (
-	"os"
-	"github.com/hashicorp/terraform/terraform"
 	"github.com/hashicorp/terraform/helper/schema"
-	"testing"
-	"log"
-	"github.com/kevholditch/gokong/containers"
+	"github.com/hashicorp/terraform/terraform"
 	"github.com/kevholditch/gokong"
+	"github.com/kevholditch/gokong/containers"
+	"log"
+	"os"
+	"testing"
 )
 
 const defaultKongVersion = "0.11"
@@ -18,7 +18,7 @@ var testAccProvider *schema.Provider
 func init() {
 	testAccProvider = Provider().(*schema.Provider)
 	testAccProviders = map[string]terraform.ResourceProvider{
-		"kong":      testAccProvider,
+		"kong": testAccProvider,
 	}
 }
 
@@ -48,4 +48,3 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 
 }
-

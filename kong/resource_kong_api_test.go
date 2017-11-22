@@ -2,10 +2,10 @@ package kong
 
 import (
 	"fmt"
-	"testing"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/kevholditch/gokong"
+	"testing"
 )
 
 func TestAccKongApi_basic(t *testing.T) {
@@ -33,10 +33,12 @@ func testAccCheckKongApiDestroy(state *terraform.State) error {
 			continue
 		}
 
-
 		response, err := client.Apis().GetById(rs.Primary.ID)
 
-		if err == nil {
+		if err != nil {
+			return fmt.Errorf("error calling get api by id: %v", err)
+		}
+		if response != nil {
 			return fmt.Errorf("record %s still exists, %+v", rs.Primary.ID, response)
 		}
 	}
@@ -45,8 +47,6 @@ func testAccCheckKongApiDestroy(state *terraform.State) error {
 }
 
 func testAccCheckKongApiExists(resourceKey string) resource.TestCheckFunc {
-
-
 
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resourceKey]
@@ -67,7 +67,6 @@ func testAccCheckKongApiExists(resourceKey string) resource.TestCheckFunc {
 			return err
 		}
 
-
 		return nil
 	}
 }
@@ -75,11 +74,11 @@ func testAccCheckKongApiExists(resourceKey string) resource.TestCheckFunc {
 const testCreateApiConfig = `
 resource "kong_api" "api" {
 	name 	= "TestApi"
-  	hosts   = ["example.com"]
-	uris 	= ["/example"]
-	methods = ["GET", "POST"]
+  	hosts   = [ "example.com" ]
+	uris 	= [ "/example" ]
+	methods = [ "GET", "POST" ]
 	upstream_url = "http://localhost:4140"
-	strip_url = false
+	strip_uri = false
 	preserve_host = false
 	retries = 3
 	upstream_connect_timeout = 60000
@@ -89,4 +88,3 @@ resource "kong_api" "api" {
 	http_if_terminated = false
 }
 `
-
