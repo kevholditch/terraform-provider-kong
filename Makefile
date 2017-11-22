@@ -2,6 +2,8 @@ GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
 
 default: build test testacc
 
+travisbuild: deps build test testacc
+
 test: fmtcheck
 	go test -v . ./kong
 
@@ -10,7 +12,6 @@ testacc: fmtcheck
 
 build: fmtcheck vet testacc
 	@go install
-	@go get golang.org/x/net/context
 	@mkdir -p ~/.terraform.d/plugins/
 	@cp $(GOPATH)/bin/terraform-provider-kong ~/.terraform.d/plugins/terraform-provider-kong
 	@echo "Build succeeded"
@@ -24,6 +25,7 @@ release:
     goreleaser; \
 
 deps:
+    go get -u golang.org/x/net/context
 	go get -u github.com/mitchellh/gox
 
 clean:

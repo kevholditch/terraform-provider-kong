@@ -1,8 +1,10 @@
 language: go
 go:
-- 1.9.x
+  - 1.9.x
+script:
+  - make travisbuild
 after_success:
-- make release
+  - make release
 env:
   global:
   - TF_ACC=1
