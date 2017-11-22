@@ -43,5 +43,10 @@ test-compile:
 	fi
 	go test -c $(TEST) $(TESTARGS)
 
+
+release:
+	go get github.com/goreleaser/goreleaser; \
+    goreleaser; \
+
 .PHONY: build test testacc vet fmt fmtcheck errcheck vendor-status test-compile
 
