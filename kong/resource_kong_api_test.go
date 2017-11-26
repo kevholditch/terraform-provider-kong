@@ -5,7 +5,6 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/kevholditch/gokong"
-	"github.com/pkg/errors"
 	"testing"
 )
 
@@ -73,8 +72,9 @@ func testAccCheckKongApiDestroy(state *terraform.State) error {
 		if err != nil {
 			return fmt.Errorf("error calling get api by id: %v", err)
 		}
+
 		if response != nil {
-			return fmt.Errorf("record %s still exists, %+v", rs.Primary.ID, response)
+			return fmt.Errorf("api %s still exists, %+v", rs.Primary.ID, response)
 		}
 	}
 
@@ -91,7 +91,7 @@ func testAccCheckKongApiExists(resourceKey string) resource.TestCheckFunc {
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("no Record ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		client := testAccProvider.Meta().(*gokong.KongAdminClient)
@@ -103,7 +103,7 @@ func testAccCheckKongApiExists(resourceKey string) resource.TestCheckFunc {
 		}
 
 		if api == nil {
-			return errors.New(fmt.Sprintf("api with id %v not found", rs.Primary.ID))
+			return fmt.Errorf("api with id %v not found", rs.Primary.ID)
 		}
 
 		return nil

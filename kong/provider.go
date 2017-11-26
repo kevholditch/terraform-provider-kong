@@ -19,7 +19,8 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"kong_api": resourceKongApi(),
+			"kong_api":      resourceKongApi(),
+			"kong_consumer": resourceKongConsumer(),
 		},
 
 		ConfigureFunc: providerConfigure,

@@ -121,7 +121,7 @@ func resourceKongApiUpdate(d *schema.ResourceData, meta interface{}) error {
 	_, err := client.Apis().UpdateById(id, apiRequest)
 
 	if err != nil {
-		return fmt.Errorf("Error updating kong api: %s", err)
+		return fmt.Errorf("error updating kong api: %s", err)
 	}
 
 	return resourceKongApiRead(d, meta)

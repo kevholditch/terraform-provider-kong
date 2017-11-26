@@ -2,12 +2,8 @@ package gokong
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
-	"github.com/google/go-querystring/query"
 	"github.com/parnurzeal/gorequest"
-	"net/url"
-	"reflect"
 )
 
 type ApiClient struct {
@@ -56,7 +52,7 @@ type Apis struct {
 	Offset  string `json:"offset,omitempty"`
 }
 
-type GetAllFilter struct {
+type ApiFilter struct {
 	Id          string `url:"id,omitempty"`
 	Name        string `url:"name,omitempty"`
 	UpstreamUrl string `url:"upstream_url,omitempty"`
@@ -75,13 +71,13 @@ func (apiClient *ApiClient) GetById(id string) (*Api, error) {
 
 	_, body, errs := apiClient.client.Get(apiClient.config.HostAddress + ApisPath + id).End()
 	if errs != nil {
-		return nil, errors.New(fmt.Sprintf("Could not get api, error: %v", errs))
+		return nil, fmt.Errorf("could not get api, error: %v", errs)
 	}
 
 	api := &Api{}
 	err := json.Unmarshal([]byte(body), api)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("Could not parse api get response, error: %v", err))
+		return nil, fmt.Errorf("could not parse api get response, error: %v", err)
 	}
 
 	if api.Id == "" {
@@ -91,47 +87,27 @@ func (apiClient *ApiClient) GetById(id string) (*Api, error) {
 	return api, nil
 }
 
-func (apiClient *ApiClient) GetAll() (*Apis, error) {
-	return apiClient.GetAllFiltered(nil)
+func (apiClient *ApiClient) List() (*Apis, error) {
+	return apiClient.ListFiltered(nil)
 }
 
-func addQueryString(currentUrl string, opt interface{}) (string, error) {
-	v := reflect.ValueOf(opt)
-	if v.Kind() == reflect.Ptr && v.IsNil() {
-		return currentUrl, nil
-	}
-
-	u, err := url.Parse(currentUrl)
-	if err != nil {
-		return currentUrl, err
-	}
-
-	qs, err := query.Values(opt)
-	if err != nil {
-		return currentUrl, err
-	}
-
-	u.RawQuery = qs.Encode()
-	return u.String(), nil
-}
-
-func (apiClient *ApiClient) GetAllFiltered(filter *GetAllFilter) (*Apis, error) {
+func (apiClient *ApiClient) ListFiltered(filter *ApiFilter) (*Apis, error) {
 
 	address, err := addQueryString(apiClient.config.HostAddress+ApisPath, filter)
 
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("Could not build query string for apis filter, error: %v", err))
+		return nil, fmt.Errorf("could not build query string for apis filter, error: %v", err)
 	}
 
 	_, body, errs := apiClient.client.Get(address).End()
 	if errs != nil {
-		return nil, errors.New(fmt.Sprintf("Could not get apis, error: %v", errs))
+		return nil, fmt.Errorf("could not get apis, error: %v", errs)
 	}
 
 	apis := &Apis{}
 	err = json.Unmarshal([]byte(body), apis)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("Could not parse apis get response, error: %v", err))
+		return nil, fmt.Errorf("could not parse apis list response, error: %v", err)
 	}
 
 	return apis, nil
@@ -141,13 +117,13 @@ func (apiClient *ApiClient) Create(newApi *ApiRequest) (*Api, error) {
 
 	_, body, errs := apiClient.client.Post(apiClient.config.HostAddress + ApisPath).Send(newApi).End()
 	if errs != nil {
-		return nil, errors.New(fmt.Sprintf("Could not create new api, error: %v", errs))
+		return nil, fmt.Errorf("could not create new api, error: %v", errs)
 	}
 
 	createdApi := &Api{}
 	err := json.Unmarshal([]byte(body), createdApi)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("Could not parse api creation response, error: %v", err))
+		return nil, fmt.Errorf("could not parse api creation response, error: %v", err)
 	}
 
 	return createdApi, nil
@@ -161,7 +137,7 @@ func (apiClient *ApiClient) DeleteById(id string) error {
 
 	res, _, errs := apiClient.client.Delete(apiClient.config.HostAddress + ApisPath + id).End()
 	if errs != nil {
-		return errors.New(fmt.Sprintf("Could not delete api, result: %v error: %v", res, errs))
+		return fmt.Errorf("could not delete api, result: %v error: %v", res, errs)
 	}
 
 	return nil
@@ -175,13 +151,13 @@ func (apiClient *ApiClient) UpdateById(id string, apiRequest *ApiRequest) (*Api,
 
 	_, body, errs := apiClient.client.Patch(apiClient.config.HostAddress + ApisPath + id).Send(apiRequest).End()
 	if errs != nil {
-		return nil, errors.New(fmt.Sprintf("Could not update api, error: %v", errs))
+		return nil, fmt.Errorf("could not update api, error: %v", errs)
 	}
 
 	updatedApi := &Api{}
 	err := json.Unmarshal([]byte(body), updatedApi)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("Could not parse api update response, error: %v", err))
+		return nil, fmt.Errorf("could not parse api update response, error: %v", err)
 	}
 
 	return updatedApi, nil
