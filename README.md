@@ -50,3 +50,13 @@ resource "kong_api" "api" {
 }
 ```
 The api resource maps directly onto the json for creating an API in Kong.  For more information on the parameters [see the Kong Api create documentation](https://getkong.org/docs/0.11.x/admin-api/#add-api).
+
+To create a consuemr:
+```hcl
+resource "kong_consumer" "consumer" {
+	username  = "User1"
+	custom_id = "123"
+}
+```
+
+The consumer resource maps directly onto the json for creating an Consumer in Kong.  For more information on the parameters [see the Kong Consumer create documentation](https://getkong.org/docs/0.11.x/admin-api/#create-consumer).
