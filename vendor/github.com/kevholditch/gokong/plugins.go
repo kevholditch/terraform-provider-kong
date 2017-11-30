@@ -100,7 +100,7 @@ func (pluginClient *PluginClient) Create(pluginRequest *PluginRequest) (*Plugin,
 	createdPlugin := &Plugin{}
 	err := json.Unmarshal([]byte(body), createdPlugin)
 	if err != nil {
-		return nil, fmt.Errorf("could not parse plugin creation response, error: %v", err)
+		return nil, fmt.Errorf("could not parse plugin creation response, error: %v kong response: %s", err, body)
 	}
 
 	if createdPlugin.Id == "" {

@@ -94,11 +94,10 @@ func resourceKongApi() *schema.Resource {
 }
 
 func resourceKongApiCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*gokong.KongAdminClient)
 
 	apiRequest := createKongApiRequestFromResourceData(d)
 
-	api, err := client.Apis().Create(apiRequest)
+	api, err := meta.(*gokong.KongAdminClient).Apis().Create(apiRequest)
 
 	if err != nil {
 		return fmt.Errorf("failed to create kong api: %v error: %v", apiRequest, err)
@@ -112,13 +111,9 @@ func resourceKongApiCreate(d *schema.ResourceData, meta interface{}) error {
 func resourceKongApiUpdate(d *schema.ResourceData, meta interface{}) error {
 	d.Partial(false)
 
-	client := meta.(*gokong.KongAdminClient)
-
 	apiRequest := createKongApiRequestFromResourceData(d)
 
-	id := d.Id()
-
-	_, err := client.Apis().UpdateById(id, apiRequest)
+	_, err := meta.(*gokong.KongAdminClient).Apis().UpdateById(d.Id(), apiRequest)
 
 	if err != nil {
 		return fmt.Errorf("error updating kong api: %s", err)
@@ -128,11 +123,8 @@ func resourceKongApiUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceKongApiRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*gokong.KongAdminClient)
 
-	id := d.Id()
-
-	api, err := client.Apis().GetById(id)
+	api, err := meta.(*gokong.KongAdminClient).Apis().GetById(d.Id())
 
 	if err != nil {
 		return fmt.Errorf("could not find kong api: %v", err)
@@ -157,11 +149,7 @@ func resourceKongApiRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceKongApiDelete(d *schema.ResourceData, meta interface{}) error {
 
-	client := meta.(*gokong.KongAdminClient)
-
-	id := d.Id()
-
-	err := client.Apis().DeleteById(id)
+	err := meta.(*gokong.KongAdminClient).Apis().DeleteById(d.Id())
 
 	if err != nil {
 		return fmt.Errorf("could not delete kong api: %v", err)

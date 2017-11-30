@@ -54,7 +54,7 @@ status, err := gokong.NewClient(gokong.NewDefaultConfig()).Status().Get()
 ```
 
 ## APIs
-Create a new API ([for more information on the API fields see the Kong documentation](https://getkong.org/docs/0.11.x/admin-api/#add-api)):
+Create a new API ([for more information on the API fields see the Kong documentation](https://getkong.org/docs/0.11.x/admin-api/#api-object):
 ```go
 apiRequest := &gokong.ApiRequest{
 	Name:                   "Example",
@@ -149,7 +149,7 @@ updatedApi, err :=  gokong.NewClient(gokong.NewDefaultConfig()).Apis().UpdateByN
 
 
 ## Consumers
-Create a new Consumer ([for more information on the Consumer Fields see the Kong documentation](https://getkong.org/docs/0.11.x/admin-api/#create-consumer)):
+Create a new Consumer ([for more information on the Consumer Fields see the Kong documentation](https://getkong.org/docs/0.11.x/admin-api/#consumer-object)):
 ```go
 consumerRequest := &gokong.ConsumerRequest{
   Username: "User1",
@@ -224,7 +224,7 @@ pluginRequest := &gokong.PluginRequest{
 createdPlugin, err := gokong.NewClient(gokong.NewDefaultConfig()).Plugins().Create(pluginRequest)
 ```
 
-Create a new Plugin for a single API (only set `ApiId`), not all plugins can be configured in this way ([for more information on the Plugin Fields see the Kong documentation](https://getkong.org/docs/0.11.x/admin-api/#add-plugin)):
+Create a new Plugin for a single API (only set `ApiId`), not all plugins can be configured in this way ([for more information on the Plugin Fields see the Kong documentation](https://getkong.org/docs/0.11.x/admin-api/#plugin-object)):
 ```go
 client := gokong.NewClient(gokong.NewDefaultConfig())
 
@@ -257,7 +257,7 @@ pluginRequest := &gokong.PluginRequest{
 createdPlugin, err :=  client.Plugins().Create(pluginRequest)
 ```
 
-Create a new Plugin for a single Consumer (only set `ConsumerId`), Not all plugins can be configured in this way ([for more information on the Plugin Fields see the Kong documentation](https://getkong.org/docs/0.11.x/admin-api/#add-plugin)):
+Create a new Plugin for a single Consumer (only set `ConsumerId`), Not all plugins can be configured in this way ([for more information on the Plugin Fields see the Kong documentation](https://getkong.org/docs/0.11.x/admin-api/#plugin-object)):
 ```go
 client := gokong.NewClient(gokong.NewDefaultConfig())
 
@@ -279,7 +279,7 @@ pluginRequest := &gokong.PluginRequest{
 createdPlugin, err :=  client.Plugins().Create(pluginRequest)
 ```
 
-Create a new Plugin for a single Consumer and Api (set `ConsumerId` and `ApiId`), Not all plugins can be configured in this way ([for more information on the Plugin Fields see the Kong documentation](https://getkong.org/docs/0.11.x/admin-api/#add-plugin)):
+Create a new Plugin for a single Consumer and Api (set `ConsumerId` and `ApiId`), Not all plugins can be configured in this way ([for more information on the Plugin Fields see the Kong documentation](https://getkong.org/docs/0.11.x/admin-api/#plugin-object)):
 ```go
 client := gokong.NewClient(gokong.NewDefaultConfig())
 
@@ -355,7 +355,7 @@ updatedPlugin, err := gokong.NewClient(gokong.NewDefaultConfig()).Plugins().Upda
 ```
 
 ## Certificates
-Create a Certificate ([for more information on the Certificate Fields see the Kong documentation](https://getkong.org/docs/0.11.x/admin-api/#add-certificate)):
+Create a Certificate ([for more information on the Certificate Fields see the Kong documentation](https://getkong.org/docs/0.11.x/admin-api/#certificate-object)):
 
 ```go
 certificateRequest := &gokong.CertificateRequest{
@@ -393,7 +393,7 @@ updatedCertificate, err := gokong.NewClient(gokong.NewDefaultConfig()).Certifica
 
 
 ## SNIs
-Create an SNI ([for more information on the Sni Fields see the Kong documentation](https://getkong.org/docs/0.11.x/admin-api/#add-sni)):
+Create an SNI ([for more information on the Sni Fields see the Kong documentation](https://getkong.org/docs/0.11.x/admin-api/#sni-objects)):
 ```go
 client := gokong.NewClient(gokong.NewDefaultConfig())
 
@@ -438,7 +438,7 @@ updatedSni, err := client.Snis().UpdateByName("example.com", updateSniRequest)
 ```
 
 ## Upstreams
-Create an Upstream ([for more information on the Upstream Fields see the Kong documentation](https://getkong.org/docs/0.11.x/admin-api/#add-upstream)):
+Create an Upstream ([for more information on the Upstream Fields see the Kong documentation](https://getkong.org/docs/0.11.x/admin-api/#upstream-objects)):
 ```go
 upstreamRequest := &gokong.UpstreamRequest{
   Name: "test-upstream",

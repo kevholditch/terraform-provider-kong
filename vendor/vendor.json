@@ -535,10 +535,10 @@
 			"revisionTime": "2016-08-03T19:07:31Z"
 		},
 		{
-			"checksumSHA1": "yJ7hJnL5e7BDSqxS/3asGqhzu78=",
+			"checksumSHA1": "InU/IZC6jQ2dsTT3CtkIvKiRipM=",
 			"path": "github.com/kevholditch/gokong",
-			"revision": "5c1e77510a1872e3ab2a19293d615f4b0702e534",
-			"revisionTime": "2017-11-29T22:50:42Z"
+			"revision": "cbb1e61de5e9defa517009341f13150656fc8272",
+			"revisionTime": "2017-11-30T21:21:48Z"
 		},
 		{
 			"path": "github.com/kevholditch/gokong...",
@@ -547,8 +547,8 @@
 		{
 			"checksumSHA1": "zrebs2M5FR95Rz1khq60RjMd+HY=",
 			"path": "github.com/kevholditch/gokong/containers",
-			"revision": "5c1e77510a1872e3ab2a19293d615f4b0702e534",
-			"revisionTime": "2017-11-29T22:50:42Z"
+			"revision": "cbb1e61de5e9defa517009341f13150656fc8272",
+			"revisionTime": "2017-11-30T21:21:48Z"
 		},
 		{
 			"checksumSHA1": "IfZcD4U1dtllJKlPNeD2aU4Jn98=",

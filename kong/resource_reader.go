@@ -38,3 +38,13 @@ func readIntFromResource(d *schema.ResourceData, key string) int {
 	}
 	return 0
 }
+
+func readMapFromResource(d *schema.ResourceData, key string) map[string]interface{} {
+
+	if attr, ok := d.GetOk(key); ok {
+		result := attr.(map[string]interface{})
+		return result
+	}
+
+	return nil
+}
