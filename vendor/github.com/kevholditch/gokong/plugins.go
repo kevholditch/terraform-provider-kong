@@ -120,7 +120,7 @@ func (pluginClient *PluginClient) UpdateById(id string, pluginRequest *PluginReq
 	updatedPlugin := &Plugin{}
 	err := json.Unmarshal([]byte(body), updatedPlugin)
 	if err != nil {
-		return nil, fmt.Errorf("could not parse plugin update response, error: %v", err)
+		return nil, fmt.Errorf("could not parse plugin update response, error: %v kong response: %s", err, body)
 	}
 
 	if updatedPlugin.Id == "" {

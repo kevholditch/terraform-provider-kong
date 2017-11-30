@@ -59,10 +59,11 @@ func resourceKongConsumerUpdate(d *schema.ResourceData, meta interface{}) error 
 
 func resourceKongConsumerRead(d *schema.ResourceData, meta interface{}) error {
 
-	consumer, err := meta.(*gokong.KongAdminClient).Consumers().GetById(d.Id())
+	id := d.Id()
+	consumer, err := meta.(*gokong.KongAdminClient).Consumers().GetById(id)
 
 	if err != nil {
-		return fmt.Errorf("could not find kong consumer: %v", err)
+		return fmt.Errorf("could not find kong consumer with id: %s error: %v", id, err)
 	}
 
 	d.Set("username", consumer.Username)

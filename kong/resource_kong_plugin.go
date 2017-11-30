@@ -17,7 +17,7 @@ func resourceKongPlugin() *schema.Resource {
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
+				ForceNew: true,
 			},
 			"api_id": &schema.Schema{
 				Type:     schema.TypeString,

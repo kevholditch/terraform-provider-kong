@@ -94,9 +94,7 @@ func testAccCheckKongApiExists(resourceKey string) resource.TestCheckFunc {
 			return fmt.Errorf("no ID is set")
 		}
 
-		client := testAccProvider.Meta().(*gokong.KongAdminClient)
-
-		api, err := client.Apis().GetById(rs.Primary.ID)
+		api, err := testAccProvider.Meta().(*gokong.KongAdminClient).Apis().GetById(rs.Primary.ID)
 
 		if err != nil {
 			return err
