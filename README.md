@@ -11,15 +11,7 @@ Requirements
 -	[Go](https://golang.org/doc/install) 1.8 (to build the provider plugin)
 
 Usage
----------------------
-
-```
-# For example, restrict template version in 0.1.x
-provider "template" {
-  version = "~> 0.1"
-}
-```
-
+-----
 
 To configure the provider:
 ```hcl
@@ -31,7 +23,9 @@ provider "kong" {
 By convention the provider will first check the env variable `KONG_ADMIN_ADDR` if that variable is not set then it will default to `http://localhost:8001` if
 you do not provide a provider block as above.
 
-To create an api:
+## Resources
+
+# Api
 ```hcl
 resource "kong_api" "api" {
     name 	= "TestApi"
@@ -49,9 +43,9 @@ resource "kong_api" "api" {
     http_if_terminated = false
 }
 ```
-The api resource maps directly onto the json for creating an API in Kong.  For more information on the parameters [see the Kong Api create documentation](https://getkong.org/docs/0.11.x/admin-api/#add-api).
+The api resource maps directly onto the json for creating an API in Kong.  For more information on the parameters [see the Kong Api create documentation](https://getkong.org/docs/0.11.x/admin-api/#api-object).
 
-To create a consuemr:
+# Consumer
 ```hcl
 resource "kong_consumer" "consumer" {
 	username  = "User1"
@@ -59,4 +53,17 @@ resource "kong_consumer" "consumer" {
 }
 ```
 
-The consumer resource maps directly onto the json for creating an Consumer in Kong.  For more information on the parameters [see the Kong Consumer create documentation](https://getkong.org/docs/0.11.x/admin-api/#create-consumer).
+The consumer resource maps directly onto the json for creating an Consumer in Kong.  For more information on the parameters [see the Kong Consumer create documentation](https://getkong.org/docs/0.11.x/admin-api/#consumer-object).
+
+## Certificates
+```hcl
+resource "kong_certificate" "certificate" {
+	certificate  = "public key --- 123 ----"
+	private_key = "private key --- 456 ----"
+}
+```
+
+`certificate` should be the public key of your certificate it is mapped to the `Cert` parameter on the Kong API.
+`private_key` should be the private key of your certificate it is mapped to the `Key` parameter on the Kong API.
+
+For more information on creating certificates in Kong [see their documentation](https://getkong.org/docs/0.11.x/admin-api/#certificate-object)

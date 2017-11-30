@@ -5,7 +5,7 @@ import "github.com/hashicorp/terraform/helper/schema"
 func readArrayFromResource(d *schema.ResourceData, key string) []string {
 
 	if attr, ok := d.GetOk(key); ok {
-		array := []string{}
+		var array []string
 		items := attr.([]interface{})
 		for _, x := range items {
 			item := x.(string)

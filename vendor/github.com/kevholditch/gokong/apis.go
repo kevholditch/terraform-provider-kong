@@ -123,7 +123,11 @@ func (apiClient *ApiClient) Create(newApi *ApiRequest) (*Api, error) {
 	createdApi := &Api{}
 	err := json.Unmarshal([]byte(body), createdApi)
 	if err != nil {
-		return nil, fmt.Errorf("could not parse api creation response, error: %v", err)
+		return nil, fmt.Errorf("could not parse api creation response, error: %v %s", err, body)
+	}
+
+	if createdApi.Id == "" {
+		return nil, fmt.Errorf("could not create api, error: %v", body)
 	}
 
 	return createdApi, nil
@@ -158,6 +162,10 @@ func (apiClient *ApiClient) UpdateById(id string, apiRequest *ApiRequest) (*Api,
 	err := json.Unmarshal([]byte(body), updatedApi)
 	if err != nil {
 		return nil, fmt.Errorf("could not parse api update response, error: %v", err)
+	}
+
+	if updatedApi.Id == "" {
+		return nil, fmt.Errorf("could not update certificate, error: %v", body)
 	}
 
 	return updatedApi, nil

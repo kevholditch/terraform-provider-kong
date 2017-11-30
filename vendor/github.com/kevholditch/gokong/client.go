@@ -80,3 +80,31 @@ func (kongAdminClient *KongAdminClient) Consumers() *ConsumerClient {
 		client: kongAdminClient.client,
 	}
 }
+
+func (kongAdminClient *KongAdminClient) Plugins() *PluginClient {
+	return &PluginClient{
+		config: kongAdminClient.config,
+		client: kongAdminClient.client,
+	}
+}
+
+func (kongAdminClient *KongAdminClient) Certificates() *CertificateClient {
+	return &CertificateClient{
+		config: kongAdminClient.config,
+		client: kongAdminClient.client,
+	}
+}
+
+func (kongAdminClient *KongAdminClient) Snis() *SnisClient {
+	return &SnisClient{
+		config: kongAdminClient.config,
+		client: kongAdminClient.client,
+	}
+}
+
+func (kongAdminClient *KongAdminClient) Upstreams() *UpstreamClient {
+	return &UpstreamClient{
+		config: kongAdminClient.config,
+		client: kongAdminClient.client,
+	}
+}

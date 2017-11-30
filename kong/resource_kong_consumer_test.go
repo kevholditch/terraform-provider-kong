@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestAccKongConsumer_basic(t *testing.T) {
+func TestAccKongConsumer(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		Providers:    testAccProviders,

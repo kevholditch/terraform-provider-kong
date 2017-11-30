@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestAccKongApi_basic(t *testing.T) {
+func TestAccKongApi(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		Providers:    testAccProviders,

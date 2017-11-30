@@ -7,10 +7,6 @@ A kong go client fully tested with no mocks!!
 ## GoKong
 GoKong is a easy to use api client for [kong](https://getkong.org/).  The difference with the gokong library is all of its tests are written against a real running kong running inside a docker container, yep that's right you won't see a horrible mock anywhere!!
 
-## Run build
-Ensure docker is installed then run:
-`make`
-
 ## Importing
 
 To add gokong via `go get`:
@@ -211,6 +207,300 @@ consumerRequest := &gokong.ConsumerRequest{
 }
 
 updatedConsumer, err :=  gokong.NewClient(gokong.NewDefaultConfig()).Consumers().UpdateByUsername("User2", consumerRequest)
+```
+
+## Plugins
+Create a new Plugin to be applied to all APIs and consumers do not set `ApiId` or `ConsumerId`.  Not all plugins can be configured in this way
+ ([for more information on the Plugin Fields see the Kong documentation](https://getkong.org/docs/0.11.x/admin-api/#add-plugin)):
+
+```go
+pluginRequest := &gokong.PluginRequest{
+  Name: "response-ratelimiting",
+  Config: map[string]interface{}{
+    "limits.sms.minute": 20,
+  },
+}
+
+createdPlugin, err := gokong.NewClient(gokong.NewDefaultConfig()).Plugins().Create(pluginRequest)
+```
+
+Create a new Plugin for a single API (only set `ApiId`), not all plugins can be configured in this way ([for more information on the Plugin Fields see the Kong documentation](https://getkong.org/docs/0.11.x/admin-api/#add-plugin)):
+```go
+client := gokong.NewClient(gokong.NewDefaultConfig())
+
+apiRequest := &gokong.ApiRequest{
+  Name:                   "test-api",
+  Hosts:                  []string{"example.com"},
+  Uris:                   []string{"/example"},
+  Methods:                []string{"GET", "POST"},
+  UpstreamUrl:            "http://localhost:4140/testservice",
+  StripUri:               true,
+  PreserveHost:           true,
+  Retries:                3,
+  UpstreamConnectTimeout: 1000,
+  UpstreamSendTimeout:    2000,
+  UpstreamReadTimeout:    3000,
+  HttpsOnly:              true,
+  HttpIfTerminated:       true,
+}
+
+createdApi, err := client.Apis().Create(apiRequest)
+
+pluginRequest := &gokong.PluginRequest{
+  Name: "response-ratelimiting",
+  ApiId: createdApi.Id,
+  Config: map[string]interface{}{
+    "limits.sms.minute": 20,
+  },
+}
+
+createdPlugin, err :=  client.Plugins().Create(pluginRequest)
+```
+
+Create a new Plugin for a single Consumer (only set `ConsumerId`), Not all plugins can be configured in this way ([for more information on the Plugin Fields see the Kong documentation](https://getkong.org/docs/0.11.x/admin-api/#add-plugin)):
+```go
+client := gokong.NewClient(gokong.NewDefaultConfig())
+
+consumerRequest := &gokong.ConsumerRequest{
+  Username: "User1",
+  CustomId: "test",
+}
+
+createdConsumer, err := client.Consumers().Create(consumerRequest)
+
+pluginRequest := &gokong.PluginRequest{
+  Name: "response-ratelimiting",
+  ConsumerId: createdConsumer.Id,
+  Config: map[string]interface{}{
+    "limits.sms.minute": 20,
+  },
+}
+
+createdPlugin, err :=  client.Plugins().Create(pluginRequest)
+```
+
+Create a new Plugin for a single Consumer and Api (set `ConsumerId` and `ApiId`), Not all plugins can be configured in this way ([for more information on the Plugin Fields see the Kong documentation](https://getkong.org/docs/0.11.x/admin-api/#add-plugin)):
+```go
+client := gokong.NewClient(gokong.NewDefaultConfig())
+
+consumerRequest := &gokong.ConsumerRequest{
+  Username: "User1",
+  CustomId: "test",
+}
+
+createdConsumer, err := client.Consumers().Create(consumerRequest)
+
+apiRequest := &gokong.ApiRequest{
+  Name:                   "test-api",
+  Hosts:                  []string{"example.com"},
+  Uris:                   []string{"/example"},
+  Methods:                []string{"GET", "POST"},
+  UpstreamUrl:            "http://localhost:4140/testservice",
+  StripUri:               true,
+  PreserveHost:           true,
+  Retries:                3,
+  UpstreamConnectTimeout: 1000,
+  UpstreamSendTimeout:    2000,
+  UpstreamReadTimeout:    3000,
+  HttpsOnly:              true,
+  HttpIfTerminated:       true,
+}
+
+createdApi, err := client.Apis().Create(apiRequest)
+
+pluginRequest := &gokong.PluginRequest{
+  Name:       "response-ratelimiting",
+  ConsumerId: createdConsumer.Id,
+  ApiId:      createdApi.Id,
+  Config: map[string]interface{}{
+    "limits.sms.minute": 20,
+  },
+}
+
+createdPlugin, err :=  client.Plugins().Create(pluginRequest)
+```
+
+Get a plugin by id:
+```go
+plugin, err := gokong.NewClient(gokong.NewDefaultConfig()).Plugins().GetById("04bda233-d035-4b8a-8cf2-a53f3dd990f3")
+```
+
+List all plugins:
+```go
+plugins, err := gokong.NewClient(gokong.NewDefaultConfig()).Plugins().List()
+```
+
+List all plugins with a filter:
+```go
+plugins, err := gokong.NewClient(gokong.NewDefaultConfig()).Plugins().ListFiltered(&gokong.PluginFilter{Name: "response-ratelimiting", ConsumerId: "7009a608-b40c-4a21-9a90-9219d5fd1ac7"})
+```
+
+Delete a plugin by id:
+```go
+err := gokong.NewClient(gokong.NewDefaultConfig()).Plugins().DeleteById("f2bbbab8-3e6f-4d9d-bada-d486600b3b4c")
+```
+
+Update a plugin by id:
+```go
+updatePluginRequest := &gokong.PluginRequest{
+  Name:       "response-ratelimiting",
+  ConsumerId: createdConsumer.Id,
+  ApiId:      createdApi.Id,
+  Config: map[string]interface{}{
+    "limits.sms.minute": 20,
+  },
+}
+
+updatedPlugin, err := gokong.NewClient(gokong.NewDefaultConfig()).Plugins().UpdateById("70692eed-2293-486d-b992-db44a6459360", updatePluginRequest)
+```
+
+## Certificates
+Create a Certificate ([for more information on the Certificate Fields see the Kong documentation](https://getkong.org/docs/0.11.x/admin-api/#add-certificate)):
+
+```go
+certificateRequest := &gokong.CertificateRequest{
+  Cert: "public key --- 123",
+  Key:  "private key --- 456",
+}
+
+createdCertificate, err := gokong.NewClient(gokong.NewDefaultConfig()).Certificates().Create(certificateRequest)
+```
+
+Get a Certificate by id:
+```go
+certificate, err := gokong.NewClient(gokong.NewDefaultConfig()).Certificates().GetById("0408cbd4-e856-4565-bc11-066326de9231")
+```
+
+List all certificates:
+```go
+certificates, err := gokong.NewClient(gokong.NewDefaultConfig()).Certificates().List()
+```
+
+Delete a Certificate:
+```go
+err := gokong.NewClient(gokong.NewDefaultConfig()).Certificates().DeleteById("db884cf2-9dd7-4e33-9ef5-628165076a42")
+```
+
+Update a Certificate:
+```go
+updateCertificateRequest := &gokong.CertificateRequest{
+  Cert: "public key --- 789",
+  Key:  "private key --- 111",
+}
+
+updatedCertificate, err := gokong.NewClient(gokong.NewDefaultConfig()).Certificates().UpdateById("1dc11281-30a6-4fb9-aec2-c6ff33445375", updateCertificateRequest)
+```
+
+
+## SNIs
+Create an SNI ([for more information on the Sni Fields see the Kong documentation](https://getkong.org/docs/0.11.x/admin-api/#add-sni)):
+```go
+client := gokong.NewClient(gokong.NewDefaultConfig())
+
+certificateRequest := &gokong.CertificateRequest{
+  Cert: "public key --- 123",
+  Key:  "private key --- 111",
+}
+
+certificate, err := client.Certificates().Create(certificateRequest)
+
+snisRequest := &gokong.SnisRequest{
+  Name:             "example.com",
+  SslCertificateId: certificate.Id,
+}
+
+sni, err := client.Snis().Create(snisRequest)
+```
+
+Get an SNI by name:
+```go
+sni, err := client.Snis().GetByName("example.com")
+```
+
+List all SNIs:
+```
+snis, err := client.Snis().List()
+```
+
+Delete an SNI by name:
+```go
+err := client.Snis().DeleteByName("example.com")
+```
+
+Update an SNI by name:
+```go
+updateSniRequest := &gokong.SnisRequest{
+  Name:             "example.com",
+  SslCertificateId: "a9797703-3ae6-44a9-9f0a-4ebb5d7f301f",
+}
+
+updatedSni, err := client.Snis().UpdateByName("example.com", updateSniRequest)
+```
+
+## Upstreams
+Create an Upstream ([for more information on the Upstream Fields see the Kong documentation](https://getkong.org/docs/0.11.x/admin-api/#add-upstream)):
+```go
+upstreamRequest := &gokong.UpstreamRequest{
+  Name: "test-upstream",
+  Slots: 10,
+}
+
+createdUpstream, err := gokong.NewClient(gokong.NewDefaultConfig()).Upstreams().Create(upstreamRequest)
+```
+
+Get an Upstream by id:
+```go
+upstream, err := gokong.NewClient(gokong.NewDefaultConfig()).Upstreams().GetById("3705d962-caa8-4d0b-b291-4f0e85fe227a")
+```
+
+Get an Upstream by name:
+```go
+upstream, err := gokong.NewClient(gokong.NewDefaultConfig()).Upstreams().GetByName("test-upstream")
+```
+
+List all Upstreams:
+```go
+upstreams, err := gokong.NewClient(gokong.NewDefaultConfig()).Upstreams().List()
+```
+
+List all Upstreams with a filter:
+```go
+upstreams, err := gokong.NewClient(gokong.NewDefaultConfig()).Upstreams().ListFiltered(&gokong.UpstreamFilter{Name:"test-upstream", Slots:10})
+```
+
+Delete an Upstream by id:
+```go
+err := gokong.NewClient(gokong.NewDefaultConfig()).Upstreams().DeleteById("3a46b122-47ee-4c5d-b2de-49be84a672e6")
+```
+
+Delete an Upstream by name:
+```go
+err := gokong.NewClient(gokong.NewDefaultConfig()).Upstreams().DeleteById("3a46b122-47ee-4c5d-b2de-49be84a672e6")
+```
+
+Delete an Upstream by id:
+```go
+err := gokong.NewClient(gokong.NewDefaultConfig()).Upstreams().DeleteByName("test-upstream")
+```
+
+Update an Upstream by id:
+```
+updateUpstreamRequest := &gokong.UpstreamRequest{
+  Name: "test-upstream",
+  Slots: 10,
+}
+
+updatedUpstream, err := gokong.NewClient(gokong.NewDefaultConfig()).Upstreams().UpdateById("3a46b122-47ee-4c5d-b2de-49be84a672e6", updateUpstreamRequest)
+```
+
+Update an Upstream by name:
+```go
+updateUpstreamRequest := &gokong.UpstreamRequest{
+  Name: "test-upstream",
+  Slots: 10,
+}
+
+updatedUpstream, err := gokong.NewClient(gokong.NewDefaultConfig()).Upstreams().UpdateByName("test-upstream", updateUpstreamRequest)
 ```
 
 # Contributing

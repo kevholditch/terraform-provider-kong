@@ -62,9 +62,9 @@ func (consumerClient *ConsumerClient) GetById(id string) (*Consumer, error) {
 	return consumer, nil
 }
 
-func (consumerClient *ConsumerClient) Create(newConsumer *ConsumerRequest) (*Consumer, error) {
+func (consumerClient *ConsumerClient) Create(consumerRequest *ConsumerRequest) (*Consumer, error) {
 
-	_, body, errs := consumerClient.client.Post(consumerClient.config.HostAddress + ConsumersPath).Send(newConsumer).End()
+	_, body, errs := consumerClient.client.Post(consumerClient.config.HostAddress + ConsumersPath).Send(consumerRequest).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not create new consumer, error: %v", errs)
 	}
@@ -73,6 +73,10 @@ func (consumerClient *ConsumerClient) Create(newConsumer *ConsumerRequest) (*Con
 	err := json.Unmarshal([]byte(body), createdConsumer)
 	if err != nil {
 		return nil, fmt.Errorf("could not parse consumer creation response, error: %v", err)
+	}
+
+	if createdConsumer.Id == "" {
+		return nil, fmt.Errorf("could not create consumer, error: %v", body)
 	}
 
 	return createdConsumer, nil
@@ -133,6 +137,10 @@ func (consumerClient *ConsumerClient) UpdateById(id string, consumerRequest *Con
 	err := json.Unmarshal([]byte(body), updatedConsumer)
 	if err != nil {
 		return nil, fmt.Errorf("could not parse consumer update response, error: %v", err)
+	}
+
+	if updatedConsumer.Id == "" {
+		return nil, fmt.Errorf("could not update consumer, error: %v", body)
 	}
 
 	return updatedConsumer, nil

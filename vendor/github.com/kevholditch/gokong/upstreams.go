@@ -1,0 +1,150 @@
+package gokong
+
+import (
+	"encoding/json"
+	"fmt"
+	"github.com/parnurzeal/gorequest"
+)
+
+type UpstreamClient struct {
+	config *Config
+	client *gorequest.SuperAgent
+}
+
+type UpstreamRequest struct {
+	Name      string `json:"name,omitempty"`
+	Slots     int    `json:"slots,omitempty"`
+	OrderList []int  `json:"orderlist,omitempty"`
+}
+
+type Upstream struct {
+	Id        string `json:"id,omitempty"`
+	Name      string `json:"name,omitempty"`
+	Slots     int    `json:"slots,omitempty"`
+	OrderList []int  `json:"orderlist,omitempty"`
+}
+
+type Upstreams struct {
+	Results []*Upstream `json:"data,omitempty"`
+	Total   int         `json:"total,omitempty"`
+	Next    string      `json:"next,omitempty"`
+	Offset  string      `json:"offset,omitempty"`
+}
+
+type UpstreamFilter struct {
+	Id     string `url:"id,omitempty"`
+	Name   string `url:"name,omitempty"`
+	Slots  int    `url:"slots,omitempty"`
+	Size   int    `url:"size,omitempty"`
+	Offset int    `url:"offset,omitempty"`
+}
+
+const UpstreamsPath = "/upstreams/"
+
+func (upstreamClient *UpstreamClient) GetByName(name string) (*Upstream, error) {
+	return upstreamClient.GetById(name)
+}
+
+func (upstreamClient *UpstreamClient) GetById(id string) (*Upstream, error) {
+
+	_, body, errs := upstreamClient.client.Get(upstreamClient.config.HostAddress + UpstreamsPath + id).End()
+	if errs != nil {
+		return nil, fmt.Errorf("could not get upstream, error: %v", errs)
+	}
+
+	upstream := &Upstream{}
+	err := json.Unmarshal([]byte(body), upstream)
+	if err != nil {
+		return nil, fmt.Errorf("could not parse upstream get response, error: %v", err)
+	}
+
+	if upstream.Id == "" {
+		return nil, nil
+	}
+
+	return upstream, nil
+}
+
+func (upstreamClient *UpstreamClient) Create(upstreamRequest *UpstreamRequest) (*Upstream, error) {
+
+	_, body, errs := upstreamClient.client.Post(upstreamClient.config.HostAddress + UpstreamsPath).Send(upstreamRequest).End()
+	if errs != nil {
+		return nil, fmt.Errorf("could not create new upstream, error: %v", errs)
+	}
+
+	createdUpstream := &Upstream{}
+	err := json.Unmarshal([]byte(body), createdUpstream)
+	if err != nil {
+		return nil, fmt.Errorf("could not parse upstream creation response, error: %v", err)
+	}
+
+	if createdUpstream.Id == "" {
+		return nil, fmt.Errorf("could not create update, error: %v", body)
+	}
+
+	return createdUpstream, nil
+}
+
+func (upstreamClient *UpstreamClient) DeleteByName(name string) error {
+	return upstreamClient.DeleteById(name)
+}
+
+func (upstreamClient *UpstreamClient) DeleteById(id string) error {
+
+	res, _, errs := upstreamClient.client.Delete(upstreamClient.config.HostAddress + UpstreamsPath + id).End()
+	if errs != nil {
+		return fmt.Errorf("could not delete upstream, result: %v error: %v", res, errs)
+	}
+
+	return nil
+}
+
+func (upstreamClient *UpstreamClient) List() (*Upstreams, error) {
+	return upstreamClient.ListFiltered(nil)
+}
+
+func (upstreamClient *UpstreamClient) ListFiltered(filter *UpstreamFilter) (*Upstreams, error) {
+
+	address, err := addQueryString(upstreamClient.config.HostAddress+UpstreamsPath, filter)
+
+	if err != nil {
+		return nil, fmt.Errorf("could not build query string for upstreams filter, error: %v", err)
+	}
+
+	_, body, errs := upstreamClient.client.Get(address).End()
+	if errs != nil {
+		return nil, fmt.Errorf("could not get upstreams, error: %v", errs)
+	}
+
+	upstreams := &Upstreams{}
+	err = json.Unmarshal([]byte(body), upstreams)
+	if err != nil {
+		return nil, fmt.Errorf("could not parse upstreams list response, error: %v", err)
+	}
+
+	return upstreams, nil
+}
+
+func (upstreamClient *UpstreamClient) UpdateByName(name string, upstreamRequest *UpstreamRequest) (*Upstream, error) {
+	return upstreamClient.UpdateById(name, upstreamRequest)
+}
+
+func (upstreamClient *UpstreamClient) UpdateById(id string, upstreamRequest *UpstreamRequest) (*Upstream, error) {
+
+	_, body, errs := upstreamClient.client.Patch(upstreamClient.config.HostAddress + UpstreamsPath + id).Send(upstreamRequest).End()
+	if errs != nil {
+		return nil, fmt.Errorf("could not update upstream, error: %v", errs)
+	}
+
+	updatedUpstream := &Upstream{}
+	err := json.Unmarshal([]byte(body), updatedUpstream)
+	if err != nil {
+		return nil, fmt.Errorf("could not parse upstream update response, error: %v", err)
+	}
+
+	if updatedUpstream.Id == "" {
+		return nil, fmt.Errorf("could not update upstream, error: %v", body)
+	}
+
+	return updatedUpstream, nil
+}
