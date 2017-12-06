@@ -39,7 +39,7 @@ func testAccCheckKongCertificateDestroy(state *terraform.State) error {
 	client := testAccProvider.Meta().(*gokong.KongAdminClient)
 
 	for _, rs := range state.RootModule().Resources {
-		if rs.Type != "kong_api" {
+		if rs.Type != "kong_certificate" {
 			continue
 		}
 

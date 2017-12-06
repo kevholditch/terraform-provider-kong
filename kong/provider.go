@@ -23,6 +23,7 @@ func Provider() terraform.ResourceProvider {
 			"kong_certificate": resourceKongCertificate(),
 			"kong_consumer":    resourceKongConsumer(),
 			"kong_plugin":      resourceKongPlugin(),
+			"kong_sni":         resourceKongSni(),
 		},
 
 		ConfigureFunc: providerConfigure,

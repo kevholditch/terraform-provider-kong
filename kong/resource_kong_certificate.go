@@ -32,13 +32,13 @@ func resourceKongCertificateCreate(d *schema.ResourceData, meta interface{}) err
 
 	certificateRequest := createKongCertificateRequestFromResourceData(d)
 
-	consumer, err := meta.(*gokong.KongAdminClient).Certificates().Create(certificateRequest)
+	certificate, err := meta.(*gokong.KongAdminClient).Certificates().Create(certificateRequest)
 
 	if err != nil {
 		return fmt.Errorf("failed to create kong certificate: %v error: %v", certificateRequest, err)
 	}
 
-	d.SetId(consumer.Id)
+	d.SetId(certificate.Id)
 
 	return resourceKongCertificateRead(d, meta)
 }
@@ -73,7 +73,7 @@ func resourceKongCertificateRead(d *schema.ResourceData, meta interface{}) error
 
 func resourceKongCertificateDelete(d *schema.ResourceData, meta interface{}) error {
 
-	err := meta.(*gokong.KongAdminClient).Consumers().DeleteById(d.Id())
+	err := meta.(*gokong.KongAdminClient).Certificates().DeleteById(d.Id())
 
 	if err != nil {
 		return fmt.Errorf("could not delete kong certificate: %v", err)

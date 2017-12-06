@@ -114,3 +114,20 @@ resource "kong_certificate" "certificate" {
 `private_key` should be the private key of your certificate it is mapped to the `Key` parameter on the Kong API.
 
 For more information on creating certificates in Kong [see their documentation](https://getkong.org/docs/0.11.x/admin-api/#certificate-object)
+
+## SNIs
+```hcl
+resource "kong_certificate" "certificate" {
+	certificate  = "public key --- 123 ----"
+	private_key = "private key --- 456 ----"
+}
+
+resource "kong_sni" "sni" {
+	name  		   = "www.example.com"
+	certificate_id = "${kong_certificate.certificate.id}"
+}
+```
+`name` is your domain you want to assign to the certificate
+`certificate_id` is the id of a certificate
+
+For more information on creating SNIs in Kong [see their documentaton](https://getkong.org/docs/0.11.x/admin-api/#sni-objects)
