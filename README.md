@@ -28,19 +28,19 @@ you do not provide a provider block as above.
 # Apis
 ```hcl
 resource "kong_api" "api" {
-    name 	= "TestApi"
-    hosts   = [ "example.com" ]
-    uris 	= [ "/example" ]
-    methods = [ "GET", "POST" ]
-    upstream_url = "http://localhost:4140"
-    strip_uri = false
-    preserve_host = false
-    retries = 3
+    name 	             = "TestApi"
+    hosts                    = [ "example.com" ]
+    uris 	             = [ "/example" ]
+    methods                  = [ "GET", "POST" ]
+    upstream_url             = "http://localhost:4140"
+    strip_uri                = false
+    preserve_host            = false
+    retries                  = 3
     upstream_connect_timeout = 60000
-    upstream_send_timeout = 30000
-    upstream_read_timeout = 10000
-    https_only = false
-    http_if_terminated = false
+    upstream_send_timeout    = 30000
+    upstream_read_timeout    = 10000
+    https_only               = false
+    http_if_terminated       = false
 }
 ```
 The api resource maps directly onto the json for the API endpoint in Kong.  For more information on the parameters [see the Kong Api create documentation](https://getkong.org/docs/0.11.x/admin-api/#api-object).
@@ -61,19 +61,19 @@ Here is a more complex example for creating a plugin for a consumer and an API:
 
 ```hcl
 resource "kong_api" "api" {
-	name 	= "TestApi"
-  	hosts   = [ "example.com" ]
-	uris 	= [ "/example" ]
-	methods = [ "GET", "POST" ]
-	upstream_url = "http://localhost:4140"
-	strip_uri = false
-	preserve_host = false
-	retries = 3
-	upstream_connect_timeout = 60000
-	upstream_send_timeout = 30000
-	upstream_read_timeout = 10000
-	https_only = false
-	http_if_terminated = false
+    name 	             = "TestApi"
+    hosts                    = [ "example.com" ]
+    uris 	             = [ "/example" ]
+    methods                  = [ "GET", "POST" ]
+    upstream_url             = "http://localhost:4140"
+    strip_uri                = false
+    preserve_host            = false
+    retries                  = 3
+    upstream_connect_timeout = 60000
+    upstream_send_timeout    = 30000
+    upstream_read_timeout    = 10000
+    https_only               = false
+    http_if_terminated       = false
 }
 
 resource "kong_consumer" "plugin_consumer" {
@@ -83,9 +83,9 @@ resource "kong_consumer" "plugin_consumer" {
 
 resource "kong_plugin" "rate_limit" {
 	name        = "response-ratelimiting"
-	api_id 		= "${kong_api.api.id}"
+	api_id 	    = "${kong_api.api.id}"
 	consumer_id = "${kong_consumer.plugin_consumer.id}"
-	config 		= {
+	config 	    = {
 		limits.sms.minute = 77
 	}
 }
