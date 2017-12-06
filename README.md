@@ -48,7 +48,7 @@ The api resource maps directly onto the json for the API endpoint in Kong.  For 
 # Plugins
 ```hcl
 resource "kong_plugin" "response_rate_limiting" {
-	name  = "response-ratelimiting"
+	name   = "response-ratelimiting"
 	config = {
 		limits.sms.minute = 10
 	}
