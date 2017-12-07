@@ -42,7 +42,6 @@ func resourceKongSniCreate(d *schema.ResourceData, meta interface{}) error {
 	return resourceKongSniRead(d, meta)
 }
 
-
 func resourceKongSniRead(d *schema.ResourceData, meta interface{}) error {
 
 	sni, err := meta.(*gokong.KongAdminClient).Snis().GetByName(d.Id())
