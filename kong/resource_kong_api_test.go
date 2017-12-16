@@ -62,20 +62,20 @@ func testAccCheckKongApiDestroy(state *terraform.State) error {
 
 	client := testAccProvider.Meta().(*gokong.KongAdminClient)
 
-	for _, rs := range state.RootModule().Resources {
-		if rs.Type != "kong_api" {
-			continue
-		}
+	apis := getResourcesByType("kong_api", state)
 
-		response, err := client.Apis().GetById(rs.Primary.ID)
+	if len(apis) != 1 {
+		return fmt.Errorf("expecting only 1 api resource found %v", len(apis))
+	}
 
-		if err != nil {
-			return fmt.Errorf("error calling get api by id: %v", err)
-		}
+	response, err := client.Apis().GetById(apis[0].Primary.ID)
 
-		if response != nil {
-			return fmt.Errorf("api %s still exists, %+v", rs.Primary.ID, response)
-		}
+	if err != nil {
+		return fmt.Errorf("error calling get api by id: %v", err)
+	}
+
+	if response != nil {
+		return fmt.Errorf("api %s still exists, %+v", apis[0].Primary.ID, response)
 	}
 
 	return nil

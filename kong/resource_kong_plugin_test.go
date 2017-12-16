@@ -132,20 +132,20 @@ func testAccCheckKongPluginDestroy(state *terraform.State) error {
 
 	client := testAccProvider.Meta().(*gokong.KongAdminClient)
 
-	for _, rs := range state.RootModule().Resources {
-		if rs.Type != "kong_plugin" {
-			continue
-		}
+	plugins := getResourcesByType("kong_plugin", state)
 
-		response, err := client.Plugins().GetById(rs.Primary.ID)
+	if len(plugins) != 1 {
+		return fmt.Errorf("expecting only 1 plugin resource found %v", len(plugins))
+	}
 
-		if err != nil {
-			return fmt.Errorf("error calling get plugin by id: %v", err)
-		}
+	response, err := client.Plugins().GetById(plugins[0].Primary.ID)
 
-		if response != nil {
-			return fmt.Errorf("plugin %s still exists, %+v", rs.Primary.ID, response)
-		}
+	if err != nil {
+		return fmt.Errorf("error calling get plugin by id: %v", err)
+	}
+
+	if response != nil {
+		return fmt.Errorf("plugin %s still exists, %+v", plugins[0].Primary.ID, response)
 	}
 
 	return nil

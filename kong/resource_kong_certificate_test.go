@@ -38,20 +38,20 @@ func testAccCheckKongCertificateDestroy(state *terraform.State) error {
 
 	client := testAccProvider.Meta().(*gokong.KongAdminClient)
 
-	for _, rs := range state.RootModule().Resources {
-		if rs.Type != "kong_certificate" {
-			continue
-		}
+	certificates := getResourcesByType("kong_certificate", state)
 
-		response, err := client.Certificates().GetById(rs.Primary.ID)
+	if len(certificates) != 1 {
+		return fmt.Errorf("expecting only 1 certificate resource found %v", len(certificates))
+	}
 
-		if err != nil {
-			return fmt.Errorf("error calling get certificate by id: %v", err)
-		}
+	response, err := client.Certificates().GetById(certificates[0].Primary.ID)
 
-		if response != nil {
-			return fmt.Errorf("certificate %s still exists, %+v", rs.Primary.ID, response)
-		}
+	if err != nil {
+		return fmt.Errorf("error calling get certificate by id: %v", err)
+	}
+
+	if response != nil {
+		return fmt.Errorf("certificate %s still exists, %+v", certificates[0].Primary.ID, response)
 	}
 
 	return nil

@@ -38,20 +38,20 @@ func testAccCheckKongConsumerDestroy(state *terraform.State) error {
 
 	client := testAccProvider.Meta().(*gokong.KongAdminClient)
 
-	for _, rs := range state.RootModule().Resources {
-		if rs.Type != "kong_consumer" {
-			continue
-		}
+	consumers := getResourcesByType("kong_consumer", state)
 
-		response, err := client.Consumers().GetById(rs.Primary.ID)
+	if len(consumers) != 1 {
+		return fmt.Errorf("expecting only 1 consumer resource found %v", len(consumers))
+	}
 
-		if err != nil {
-			return fmt.Errorf("error calling get consumer by id: %v", err)
-		}
+	response, err := client.Consumers().GetById(consumers[0].Primary.ID)
 
-		if response != nil {
-			return fmt.Errorf("consumer %s still exists, %+v", rs.Primary.ID, response)
-		}
+	if err != nil {
+		return fmt.Errorf("error calling get consumer by id: %v", err)
+	}
+
+	if response != nil {
+		return fmt.Errorf("consumer %s still exists, %+v", consumers[0].Primary.ID, response)
 	}
 
 	return nil

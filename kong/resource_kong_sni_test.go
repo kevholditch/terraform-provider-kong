@@ -18,6 +18,7 @@ func TestAccKongSni(t *testing.T) {
 				Config: testCreateSniConfig,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKongSniExists("kong_sni.sni"),
+					//testAccCheckForChildIdCorrect("kong_certificate.certificate1", "kong_sni.sni", "certificate_id"),
 					resource.TestCheckResourceAttr("kong_sni.sni", "name", "www.example.com"),
 				),
 			},
@@ -25,6 +26,7 @@ func TestAccKongSni(t *testing.T) {
 				Config: testUpdateSniConfig,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKongSniExists("kong_sni.sni"),
+					//testAccCheckForChildIdCorrect("kong_certificate.certificate2", "kong_sni.sni", "certificate_id"),
 					resource.TestCheckResourceAttr("kong_sni.sni", "name", "www.example.com"),
 				),
 			},
@@ -36,20 +38,20 @@ func testAccCheckKongSniDestroy(state *terraform.State) error {
 
 	client := testAccProvider.Meta().(*gokong.KongAdminClient)
 
-	for _, rs := range state.RootModule().Resources {
-		if rs.Type != "kong_sni" {
-			continue
-		}
+	snis := getResourcesByType("kong_sni", state)
 
-		response, err := client.Snis().GetByName(rs.Primary.ID)
+	if len(snis) != 1 {
+		return fmt.Errorf("expecting only 1 sni resource found %v", len(snis))
+	}
 
-		if err != nil {
-			return fmt.Errorf("error calling get sni by id: %v", err)
-		}
+	response, err := client.Snis().GetByName(snis[0].Primary.ID)
 
-		if response != nil {
-			return fmt.Errorf("sni %s still exists, %+v", rs.Primary.ID, response)
-		}
+	if err != nil {
+		return fmt.Errorf("error calling get sni by id: %v", err)
+	}
+
+	if response != nil {
+		return fmt.Errorf("sni %s still exists, %+v", snis[0].Primary.ID, response)
 	}
 
 	return nil
