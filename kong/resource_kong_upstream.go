@@ -49,7 +49,6 @@ func resourceKongUpstreamCreate(d *schema.ResourceData, meta interface{}) error 
 	return resourceKongUpstreamRead(d, meta)
 }
 
-
 func resourceKongUpstreamRead(d *schema.ResourceData, meta interface{}) error {
 
 	upstream, err := meta.(*gokong.KongAdminClient).Upstreams().GetById(d.Id())
