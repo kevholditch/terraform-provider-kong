@@ -163,9 +163,9 @@ func createKongApiRequestFromResourceData(d *schema.ResourceData) *gokong.ApiReq
 	apiRequest := &gokong.ApiRequest{}
 
 	apiRequest.Name = readStringFromResource(d, "name")
-	apiRequest.Hosts = readArrayFromResource(d, "hosts")
-	apiRequest.Uris = readArrayFromResource(d, "uris")
-	apiRequest.Methods = readArrayFromResource(d, "methods")
+	apiRequest.Hosts = readStringArrayFromResource(d, "hosts")
+	apiRequest.Uris = readStringArrayFromResource(d, "uris")
+	apiRequest.Methods = readStringArrayFromResource(d, "methods")
 	apiRequest.UpstreamUrl = readStringFromResource(d, "upstream_url")
 	apiRequest.StripUri = readBoolFromResource(d, "strip_uri")
 	apiRequest.PreserveHost = readBoolFromResource(d, "preserve_host")
