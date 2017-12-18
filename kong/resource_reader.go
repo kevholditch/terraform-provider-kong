@@ -1,9 +1,7 @@
 package kong
 
 import (
-	"fmt"
 	"github.com/hashicorp/terraform/helper/schema"
-	"reflect"
 )
 
 func readStringArrayFromResource(d *schema.ResourceData, key string) []string {
@@ -63,12 +61,6 @@ func readMapFromResource(d *schema.ResourceData, key string) map[string]interfac
 
 	if attr, ok := d.GetOk(key); ok {
 		result := attr.(map[string]interface{})
-
-		for _, value := range result {
-			t := reflect.TypeOf(value)
-			fmt.Printf("type is %s", t)
-		}
-
 		return result
 	}
 
