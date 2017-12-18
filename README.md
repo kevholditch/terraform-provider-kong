@@ -158,17 +158,17 @@ data "kong_api" "api_data_source" {
 Each of the filter parameters are optional and they are combined for an AND search against all APIs.   The following output parameters are
 returned:
 
-`id` - the id of the API
-`name` - the name of the API
-`hosts` - a list of the hosts configured on the API
-`uris` - a list of the uri prefixes for the API
-`methods` - a list of the allowed methods on the API
-`upstream_url` - the upstream url for the API
-`strip_uri` - whether the API strips the matching prefix from the uri
-`preserve_host` - whether the API forwards the host header onto the upstream service
-`retries` - number of retries the API executes upon failure to the upstream service
-`upstream_connect_timeout` - the timeout in milliseconds for establishing a connection to your upstream service
-`upstream_send_timeout` - the timeout in milliseconds between two successive write operations for transmitting a request to your upstream service
-`upstream_read_timeout` - the timeout in milliseconds between two successive read operations for transmitting a request to your upstream service
-`https_only` - whether the API is served through HTTPS
-`http_if_terminated` - whether the API considers the  X-Forwarded-Proto header when enforcing HTTPS only traffic
+  * `id` - the id of the API
+  * `name` - the name of the API
+  * `hosts` - a list of the hosts configured on the API
+  * `uris` - a list of the uri prefixes for the API
+  * `methods` - a list of the allowed methods on the API
+  * `upstream_url` - the upstream url for the API
+  * `strip_uri` - whether the API strips the matching prefix from the uri
+  * `preserve_host` - whether the API forwards the host header onto the upstream service
+  * `retries` - number of retries the API executes upon failure to the upstream service
+  * `upstream_connect_timeout` - the timeout in milliseconds for establishing a connection to your upstream service
+  * `upstream_send_timeout` - the timeout in milliseconds between two successive write operations for transmitting a request to your upstream service
+  * `upstream_read_timeout` - the timeout in milliseconds between two successive read operations for transmitting a request to your upstream service
+  * `https_only` - whether the API is served through HTTPS
+  * `http_if_terminated` - whether the API considers the  X-Forwarded-Proto header when enforcing HTTPS only traffic
