@@ -5,6 +5,9 @@ services:
 - docker
 script:
 - make travisbuild
+env:
+  - KONG_VERSION=0.11
+  - KONG_VERSION=0.11.1
 after_success:
 - make release
 env:
