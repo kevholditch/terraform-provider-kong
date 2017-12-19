@@ -8,7 +8,6 @@ import (
 
 type SnisClient struct {
 	config *Config
-	client *gorequest.SuperAgent
 }
 
 type SnisRequest struct {
@@ -30,7 +29,7 @@ const SnisPath = "/snis/"
 
 func (snisClient *SnisClient) Create(snisRequest *SnisRequest) (*Sni, error) {
 
-	_, body, errs := snisClient.client.Post(snisClient.config.HostAddress + SnisPath).Send(snisRequest).End()
+	_, body, errs := gorequest.New().Post(snisClient.config.HostAddress + SnisPath).Send(snisRequest).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not create new sni, error: %v", errs)
 	}
@@ -50,7 +49,7 @@ func (snisClient *SnisClient) Create(snisRequest *SnisRequest) (*Sni, error) {
 
 func (snisClient *SnisClient) GetByName(name string) (*Sni, error) {
 
-	_, body, errs := snisClient.client.Get(snisClient.config.HostAddress + SnisPath + name).End()
+	_, body, errs := gorequest.New().Get(snisClient.config.HostAddress + SnisPath + name).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not get sni, error: %v", errs)
 	}
@@ -70,7 +69,7 @@ func (snisClient *SnisClient) GetByName(name string) (*Sni, error) {
 
 func (snisClient *SnisClient) List() (*Snis, error) {
 
-	_, body, errs := snisClient.client.Get(snisClient.config.HostAddress + SnisPath).End()
+	_, body, errs := gorequest.New().Get(snisClient.config.HostAddress + SnisPath).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not get snis, error: %v", errs)
 	}
@@ -86,7 +85,7 @@ func (snisClient *SnisClient) List() (*Snis, error) {
 
 func (snisClient *SnisClient) DeleteByName(name string) error {
 
-	res, _, errs := snisClient.client.Delete(snisClient.config.HostAddress + SnisPath + name).End()
+	res, _, errs := gorequest.New().Delete(snisClient.config.HostAddress + SnisPath + name).End()
 	if errs != nil {
 		return fmt.Errorf("could not delete sni, result: %v error: %v", res, errs)
 	}
@@ -96,7 +95,7 @@ func (snisClient *SnisClient) DeleteByName(name string) error {
 
 func (snisClient *SnisClient) UpdateByName(name string, snisRequest *SnisRequest) (*Sni, error) {
 
-	_, body, errs := snisClient.client.Patch(snisClient.config.HostAddress + SnisPath + name).Send(snisRequest).End()
+	_, body, errs := gorequest.New().Patch(snisClient.config.HostAddress + SnisPath + name).Send(snisRequest).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not update sni, error: %v", errs)
 	}

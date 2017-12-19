@@ -8,7 +8,6 @@ import (
 
 type CertificateClient struct {
 	config *Config
-	client *gorequest.SuperAgent
 }
 
 type CertificateRequest struct {
@@ -31,7 +30,7 @@ const CertificatesPath = "/certificates/"
 
 func (certificateClient *CertificateClient) GetById(id string) (*Certificate, error) {
 
-	_, body, errs := certificateClient.client.Get(certificateClient.config.HostAddress + CertificatesPath + id).End()
+	_, body, errs := gorequest.New().Get(certificateClient.config.HostAddress + CertificatesPath + id).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not get certificate, error: %v", errs)
 	}
@@ -51,7 +50,7 @@ func (certificateClient *CertificateClient) GetById(id string) (*Certificate, er
 
 func (certificateClient *CertificateClient) Create(certificateRequest *CertificateRequest) (*Certificate, error) {
 
-	_, body, errs := certificateClient.client.Post(certificateClient.config.HostAddress + CertificatesPath).Send(certificateRequest).End()
+	_, body, errs := gorequest.New().Post(certificateClient.config.HostAddress + CertificatesPath).Send(certificateRequest).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not create new certificate, error: %v", errs)
 	}
@@ -71,7 +70,7 @@ func (certificateClient *CertificateClient) Create(certificateRequest *Certifica
 
 func (certificateClient *CertificateClient) DeleteById(id string) error {
 
-	res, _, errs := certificateClient.client.Delete(certificateClient.config.HostAddress + CertificatesPath + id).End()
+	res, _, errs := gorequest.New().Delete(certificateClient.config.HostAddress + CertificatesPath + id).End()
 	if errs != nil {
 		return fmt.Errorf("could not delete certificate, result: %v error: %v", res, errs)
 	}
@@ -81,7 +80,7 @@ func (certificateClient *CertificateClient) DeleteById(id string) error {
 
 func (certificateClient *CertificateClient) List() (*Certificates, error) {
 
-	_, body, errs := certificateClient.client.Get(certificateClient.config.HostAddress + CertificatesPath).End()
+	_, body, errs := gorequest.New().Get(certificateClient.config.HostAddress + CertificatesPath).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not get certificates, error: %v", errs)
 	}
@@ -97,7 +96,7 @@ func (certificateClient *CertificateClient) List() (*Certificates, error) {
 
 func (certificateClient *CertificateClient) UpdateById(id string, certificateRequest *CertificateRequest) (*Certificate, error) {
 
-	_, body, errs := certificateClient.client.Patch(certificateClient.config.HostAddress + CertificatesPath + id).Send(certificateRequest).End()
+	_, body, errs := gorequest.New().Patch(certificateClient.config.HostAddress + CertificatesPath + id).Send(certificateRequest).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not update certificate, error: %v", errs)
 	}

@@ -8,7 +8,6 @@ import (
 
 type PluginClient struct {
 	config *Config
-	client *gorequest.SuperAgent
 }
 
 type PluginRequest struct {
@@ -46,7 +45,7 @@ const PluginsPath = "/plugins/"
 
 func (pluginClient *PluginClient) GetById(id string) (*Plugin, error) {
 
-	_, body, errs := pluginClient.client.Get(pluginClient.config.HostAddress + PluginsPath + id).End()
+	_, body, errs := gorequest.New().Get(pluginClient.config.HostAddress + PluginsPath + id).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not get plugin, error: %v", errs)
 	}
@@ -76,7 +75,7 @@ func (pluginClient *PluginClient) ListFiltered(filter *PluginFilter) (*Plugins, 
 		return nil, fmt.Errorf("could not build query string for plugins filter, error: %v", err)
 	}
 
-	_, body, errs := pluginClient.client.Get(address).End()
+	_, body, errs := gorequest.New().Get(address).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not get plugins, error: %v", errs)
 	}
@@ -92,7 +91,7 @@ func (pluginClient *PluginClient) ListFiltered(filter *PluginFilter) (*Plugins, 
 
 func (pluginClient *PluginClient) Create(pluginRequest *PluginRequest) (*Plugin, error) {
 
-	_, body, errs := pluginClient.client.Post(pluginClient.config.HostAddress + PluginsPath).Send(pluginRequest).End()
+	_, body, errs := gorequest.New().Post(pluginClient.config.HostAddress + PluginsPath).Send(pluginRequest).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not create new plugin, error: %v", errs)
 	}
@@ -112,7 +111,7 @@ func (pluginClient *PluginClient) Create(pluginRequest *PluginRequest) (*Plugin,
 
 func (pluginClient *PluginClient) UpdateById(id string, pluginRequest *PluginRequest) (*Plugin, error) {
 
-	_, body, errs := pluginClient.client.Patch(pluginClient.config.HostAddress + PluginsPath + id).Send(pluginRequest).End()
+	_, body, errs := gorequest.New().Patch(pluginClient.config.HostAddress + PluginsPath + id).Send(pluginRequest).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not update plugin, error: %v", errs)
 	}
@@ -132,7 +131,7 @@ func (pluginClient *PluginClient) UpdateById(id string, pluginRequest *PluginReq
 
 func (pluginClient *PluginClient) DeleteById(id string) error {
 
-	res, _, errs := pluginClient.client.Delete(pluginClient.config.HostAddress + PluginsPath + id).End()
+	res, _, errs := gorequest.New().Delete(pluginClient.config.HostAddress + PluginsPath + id).End()
 	if errs != nil {
 		return fmt.Errorf("could not delete plugin, result: %v error: %v", res, errs)
 	}

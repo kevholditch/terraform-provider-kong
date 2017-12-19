@@ -8,7 +8,6 @@ import (
 
 type ConsumerClient struct {
 	config *Config
-	client *gorequest.SuperAgent
 }
 
 type ConsumerRequest struct {
@@ -44,7 +43,7 @@ func (consumerClient *ConsumerClient) GetByUsername(username string) (*Consumer,
 
 func (consumerClient *ConsumerClient) GetById(id string) (*Consumer, error) {
 
-	_, body, errs := consumerClient.client.Get(consumerClient.config.HostAddress + ConsumersPath + id).End()
+	_, body, errs := gorequest.New().Get(consumerClient.config.HostAddress + ConsumersPath + id).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not get consumer, error: %v", errs)
 	}
@@ -64,7 +63,7 @@ func (consumerClient *ConsumerClient) GetById(id string) (*Consumer, error) {
 
 func (consumerClient *ConsumerClient) Create(consumerRequest *ConsumerRequest) (*Consumer, error) {
 
-	_, body, errs := consumerClient.client.Post(consumerClient.config.HostAddress + ConsumersPath).Send(consumerRequest).End()
+	_, body, errs := gorequest.New().Post(consumerClient.config.HostAddress + ConsumersPath).Send(consumerRequest).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not create new consumer, error: %v", errs)
 	}
@@ -94,7 +93,7 @@ func (consumerClient *ConsumerClient) ListFiltered(filter *ConsumerFilter) (*Con
 		return nil, fmt.Errorf("could not build query string for consumer filter, error: %v", err)
 	}
 
-	_, body, errs := consumerClient.client.Get(address).End()
+	_, body, errs := gorequest.New().Get(address).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not get consumers, error: %v", errs)
 	}
@@ -114,7 +113,7 @@ func (consumerClient *ConsumerClient) DeleteByUsername(username string) error {
 
 func (consumerClient *ConsumerClient) DeleteById(id string) error {
 
-	res, _, errs := consumerClient.client.Delete(consumerClient.config.HostAddress + ConsumersPath + id).End()
+	res, _, errs := gorequest.New().Delete(consumerClient.config.HostAddress + ConsumersPath + id).End()
 	if errs != nil {
 		return fmt.Errorf("could not delete consumer, result: %v error: %v", res, errs)
 	}
@@ -128,7 +127,7 @@ func (consumerClient *ConsumerClient) UpdateByUsername(username string, consumer
 
 func (consumerClient *ConsumerClient) UpdateById(id string, consumerRequest *ConsumerRequest) (*Consumer, error) {
 
-	_, body, errs := consumerClient.client.Patch(consumerClient.config.HostAddress + ConsumersPath + id).Send(consumerRequest).End()
+	_, body, errs := gorequest.New().Patch(consumerClient.config.HostAddress + ConsumersPath + id).Send(consumerRequest).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not update consumer, error: %v", errs)
 	}

@@ -9,7 +9,6 @@ import (
 
 type StatusClient struct {
 	config *Config
-	client *gorequest.SuperAgent
 }
 
 type Status struct {
@@ -33,7 +32,7 @@ type databaseStatus struct {
 
 func (statusClient *StatusClient) Get() (*Status, error) {
 
-	_, body, errs := statusClient.client.Get(statusClient.config.HostAddress + "/status").End()
+	_, body, errs := gorequest.New().Get(statusClient.config.HostAddress + "/status").End()
 	if errs != nil {
 		return nil, errors.New(fmt.Sprintf("Could not call get status, error: %v", errs))
 	}

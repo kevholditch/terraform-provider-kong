@@ -2,7 +2,6 @@ package gokong
 
 import (
 	"github.com/google/go-querystring/query"
-	"github.com/parnurzeal/gorequest"
 	"net/url"
 	"os"
 	"reflect"
@@ -13,7 +12,6 @@ const EnvKongAdminHostAddress = "KONG_ADMIN_ADDR"
 
 type KongAdminClient struct {
 	config *Config
-	client *gorequest.SuperAgent
 }
 
 type Config struct {
@@ -55,14 +53,12 @@ func NewDefaultConfig() *Config {
 func NewClient(config *Config) *KongAdminClient {
 	return &KongAdminClient{
 		config: config,
-		client: gorequest.New(),
 	}
 }
 
 func (kongAdminClient *KongAdminClient) Status() *StatusClient {
 	return &StatusClient{
 		config: kongAdminClient.config,
-		client: kongAdminClient.client,
 	}
 
 }
@@ -70,41 +66,35 @@ func (kongAdminClient *KongAdminClient) Status() *StatusClient {
 func (kongAdminClient *KongAdminClient) Apis() *ApiClient {
 	return &ApiClient{
 		config: kongAdminClient.config,
-		client: kongAdminClient.client,
 	}
 }
 
 func (kongAdminClient *KongAdminClient) Consumers() *ConsumerClient {
 	return &ConsumerClient{
 		config: kongAdminClient.config,
-		client: kongAdminClient.client,
 	}
 }
 
 func (kongAdminClient *KongAdminClient) Plugins() *PluginClient {
 	return &PluginClient{
 		config: kongAdminClient.config,
-		client: kongAdminClient.client,
 	}
 }
 
 func (kongAdminClient *KongAdminClient) Certificates() *CertificateClient {
 	return &CertificateClient{
 		config: kongAdminClient.config,
-		client: kongAdminClient.client,
 	}
 }
 
 func (kongAdminClient *KongAdminClient) Snis() *SnisClient {
 	return &SnisClient{
 		config: kongAdminClient.config,
-		client: kongAdminClient.client,
 	}
 }
 
 func (kongAdminClient *KongAdminClient) Upstreams() *UpstreamClient {
 	return &UpstreamClient{
 		config: kongAdminClient.config,
-		client: kongAdminClient.client,
 	}
 }
