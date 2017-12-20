@@ -9,7 +9,7 @@ after_success:
 - make release
 env:
   matrix:
-    - KONG_VERSION=0.11   
+    - KONG_VERSION=0.11
     - KONG_VERSION=0.11.1
     - KONG_VERSION=0.11.2
   global:
