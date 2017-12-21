@@ -9,7 +9,6 @@ import (
 )
 
 func TestAccKongApi(t *testing.T) {
-
 	resource.Test(t, resource.TestCase{
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckKongApiDestroy,

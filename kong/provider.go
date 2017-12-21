@@ -28,7 +28,8 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
-			"kong_api": dataSourceKongApi(),
+			"kong_api":         dataSourceKongApi(),
+			"kong_certificate": dataSourceKongCertificate(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
