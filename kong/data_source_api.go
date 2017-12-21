@@ -117,6 +117,10 @@ func dataSourceKongApiRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("could not find api using filter: %v", filter)
 	}
 
+	if len(results.Results) > 1 {
+		return fmt.Errorf("found more than 1 api make filter more restrictive")
+	}
+
 	api := results.Results[0]
 
 	d.SetId(api.Id)

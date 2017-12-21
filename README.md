@@ -144,8 +144,8 @@ resource "kong_upstream" "upstream" {
 information on creating Upstreams in Kong [see their documentaton](https://getkong.org/docs/0.11.x/admin-api/#upstream-objects)
 
 # Data Sources
-## Api
-To look up an existing api
+## APIs
+To look up an existing api you can do so by using a filter:
 ```hcl
 data "kong_api" "api_data_source" {
 	filter = {
@@ -172,3 +172,73 @@ returned:
   * `upstream_read_timeout` - the timeout in milliseconds between two successive read operations for transmitting a request to your upstream service
   * `https_only` - whether the API is served through HTTPS
   * `http_if_terminated` - whether the API considers the  X-Forwarded-Proto header when enforcing HTTPS only traffic
+
+## Certificates
+To look up an existing certificate:
+```hcl
+data "kong_certificate" "certificate_data_source" {
+	filter = {
+		id = "471c625a-4eba-4b78-985f-86cf54a2dc12"
+	}
+}
+```
+You can only find existing certificates by their id in Kong.  The following output parameters are returned:
+
+  * `id` - the Kong id for the certificate
+  * `certificate` - the public key of the certificate
+  * `private_key` - the private key of the certificate
+
+## Consumers
+To look up an existing consumer:
+```hcl
+data "kong_consumer" "consumer_data_source" {
+	filter = {
+		id 		  = "8086a91b-cb5a-4e60-90b0-ca6650e82464"
+		username  = "User777"
+		custom_id = "123456"
+	}
+}
+```
+Each of the filter parameters are optional and they are combined for an AND search against all consumers.   The following output parameters are
+returned:
+
+  * `id` - the Kong id of the found consumer
+  * `username` - the username of the found consumer
+  * `custom_id` - the custom id of the found consumer
+
+## Plugins
+To look up an existing plugin:
+```hcl
+data "kong_plugin" "plugin_data_source" {
+	filter = {
+		id          = "f0e656af-ad53-4622-ac73-ffd46ae05289"
+		name        = "response-ratelimiting"
+		api_id      = "51694bcd-3c72-43b3-b414-a09bbf4e3c30"
+		consumer_id = "88154fd2-7a0e-41b1-97ba-4a59ebe2cc39"
+	}
+}
+```
+Each of the filter parameters are optional and they are combined for an AND search against all plugins.  The following output parameters are returned:
+
+  * `id` - the Kong id of the found plugin
+  * `name` - the name of the found plugin
+  * `api_id` - the API id the found plugin is associated with (might be empty if not associated with an API)
+  * `consumer_id` - the consumer id the found plugin is associated with (might be empty if not associated with a consumer)
+  * `enabled` - whether the plugin is enabled
+
+## Upstreams
+To lookup an existing upstream:
+```hcl
+data "kong_upstream" "upstream_data_source" {
+	filter = {
+		id   = "893a49a8-090f-421e-afce-ba70b02ce958"
+		name = "TestUpstream"
+	}
+}
+```
+Each of the filter parameters are optional and they are combined for an AND search against all upstreams.  The following output parameters are returned:
+
+  * `id` - the Kong id of the found upstream
+  * `name` - the name of the found upstream
+  * `slots` - the number of slots on the found upstream
+  * `order_list` - a list containing the slot order on the found upstream

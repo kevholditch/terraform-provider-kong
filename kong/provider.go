@@ -30,6 +30,9 @@ func Provider() terraform.ResourceProvider {
 		DataSourcesMap: map[string]*schema.Resource{
 			"kong_api":         dataSourceKongApi(),
 			"kong_certificate": dataSourceKongCertificate(),
+			"kong_consumer":    dataSourceKongConsumer(),
+			"kong_plugin":      dataSourceKongPlugin(),
+			"kong_upstream":    dataSourceKongUpstream(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
