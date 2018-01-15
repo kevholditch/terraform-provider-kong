@@ -1,5 +1,5 @@
 builds:
-  - binary: "terraform-provider-kong_{{ .Version }}"
+  - binary: terraform-provider-kong
     goos:
       - darwin
       - linux
