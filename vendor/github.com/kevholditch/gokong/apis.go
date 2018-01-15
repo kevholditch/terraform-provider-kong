@@ -3,6 +3,7 @@ package gokong
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/parnurzeal/gorequest"
 )
 
@@ -17,13 +18,13 @@ type ApiRequest struct {
 	Methods                []string `json:"methods,omitempty"`
 	UpstreamUrl            string   `json:"upstream_url"`
 	StripUri               bool     `json:"strip_uri"`
-	PreserveHost           bool     `json:"preserve_host,omitempty"`
+	PreserveHost           bool     `json:"preserve_host"`
 	Retries                int      `json:"retries,omitempty"`
 	UpstreamConnectTimeout int      `json:"upstream_connect_timeout,omitempty"`
 	UpstreamSendTimeout    int      `json:"upstream_send_timeout,omitempty"`
 	UpstreamReadTimeout    int      `json:"upstream_read_timeout,omitempty"`
-	HttpsOnly              bool     `json:"https_only,omitempty"`
-	HttpIfTerminated       bool     `json:"http_if_terminated,omitempty"`
+	HttpsOnly              bool     `json:"https_only"`
+	HttpIfTerminated       bool     `json:"http_if_terminated"`
 }
 
 type Api struct {
