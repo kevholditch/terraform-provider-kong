@@ -57,6 +57,25 @@ func TestAccKongApi(t *testing.T) {
 	})
 }
 
+func TestAccKongApiImport(t *testing.T) {
+
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongApiDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testCreateApiConfig,
+			},
+
+			resource.TestStep{
+				ResourceName:      "kong_api.api",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckKongApiDestroy(state *terraform.State) error {
 
 	client := testAccProvider.Meta().(*gokong.KongAdminClient)

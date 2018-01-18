@@ -34,6 +34,25 @@ func TestAccKongCertificate(t *testing.T) {
 	})
 }
 
+func TestAccKongCertificateImport(t *testing.T) {
+
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongCertificateDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testCreateCertificateConfig,
+			},
+
+			resource.TestStep{
+				ResourceName:      "kong_certificate.certificate",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckKongCertificateDestroy(state *terraform.State) error {
 
 	client := testAccProvider.Meta().(*gokong.KongAdminClient)

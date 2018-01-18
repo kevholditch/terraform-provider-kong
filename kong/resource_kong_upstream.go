@@ -11,6 +11,9 @@ func resourceKongUpstream() *schema.Resource {
 		Create: resourceKongUpstreamCreate,
 		Read:   resourceKongUpstreamRead,
 		Delete: resourceKongUpstreamDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{

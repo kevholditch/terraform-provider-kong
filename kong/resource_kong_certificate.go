@@ -12,6 +12,9 @@ func resourceKongCertificate() *schema.Resource {
 		Read:   resourceKongCertificateRead,
 		Delete: resourceKongCertificateDelete,
 		Update: resourceKongCertificateUpdate,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"certificate": &schema.Schema{

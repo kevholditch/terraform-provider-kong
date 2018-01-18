@@ -18,7 +18,6 @@ func TestAccKongSni(t *testing.T) {
 				Config: testCreateSniConfig,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKongSniExists("kong_sni.sni"),
-					//testAccCheckForChildIdCorrect("kong_certificate.certificate1", "kong_sni.sni", "certificate_id"),
 					resource.TestCheckResourceAttr("kong_sni.sni", "name", "www.example.com"),
 				),
 			},
@@ -26,9 +25,27 @@ func TestAccKongSni(t *testing.T) {
 				Config: testUpdateSniConfig,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKongSniExists("kong_sni.sni"),
-					//testAccCheckForChildIdCorrect("kong_certificate.certificate2", "kong_sni.sni", "certificate_id"),
 					resource.TestCheckResourceAttr("kong_sni.sni", "name", "www.example.com"),
 				),
+			},
+		},
+	})
+}
+
+func TestAccKongSniImport(t *testing.T) {
+
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongSniDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testCreateSniConfig,
+			},
+
+			resource.TestStep{
+				ResourceName:      "kong_sni.sni",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

@@ -34,6 +34,25 @@ func TestAccKongConsumer(t *testing.T) {
 	})
 }
 
+func TestAccKongConsumerImport(t *testing.T) {
+
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongConsumerDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testCreateConsumerConfig,
+			},
+
+			resource.TestStep{
+				ResourceName:      "kong_consumer.consumer",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckKongConsumerDestroy(state *terraform.State) error {
 
 	client := testAccProvider.Meta().(*gokong.KongAdminClient)

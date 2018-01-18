@@ -12,6 +12,9 @@ func resourceKongApi() *schema.Resource {
 		Read:   resourceKongApiRead,
 		Delete: resourceKongApiDelete,
 		Update: resourceKongApiUpdate,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{

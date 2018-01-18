@@ -80,6 +80,25 @@ func TestAccKongUpstreamWithOrderList(t *testing.T) {
 	})
 }
 
+func TestAccKongUpstreamImport(t *testing.T) {
+
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongUpstreamDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testCreateUpstreamConfig,
+			},
+
+			resource.TestStep{
+				ResourceName:      "kong_upstream.upstream",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckKongUpstreamDestroy(state *terraform.State) error {
 
 	client := testAccProvider.Meta().(*gokong.KongAdminClient)

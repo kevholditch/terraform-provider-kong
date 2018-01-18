@@ -11,6 +11,9 @@ func resourceKongSni() *schema.Resource {
 		Create: resourceKongSniCreate,
 		Read:   resourceKongSniRead,
 		Delete: resourceKongSniDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
