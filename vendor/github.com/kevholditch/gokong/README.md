@@ -353,6 +353,24 @@ updatePluginRequest := &gokong.PluginRequest{
 
 updatedPlugin, err := gokong.NewClient(gokong.NewDefaultConfig()).Plugins().UpdateById("70692eed-2293-486d-b992-db44a6459360", updatePluginRequest)
 ```
+## Configure a plugin for a Consumer
+To configure a plugin for a consumer you can use the `CreatePluginConfig`, `GetPluginConfig` and `DeletePluginConfig` methods on the `Consumers` endpoint.
+  Some plugins require configuration for a consumer for example the [jwt plugin[(https://getkong.org/plugins/jwt/#create-a-jwt-credential).
+
+Create a plugin config for a consumer:
+```go
+createdPluginConfig, err := gokong.NewClient(gokong.NewDefaultConfig()).Consumers().CreatePluginConfig("f6539872-d8c5-4d6c-a2f2-923760329e4e", "jwt", "{\"key\": \"a36c3049b36249a3c9f8891cb127243c\"}")
+```
+
+Get a plugin config for a consumer by plugin config id:
+```
+pluginConfig, err := gokong.NewClient(gokong.NewDefaultConfig()).Consumers().GetPluginConfig("58c5229-dc92-4632-91c1-f34d9b84db0b", "jwt", "22700b52-ba59-428e-b03b-ba429b1e775e")
+```
+
+Delete a plugin config for a consumer by plugin config id:
+```
+err := gokong.NewClient(gokong.NewDefaultConfig()).Consumers().DeletePluginConfig("3958a860-ceac-4a6c-9bbb-ff8d69a585d2", "jwt", "bde04c3a-46bb-45c9-9006-e8af20d04342")
+```
 
 ## Certificates
 Create a Certificate ([for more information on the Certificate Fields see the Kong documentation](https://getkong.org/docs/0.11.x/admin-api/#certificate-object)):
