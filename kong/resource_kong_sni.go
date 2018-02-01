@@ -2,6 +2,7 @@ package kong
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/kevholditch/gokong"
 )
@@ -53,8 +54,12 @@ func resourceKongSniRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("could not find kong sni: %v", err)
 	}
 
-	d.Set("name", sni.Name)
-	d.Set("certificate_id", sni.SslCertificateId)
+	if sni == nil {
+		d.SetId("")
+	} else {
+		d.Set("name", sni.Name)
+		d.Set("certificate_id", sni.SslCertificateId)
+	}
 
 	return nil
 }
