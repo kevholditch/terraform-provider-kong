@@ -2,7 +2,6 @@ package kong
 
 import (
 	"fmt"
-
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/kevholditch/gokong"
 )
@@ -61,12 +60,8 @@ func resourceKongUpstreamRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("could not find kong upstream: %v", err)
 	}
 
-	if upstream == nil {
-		d.SetId("")
-	} else {
-		d.Set("name", upstream.Name)
-		d.Set("slots", upstream.Slots)
-	}
+	d.Set("name", upstream.Name)
+	d.Set("slots", upstream.Slots)
 
 	return nil
 }
