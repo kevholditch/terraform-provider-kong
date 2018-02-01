@@ -2,6 +2,7 @@ package kong
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/kevholditch/gokong"
 )
@@ -68,8 +69,12 @@ func resourceKongCertificateRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("could not find kong certificate: %v", err)
 	}
 
-	d.Set("certificate", certificate.Cert)
-	d.Set("private_key", certificate.Key)
+	if certificate == nil {
+		d.SetId("")
+	} else {
+		d.Set("certificate", certificate.Cert)
+		d.Set("private_key", certificate.Key)
+	}
 
 	return nil
 }

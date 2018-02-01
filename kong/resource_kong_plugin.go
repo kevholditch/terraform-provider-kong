@@ -2,6 +2,7 @@ package kong
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/kevholditch/gokong"
 )
@@ -76,7 +77,11 @@ func resourceKongPluginRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("could not find kong plugin: %v", err)
 	}
 
-	d.Set("name", plugin.Name)
+	if plugin == nil {
+		d.SetId("")
+	} else {
+		d.Set("name", plugin.Name)
+	}
 
 	return nil
 }
