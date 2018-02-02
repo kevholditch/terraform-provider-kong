@@ -35,6 +35,11 @@ type ConsumerFilter struct {
 	Offset   int    `url:"offset,omitempty"`
 }
 
+type ConsumerPluginConfig struct {
+	Id   string `json:"id,omitempty"`
+	Body string
+}
+
 const ConsumersPath = "/consumers/"
 
 func (consumerClient *ConsumerClient) GetByUsername(username string) (*Consumer, error) {
@@ -143,4 +148,58 @@ func (consumerClient *ConsumerClient) UpdateById(id string, consumerRequest *Con
 	}
 
 	return updatedConsumer, nil
+}
+
+func (consumerClient *ConsumerClient) CreatePluginConfig(consumerId string, pluginName string, pluginConfig string) (*ConsumerPluginConfig, error) {
+
+	_, body, errs := gorequest.New().Post(consumerClient.config.HostAddress + ConsumersPath + consumerId + "/" + pluginName).Send(pluginConfig).End()
+	if errs != nil {
+		return nil, fmt.Errorf("could not configure plugin for consumer, error: %v", errs)
+	}
+
+	createdConsumerPluginConfig := &ConsumerPluginConfig{}
+	err := json.Unmarshal([]byte(body), createdConsumerPluginConfig)
+	if err != nil {
+		return nil, fmt.Errorf("could not parse consumer plugin config created response, error: %v", err)
+	}
+
+	if createdConsumerPluginConfig.Id == "" {
+		return nil, fmt.Errorf("could not create consumer plugin config, error: %v", body)
+	}
+
+	createdConsumerPluginConfig.Body = body
+
+	return createdConsumerPluginConfig, nil
+}
+
+func (consumerClient *ConsumerClient) GetPluginConfig(consumerId string, pluginName string, id string) (*ConsumerPluginConfig, error) {
+
+	_, body, errs := gorequest.New().Get(consumerClient.config.HostAddress + ConsumersPath + consumerId + "/" + pluginName + "/" + id).End()
+	if errs != nil {
+		return nil, fmt.Errorf("could not get plugin config for consumer, error: %v", errs)
+	}
+
+	consumerPluginConfig := &ConsumerPluginConfig{}
+	err := json.Unmarshal([]byte(body), consumerPluginConfig)
+	if err != nil {
+		return nil, fmt.Errorf("could not parse consumer plugin config response, error: %v", err)
+	}
+
+	if consumerPluginConfig.Id == "" {
+		return nil, nil
+	}
+
+	consumerPluginConfig.Body = body
+
+	return consumerPluginConfig, nil
+}
+
+func (consumerClient *ConsumerClient) DeletePluginConfig(consumerId string, pluginName string, id string) error {
+
+	_, _, errs := gorequest.New().Delete(consumerClient.config.HostAddress + ConsumersPath + consumerId + "/" + pluginName + "/" + id).End()
+	if errs != nil {
+		return fmt.Errorf("could not delete plugin config for consumer, error: %v", errs)
+	}
+
+	return nil
 }
