@@ -186,7 +186,7 @@ func (consumerClient *ConsumerClient) GetPluginConfig(consumerId string, pluginN
 	}
 
 	if consumerPluginConfig.Id == "" {
-		return nil, fmt.Errorf("could not get consumer plugin config, error: %v", body)
+		return nil, nil
 	}
 
 	consumerPluginConfig.Body = body
