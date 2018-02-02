@@ -2,6 +2,7 @@ package kong
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/kevholditch/gokong"
 )
@@ -69,8 +70,12 @@ func resourceKongConsumerRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("could not find kong consumer with id: %s error: %v", id, err)
 	}
 
-	d.Set("username", consumer.Username)
-	d.Set("custom_id", consumer.CustomId)
+	if consumer == nil {
+		d.SetId("")
+	} else {
+		d.Set("username", consumer.Username)
+		d.Set("custom_id", consumer.CustomId)
+	}
 
 	return nil
 }

@@ -2,6 +2,7 @@ package kong
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/kevholditch/gokong"
 )
@@ -133,19 +134,24 @@ func resourceKongApiRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("could not find kong api: %v", err)
 	}
 
-	d.Set("name", api.Name)
-	d.Set("hosts", api.Hosts)
-	d.Set("uris", api.Uris)
-	d.Set("methods", api.Methods)
-	d.Set("upstream_url", api.UpstreamUrl)
-	d.Set("strip_uri", api.StripUri)
-	d.Set("preserve_host", api.PreserveHost)
-	d.Set("retries", api.Retries)
-	d.Set("upstream_connect_timeout", api.UpstreamConnectTimeout)
-	d.Set("upstream_send_timeout", api.UpstreamSendTimeout)
-	d.Set("upstream_read_timeout", api.UpstreamReadTimeout)
-	d.Set("https_only", api.HttpsOnly)
-	d.Set("http_if_terminated", api.HttpIfTerminated)
+	if api == nil {
+		d.SetId("")
+	} else {
+		d.Set("name", api.Name)
+		d.Set("hosts", api.Hosts)
+		d.Set("uris", api.Uris)
+		d.Set("methods", api.Methods)
+		d.Set("upstream_url", api.UpstreamUrl)
+		d.Set("strip_uri", api.StripUri)
+		d.Set("preserve_host", api.PreserveHost)
+		d.Set("retries", api.Retries)
+		d.Set("upstream_connect_timeout", api.UpstreamConnectTimeout)
+		d.Set("upstream_send_timeout", api.UpstreamSendTimeout)
+		d.Set("upstream_read_timeout", api.UpstreamReadTimeout)
+		d.Set("https_only", api.HttpsOnly)
+		d.Set("http_if_terminated", api.HttpIfTerminated)
+
+	}
 
 	return nil
 }
