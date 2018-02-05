@@ -104,9 +104,9 @@ func resourceKongConsumerPluginConfigCreate(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("failed to create kong consumer plugin config, error: %v", err)
 	}
 
-	if consumerPluginConfig ==  nil {
+	if consumerPluginConfig == nil {
 		d.SetId("")
-	}else {
+	} else {
 		d.SetId(buildId(consumerId, pluginName, consumerPluginConfig.Id))
 	}
 
