@@ -266,3 +266,17 @@ Each of the filter parameters are optional and they are combined for an AND sear
   * `name` - the name of the found upstream
   * `slots` - the number of slots on the found upstream
   * `order_list` - a list containing the slot order on the found upstream
+  
+  
+# Contributing
+I would love to get contributions to the project so please feel free to submit a PR.  To setup your dev station you need go and docker installed.
+
+Once you have cloned the repository the `env TF_ACC=1 make` command will build the code and run all of the tests.  If they all pass then you are good to go!
+
+If when you run the make command you get the following error:
+```
+gofmt needs running on the following files:
+```
+Then all you need to do is run `make fmt` this will reformat all of the code (I know awesome)!!  
+
+Please write tests for your new feature/bug fix, PRs will only be accepted with covering tests and where all tests pass.  If you want to start work on a feature feel free to open a PR early so we can discuss it or if you need help.
