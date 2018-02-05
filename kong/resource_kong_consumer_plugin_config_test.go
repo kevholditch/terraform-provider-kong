@@ -2,10 +2,11 @@ package kong
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/kevholditch/gokong"
-	"testing"
 )
 
 func TestAccKongConsumerPluginConfig(t *testing.T) {
@@ -44,13 +45,7 @@ func testAccCheckKongConsumerPluginConfig(state *terraform.State) error {
 		return fmt.Errorf("expecting only 1 consumer plugin config resource found %v", len(consumerPluginConfigs))
 	}
 
-	idFields, err := splitIdIntoFields(consumerPluginConfigs[0].Primary.ID)
-
-	if err != nil {
-		return err
-	}
-
-	response, err := client.Consumers().GetPluginConfig(idFields.consumerId, idFields.pluginName, idFields.id)
+	response, err := client.Consumers().GetPluginConfig("123", "jwt", consumerPluginConfigs[0].Primary.ID)
 
 	if err != nil {
 		return fmt.Errorf("error calling get consumer plugin config by id: %v", err)
@@ -78,13 +73,7 @@ func testAccCheckKongConsumerPluginConfigExists(resourceKey string) resource.Tes
 
 		client := testAccProvider.Meta().(*gokong.KongAdminClient)
 
-		idFields, err := splitIdIntoFields(rs.Primary.ID)
-
-		if err != nil {
-			return err
-		}
-
-		consumerPluginConfig, err := client.Consumers().GetPluginConfig(idFields.consumerId, idFields.pluginName, idFields.id)
+		consumerPluginConfig, err := client.Consumers().GetPluginConfig("123", "jwt", rs.Primary.ID)
 
 		if err != nil {
 			return err
