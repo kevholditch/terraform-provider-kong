@@ -14,9 +14,6 @@ func resourceKongConsumerPluginConfig() *schema.Resource {
 		Delete: resourceKongConsumerPluginConfigDelete,
 		Update: resourceKongConsumerPluginConfigUpdate,
 
-		//Importer: &schema.ResourceImporter{
-		//	State: schema.ImportStatePassthrough,
-		//},
 
 		Schema: map[string]*schema.Schema{
 			"consumer_id": &schema.Schema{
