@@ -91,6 +91,30 @@ resource "kong_plugin" "rate_limit" {
 }
 ```
 
+### Configure plugins for a consumer
+Some plugins allow you to configure them for a specific consumer for example the [jwt](https://getkong.org/plugins/jwt/#create-a-jwt-credential) and [key-auth](https://getkong.org/plugins/key-authentication/#create-an-api-key) plugins.
+To configure a plugin for a consumer this terraform provider provides a generic way to do this for all plugins the "kong_consumer_plugin_config" resource.
+
+```hcl
+resource "kong_consumer_plugin_config" "consumer_jwt_config" {
+	consumer_id = "876bf719-8f18-4ce5-cc9f-5b5af6c36007"
+	plugin_name = "jwt"
+	config_json = <<EOT
+		{
+			"key": "updated_key",
+			"secret": "updated_secret"
+		}
+EOT
+}
+```
+
+The example above shows configuring the jwt plugin for a consumer.
+
+`consumer_id` is the consumer id you want to configure the plugin for
+`plugin_name` the name of the plugin you want to configure
+`config_json` this is the configuration json for how you want to configure the plugin.  The json is passed straight through to kong as is.  You can get the json config from the Kong documentation
+page of the plugin you are configuring
+
 
 ## Consumers
 ```hcl
