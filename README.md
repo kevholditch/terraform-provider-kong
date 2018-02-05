@@ -91,7 +91,7 @@ resource "kong_plugin" "rate_limit" {
 }
 ```
 
-# Configure plugins for a consumer
+### Configure plugins for a consumer
 Some plugins allow you to configure them for a specific consumer for example the [jwt](https://getkong.org/plugins/jwt/#create-a-jwt-credential) and [key-auth](https://getkong.org/plugins/key-authentication/#create-an-api-key) plugins.
 To configure a plugin for a consumer this terraform provider provides a generic way to do this for all plugins the "kong_consumer_plugin_config" resource.
 

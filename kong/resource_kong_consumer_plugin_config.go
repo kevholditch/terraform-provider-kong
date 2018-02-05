@@ -15,10 +15,6 @@ func resourceKongConsumerPluginConfig() *schema.Resource {
 		Read:   resourceKongConsumerPluginConfigRead,
 		Delete: resourceKongConsumerPluginConfigDelete,
 
-		//Importer: &schema.ResourceImporter{
-		//	State: schema.ImportStatePassthrough,
-		//},
-
 		Schema: map[string]*schema.Schema{
 			"consumer_id": &schema.Schema{
 				Type:     schema.TypeString,
@@ -33,7 +29,7 @@ func resourceKongConsumerPluginConfig() *schema.Resource {
 			"config_json": &schema.Schema{
 				Type:         schema.TypeString,
 				ForceNew:     true,
-				Required:     true,
+				Optional:     true,
 				StateFunc:    normalizeDataJSON,
 				ValidateFunc: validateDataJSON,
 			},
@@ -108,7 +104,11 @@ func resourceKongConsumerPluginConfigCreate(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("failed to create kong consumer plugin config, error: %v", err)
 	}
 
-	d.SetId(buildId(consumerId, pluginName, consumerPluginConfig.Id))
+	if consumerPluginConfig ==  nil {
+		d.SetId("")
+	}else {
+		d.SetId(buildId(consumerId, pluginName, consumerPluginConfig.Id))
+	}
 
 	return resourceKongConsumerPluginConfigRead(d, meta)
 }
