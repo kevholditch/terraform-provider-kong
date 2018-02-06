@@ -2,10 +2,11 @@ package kong
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/kevholditch/gokong"
-	"testing"
 )
 
 func TestAccKongConsumerPluginConfig(t *testing.T) {
@@ -28,6 +29,32 @@ func TestAccKongConsumerPluginConfig(t *testing.T) {
 					testAccCheckKongConsumerPluginConfigExists("kong_consumer_plugin_config.consumer_jwt_config"),
 					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "plugin_name", "jwt"),
 					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "config_json", `{"key":"updated_key","secret":"updated_secret"}`),
+				),
+			},
+		},
+	})
+}
+
+func TestAccKongConsumerPluginConfigKV(t *testing.T) {
+
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongConsumerPluginConfig,
+		Steps: []resource.TestStep{
+			{
+				Config: testCreateConsumerPluginConfig,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKongConsumerPluginConfigExists("kong_consumer_plugin_config.consumer_jwt_config"),
+					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "plugin_name", "jwt"),
+					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "config.group", "nginx"),
+				),
+			},
+			{
+				Config: testUpdateConsumerPluginConfig,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKongConsumerPluginConfigExists("kong_consumer_plugin_config.consumer_jwt_config"),
+					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "plugin_name", "jwt"),
+					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "config.group", "apache"),
 				),
 			},
 		},
@@ -145,5 +172,49 @@ resource "kong_consumer_plugin_config" "consumer_jwt_config" {
 			"secret": "updated_secret"
 		}
 EOT
+}
+`
+
+const testCreateConsumerPluginConfigKV = `
+resource "kong_consumer" "my_consumer" {
+	username  = "User1"
+	custom_id = "123"
+}
+
+resource "kong_plugin" "jwt_plugin" {
+	name        = "jwt"	
+	config 		= {
+		claims_to_verify = "exp"
+	}
+}
+
+resource "kong_consumer_plugin_config" "consumer_jwt_config" {
+	consumer_id = "${kong_consumer.my_consumer.id}"
+	plugin_name = "jwt"
+	config = {
+		group = "nginx"
+	}
+}
+`
+
+const testUpdateConsumerPluginConfigKV = `
+resource "kong_consumer" "my_consumer" {
+	username  = "User1"
+	custom_id = "123"
+}
+
+resource "kong_plugin" "jwt_plugin" {
+	name        = "jwt"	
+	config 		= {
+		claims_to_verify = "exp"
+	}
+}
+
+resource "kong_consumer_plugin_config" "consumer_jwt_config" {
+	consumer_id = "${kong_consumer.my_consumer.id}"
+	plugin_name = "jwt"
+	config      = {
+		group = "apache"
+	}
 }
 `

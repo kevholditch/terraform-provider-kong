@@ -30,6 +30,7 @@ func resourceKongConsumerPluginConfig() *schema.Resource {
 			},
 			"config": &schema.Schema{
 				Type:     schema.TypeMap,
+				ForceNew: true,
 				Optional: true,
 				Elem:     schema.TypeString,
 				Default:  nil,
