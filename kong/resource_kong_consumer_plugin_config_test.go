@@ -176,6 +176,22 @@ EOT
 `
 
 const testCreateConsumerPluginConfigKV = `
+resource "kong_api" "api" {
+	name 	= "TestApi"
+  	hosts   = [ "example.com" ]
+	uris 	= [ "/example" ]
+	methods = [ "GET", "POST" ]
+	upstream_url = "http://localhost:4140"
+	strip_uri = false
+	preserve_host = false
+	retries = 3
+	upstream_connect_timeout = 60000
+	upstream_send_timeout = 30000
+	upstream_read_timeout = 10000
+	https_only = false
+	http_if_terminated = false
+}
+
 resource "kong_consumer" "my_consumer" {
 	username  = "User1"
 	custom_id = "123"
@@ -183,7 +199,8 @@ resource "kong_consumer" "my_consumer" {
 
 resource "kong_plugin" "acl_plugin" {
 	name        = "acl"	
-	config = {
+	api_id      = "${kong_api.api.id}"
+	config      = {
 		whitelist = "nginx"
 	}
 }
@@ -198,13 +215,30 @@ resource "kong_consumer_plugin_config" "consumer_acl_config" {
 `
 
 const testUpdateConsumerPluginConfigKV = `
+resource "kong_api" "api" {
+	name 	= "TestApi"
+  	hosts   = [ "example.com" ]
+	uris 	= [ "/example" ]
+	methods = [ "GET", "POST" ]
+	upstream_url = "http://localhost:4140"
+	strip_uri = false
+	preserve_host = false
+	retries = 3
+	upstream_connect_timeout = 60000
+	upstream_send_timeout = 30000
+	upstream_read_timeout = 10000
+	https_only = false
+	http_if_terminated = false
+}
+
 resource "kong_consumer" "my_consumer" {
 	username  = "User1"
 	custom_id = "123"
 }
 
 resource "kong_plugin" "acl_plugin" {
-	name        = "jwt"	
+	name        = "acl"	
+	api_id      = "${kong_api.api.id}"
 	config = {
 		whitelist = "apache"
 	}
