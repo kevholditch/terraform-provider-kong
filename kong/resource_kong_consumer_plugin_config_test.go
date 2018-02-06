@@ -42,7 +42,7 @@ func TestAccKongConsumerPluginConfigKV(t *testing.T) {
 		CheckDestroy: testAccCheckKongConsumerPluginConfig,
 		Steps: []resource.TestStep{
 			{
-				Config: testCreateConsumerPluginConfig,
+				Config: testCreateConsumerPluginConfigKV,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKongConsumerPluginConfigExists("kong_consumer_plugin_config.consumer_jwt_config"),
 					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "plugin_name", "jwt"),
@@ -50,7 +50,7 @@ func TestAccKongConsumerPluginConfigKV(t *testing.T) {
 				),
 			},
 			{
-				Config: testUpdateConsumerPluginConfig,
+				Config: testUpdateConsumerPluginConfigKV,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKongConsumerPluginConfigExists("kong_consumer_plugin_config.consumer_jwt_config"),
 					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "plugin_name", "jwt"),
@@ -181,16 +181,16 @@ resource "kong_consumer" "my_consumer" {
 	custom_id = "123"
 }
 
-resource "kong_plugin" "jwt_plugin" {
-	name        = "jwt"	
-	config 		= {
-		claims_to_verify = "exp"
+resource "kong_plugin" "acl_plugin" {
+	name        = "acl"	
+	config = {
+		whitelist = "nginx"
 	}
 }
 
-resource "kong_consumer_plugin_config" "consumer_jwt_config" {
+resource "kong_consumer_plugin_config" "consumer_acl_config" {
 	consumer_id = "${kong_consumer.my_consumer.id}"
-	plugin_name = "jwt"
+	plugin_name = "acls"
 	config = {
 		group = "nginx"
 	}
@@ -203,16 +203,16 @@ resource "kong_consumer" "my_consumer" {
 	custom_id = "123"
 }
 
-resource "kong_plugin" "jwt_plugin" {
+resource "kong_plugin" "acl_plugin" {
 	name        = "jwt"	
-	config 		= {
-		claims_to_verify = "exp"
+	config = {
+		whitelist = "apache"
 	}
 }
 
-resource "kong_consumer_plugin_config" "consumer_jwt_config" {
+resource "kong_consumer_plugin_config" "consumer_acl_config" {
 	consumer_id = "${kong_consumer.my_consumer.id}"
-	plugin_name = "jwt"
+	plugin_name = "acls"
 	config      = {
 		group = "apache"
 	}
