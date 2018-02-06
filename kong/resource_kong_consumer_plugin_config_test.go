@@ -44,17 +44,17 @@ func TestAccKongConsumerPluginConfigKV(t *testing.T) {
 			{
 				Config: testCreateConsumerPluginConfigKV,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckKongConsumerPluginConfigExists("kong_consumer_plugin_config.consumer_jwt_config"),
-					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "plugin_name", "jwt"),
-					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "config.group", "nginx"),
+					testAccCheckKongConsumerPluginConfigExists("kong_consumer_plugin_config.consumer_acl_config"),
+					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_acl_config", "plugin_name", "acls"),
+					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_acl_config", "config.group", "nginx"),
 				),
 			},
 			{
 				Config: testUpdateConsumerPluginConfigKV,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckKongConsumerPluginConfigExists("kong_consumer_plugin_config.consumer_jwt_config"),
-					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "plugin_name", "jwt"),
-					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "config.group", "apache"),
+					testAccCheckKongConsumerPluginConfigExists("kong_consumer_plugin_config.consumer_acl_config"),
+					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_acl_config", "plugin_name", "acls"),
+					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_acl_config", "config.group", "apache"),
 				),
 			},
 		},
