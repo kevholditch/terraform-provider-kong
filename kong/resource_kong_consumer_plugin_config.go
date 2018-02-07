@@ -1,12 +1,14 @@
 package kong
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/kevholditch/gokong"
 	"log"
 	"strings"
+
+	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/kevholditch/gokong"
 )
 
 func resourceKongConsumerPluginConfig() *schema.Resource {
@@ -25,6 +27,13 @@ func resourceKongConsumerPluginConfig() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+			},
+			"config": &schema.Schema{
+				Type:     schema.TypeMap,
+				ForceNew: true,
+				Optional: true,
+				Elem:     schema.TypeString,
+				Default:  nil,
 			},
 			"config_json": &schema.Schema{
 				Type:         schema.TypeString,
@@ -92,14 +101,38 @@ func splitIdIntoFields(id string) (*idFields, error) {
 	}, nil
 }
 
+//Create either a key=value based list of parameters or json
+func generatePluginConfig(configMap map[string]interface{}, configJSON string) (string, error) {
+	if configMap != nil && configJSON != "" {
+		return "", fmt.Errorf("Cannot declare both config and config_json")
+	}
+	if configMap != nil {
+		var buffer bytes.Buffer
+		mapSize := len(configMap)
+		position := 1
+		for key, value := range configMap {
+			buffer.WriteString(key)
+			buffer.WriteString("=")
+			buffer.WriteString(value.(string))
+			if mapSize > 1 && position != mapSize {
+				buffer.WriteString("&")
+			}
+			position = position + 1
+		}
+		return buffer.String(), nil
+	}
+	return configJSON, nil
+}
+
 func resourceKongConsumerPluginConfigCreate(d *schema.ResourceData, meta interface{}) error {
 
 	consumerId := readStringFromResource(d, "consumer_id")
 	pluginName := readStringFromResource(d, "plugin_name")
-	config := readStringFromResource(d, "config_json")
-
+	config, err := generatePluginConfig(readMapFromResource(d, "config"), readStringFromResource(d, "config_json"))
+	if err != nil {
+		return fmt.Errorf("error configuring plugin: %v", err)
+	}
 	consumerPluginConfig, err := meta.(*gokong.KongAdminClient).Consumers().CreatePluginConfig(consumerId, pluginName, config)
-
 	if err != nil {
 		return fmt.Errorf("failed to create kong consumer plugin config, error: %v", err)
 	}
