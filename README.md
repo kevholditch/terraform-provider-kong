@@ -115,6 +115,23 @@ The example above shows configuring the jwt plugin for a consumer.
 `config_json` this is the configuration json for how you want to configure the plugin.  The json is passed straight through to kong as is.  You can get the json config from the Kong documentation
 page of the plugin you are configuring
 
+Other plugins must be configured using key/value pairs, for example the [acl](https://getkong.org/plugins/acl/) plugin.  To update a plugin using key value pairs configure the "kong_consumer_plugin_config" resource.
+
+```hcl
+resource "kong_consumer_plugin_config" "consumer_acl_config" {
+    consumer_id = "876bf719-8f18-4ce5-cc9f-5b5af6c36007"
+    plugin_name = "acls"
+    config      = {
+        group = "your_acl_group"
+    }
+}
+```
+
+All parameters are the same as above except the `config` parameter.
+`config` is a map of key/value pairs you wish to pass as the configuration.
+
+#### NOTE:  You can only have either config or config_json configured, not both.
+
 
 ## Consumers
 ```hcl
