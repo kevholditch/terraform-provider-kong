@@ -20,6 +20,15 @@ provider "kong" {
 }
 ```
 
+Optionaly you can configure Username and Password for BasicAuth:
+```hcl
+provider "kong" {
+    kong_admin_uri  = "http://myKong:8001"
+    kong_admin_user = "youruser"
+    kong_admin_pass = "yourpass"
+}
+```
+
 By convention the provider will first check the env variable `KONG_ADMIN_ADDR` if that variable is not set then it will default to `http://localhost:8001` if
 you do not provide a provider block as above.
 
