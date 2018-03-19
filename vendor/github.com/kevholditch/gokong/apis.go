@@ -3,8 +3,6 @@ package gokong
 import (
 	"encoding/json"
 	"fmt"
-
-	"github.com/parnurzeal/gorequest"
 )
 
 type ApiClient struct {
@@ -68,8 +66,7 @@ func (apiClient *ApiClient) GetByName(name string) (*Api, error) {
 }
 
 func (apiClient *ApiClient) GetById(id string) (*Api, error) {
-
-	_, body, errs := gorequest.New().Get(apiClient.config.HostAddress + ApisPath + id).End()
+	_, body, errs := NewRequest(apiClient.config).Get(apiClient.config.HostAddress+ApisPath+id).Set("If-None-Match", `W/"wyzzy"`).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not get api, error: %v", errs)
 	}
@@ -99,7 +96,7 @@ func (apiClient *ApiClient) ListFiltered(filter *ApiFilter) (*Apis, error) {
 		return nil, fmt.Errorf("could not build query string for apis filter, error: %v", err)
 	}
 
-	_, body, errs := gorequest.New().Get(address).End()
+	_, body, errs := NewRequest(apiClient.config).Get(address).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not get apis, error: %v", errs)
 	}
@@ -115,7 +112,7 @@ func (apiClient *ApiClient) ListFiltered(filter *ApiFilter) (*Apis, error) {
 
 func (apiClient *ApiClient) Create(newApi *ApiRequest) (*Api, error) {
 
-	_, body, errs := gorequest.New().Post(apiClient.config.HostAddress + ApisPath).Send(newApi).End()
+	_, body, errs := NewRequest(apiClient.config).Post(apiClient.config.HostAddress + ApisPath).Send(newApi).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not create new api, error: %v", errs)
 	}
@@ -139,7 +136,7 @@ func (apiClient *ApiClient) DeleteByName(name string) error {
 
 func (apiClient *ApiClient) DeleteById(id string) error {
 
-	res, _, errs := gorequest.New().Delete(apiClient.config.HostAddress + ApisPath + id).End()
+	res, _, errs := NewRequest(apiClient.config).Delete(apiClient.config.HostAddress + ApisPath + id).End()
 	if errs != nil {
 		return fmt.Errorf("could not delete api, result: %v error: %v", res, errs)
 	}
@@ -153,7 +150,7 @@ func (apiClient *ApiClient) UpdateByName(name string, apiRequest *ApiRequest) (*
 
 func (apiClient *ApiClient) UpdateById(id string, apiRequest *ApiRequest) (*Api, error) {
 
-	_, body, errs := gorequest.New().Patch(apiClient.config.HostAddress + ApisPath + id).Send(apiRequest).End()
+	_, body, errs := NewRequest(apiClient.config).Patch(apiClient.config.HostAddress + ApisPath + id).Send(apiRequest).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not update api, error: %v", errs)
 	}
