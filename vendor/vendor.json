@@ -535,10 +535,10 @@
 			"revisionTime": "2016-08-03T19:07:31Z"
 		},
 		{
-			"checksumSHA1": "KchqvXPTF/OH0NlSn2NyZuck1s8=",
+			"checksumSHA1": "/oeab4Mqw33quPzpJ4iwe+X1VnM=",
 			"path": "github.com/kevholditch/gokong",
-			"revision": "06e14c51d0044af2eb1189ba33a8d060594ee7c3",
-			"revisionTime": "2018-02-02T08:12:00Z"
+			"revision": "8bf13af68af45ba016db742b8803c90a92f0923a",
+			"revisionTime": "2018-03-19T13:48:11Z"
 		},
 		{
 			"path": "github.com/kevholditch/gokong...",

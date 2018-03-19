@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/parnurzeal/gorequest"
 )
 
 type StatusClient struct {
@@ -32,7 +31,7 @@ type databaseStatus struct {
 
 func (statusClient *StatusClient) Get() (*Status, error) {
 
-	_, body, errs := gorequest.New().Get(statusClient.config.HostAddress + "/status").End()
+	_, body, errs := NewRequest(statusClient.config).Get(statusClient.config.HostAddress + "/status").End()
 	if errs != nil {
 		return nil, errors.New(fmt.Sprintf("Could not call get status, error: %v", errs))
 	}
