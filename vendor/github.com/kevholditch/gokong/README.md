@@ -51,7 +51,7 @@ config := gokong.Config{HostAddress:"http://localhost:1234"}
 
 Also you can apply Username and Password for admin-api Basic Auth:
 ```go
-config := gokong.Config{Username:"adminuser",Password:"yoursecret"}
+config := gokong.Config{HostAddress:"http://localhost:1234",Username:"adminuser",Password:"yoursecret"}
 ```
 
 
