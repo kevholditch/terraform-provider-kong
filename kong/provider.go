@@ -72,7 +72,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	}
 	Password := ""
 	if d.Get("kong_admin_password") != nil {
-		Password = d.Get("kong_admin_username").(string)
+		Password = d.Get("kong_admin_password").(string)
 	}
 	config := &gokong.Config{
 		HostAddress: d.Get("kong_admin_uri").(string),
