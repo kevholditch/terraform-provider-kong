@@ -66,18 +66,18 @@ func envDefaultFuncWithDefault(key string, defaultValue string) schema.SchemaDef
 }
 
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
-	Username := ""
+	username := ""
 	if d.Get("kong_admin_username") != nil {
-		Username = d.Get("kong_admin_username").(string)
+		username = d.Get("kong_admin_username").(string)
 	}
-	Password := ""
+	password := ""
 	if d.Get("kong_admin_password") != nil {
-		Password = d.Get("kong_admin_password").(string)
+		password = d.Get("kong_admin_password").(string)
 	}
 	config := &gokong.Config{
 		HostAddress: d.Get("kong_admin_uri").(string),
-		Username:    Username,
-		Password:    Password,
+		Username:    username,
+		Password:    password,
 	}
 
 	return gokong.NewClient(config), nil
