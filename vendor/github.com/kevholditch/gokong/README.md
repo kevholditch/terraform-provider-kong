@@ -7,6 +7,14 @@ A kong go client fully tested with no mocks!!
 ## GoKong
 GoKong is a easy to use api client for [kong](https://getkong.org/).  The difference with the gokong library is all of its tests are written against a real running kong running inside a docker container, yep that's right you won't see a horrible mock anywhere!!
 
+## Supported Kong Versions
+As per [travis build](https://travis-ci.org/kevholditch/gokong):
+```
+KONG_VERSION=0.11
+KONG_VERSION=0.11.1
+KONG_VERSION=0.11.2
+```
+
 ## Importing
 
 To add gokong via `go get`:
@@ -39,6 +47,11 @@ If the env variable is not set then the address is defaulted to `http://localhos
 You can of course create your own config with the address set to whatever you want:
 ```go
 config := gokong.Config{HostAddress:"http://localhost:1234"}
+```
+
+Also you can apply Username and Password for admin-api Basic Auth:
+```go
+config := gokong.Config{Username:"adminuser",Password:"yoursecret"}
 ```
 
 
