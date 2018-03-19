@@ -24,8 +24,8 @@ Optionaly you can configure Username and Password for BasicAuth:
 ```hcl
 provider "kong" {
     kong_admin_uri  = "http://myKong:8001"
-    kong_admin_user = "youruser"
-    kong_admin_pass = "yourpass"
+    kong_admin_username = "youruser"
+    kong_admin_password = "yourpass"
 }
 ```
 
