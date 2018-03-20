@@ -40,6 +40,14 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		log.Fatalf("Could not set kong host address env variable: %v", err)
 	}
+	err = os.Setenv(gokong.EnvKongAdminPassword, "AnUsername")
+	if err != nil {
+		log.Fatalf("Could not set kong admin username env variable: %v", err)
+	}
+	err = os.Setenv(gokong.EnvKongAdminPassword, "AnyPassword")
+	if err != nil {
+		log.Fatalf("Could not set kong admin password env variable: %v", err)
+	}
 
 	code := m.Run()
 
