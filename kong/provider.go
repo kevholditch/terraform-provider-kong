@@ -16,7 +16,7 @@ func Provider() terraform.ResourceProvider {
 				DefaultFunc: envDefaultFuncWithDefault("KONG_ADMIN_ADDR", "http://localhost:8001"),
 				Description: "The address of the kong admin url e.g. http://localhost:8001",
 			},
-			"kong_admin_usermame": &schema.Schema{
+			"kong_admin_username": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: envDefaultFuncWithDefault("KONG_ADMIN_USERNAME", ""),
@@ -66,18 +66,10 @@ func envDefaultFuncWithDefault(key string, defaultValue string) schema.SchemaDef
 }
 
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
-	username := ""
-	if d.Get("kong_admin_username") != nil {
-		username = d.Get("kong_admin_username").(string)
-	}
-	password := ""
-	if d.Get("kong_admin_password") != nil {
-		password = d.Get("kong_admin_password").(string)
-	}
 	config := &gokong.Config{
 		HostAddress: d.Get("kong_admin_uri").(string),
-		Username:    username,
-		Password:    password,
+		Username:    d.Get("kong_admin_username").(string),
+		Password:    d.Get("kong_admin_password").(string),
 	}
 
 	return gokong.NewClient(config), nil
