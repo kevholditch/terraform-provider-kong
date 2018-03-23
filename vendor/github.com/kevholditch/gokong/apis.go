@@ -17,7 +17,7 @@ type ApiRequest struct {
 	UpstreamUrl            string   `json:"upstream_url"`
 	StripUri               bool     `json:"strip_uri"`
 	PreserveHost           bool     `json:"preserve_host"`
-	Retries                int      `json:"retries,omitempty"`
+	Retries                string   `json:"retries,omitempty"`
 	UpstreamConnectTimeout int      `json:"upstream_connect_timeout,omitempty"`
 	UpstreamSendTimeout    int      `json:"upstream_send_timeout,omitempty"`
 	UpstreamReadTimeout    int      `json:"upstream_read_timeout,omitempty"`

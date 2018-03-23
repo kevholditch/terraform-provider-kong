@@ -25,7 +25,7 @@ func TestAccKongApi(t *testing.T) {
 					resource.TestCheckResourceAttr("kong_api.api", "upstream_url", "http://localhost:4140"),
 					resource.TestCheckResourceAttr("kong_api.api", "strip_uri", "false"),
 					resource.TestCheckResourceAttr("kong_api.api", "preserve_host", "false"),
-					resource.TestCheckResourceAttr("kong_api.api", "retries", "3"),
+					resource.TestCheckResourceAttr("kong_api.api", "retries", "5"),
 					resource.TestCheckResourceAttr("kong_api.api", "upstream_connect_timeout", "60000"),
 					resource.TestCheckResourceAttr("kong_api.api", "upstream_send_timeout", "30000"),
 					resource.TestCheckResourceAttr("kong_api.api", "upstream_read_timeout", "10000"),
@@ -64,7 +64,7 @@ func TestAccKongApiImport(t *testing.T) {
 		CheckDestroy: testAccCheckKongApiDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testCreateApiConfig,
+				Config: testImportApiConfig,
 			},
 
 			resource.TestStep{
@@ -132,10 +132,9 @@ resource "kong_api" "api" {
   	hosts   = [ "example.com" ]
 	uris 	= [ "/example" ]
 	methods = [ "GET", "POST" ]
-	upstream_url = "http://localhost:4140"
+	upstream_url = "http://localhost:4140" 
 	strip_uri = false
-	preserve_host = false
-	retries = 3
+	preserve_host = false	
 	upstream_connect_timeout = 60000
 	upstream_send_timeout = 30000
 	upstream_read_timeout = 10000
@@ -158,5 +157,22 @@ resource "kong_api" "api" {
 	upstream_read_timeout = 11000
 	https_only = true
 	http_if_terminated = true
+}
+`
+const testImportApiConfig = `
+resource "kong_api" "api" {
+	name 	= "TestApi"
+  	hosts   = [ "example.com" ]
+	uris 	= [ "/example" ]
+	methods = [ "GET", "POST" ]
+	upstream_url = "http://localhost:4140"
+	retries = 3
+	strip_uri = false
+	preserve_host = false	
+	upstream_connect_timeout = 60000
+	upstream_send_timeout = 30000
+	upstream_read_timeout = 10000
+	https_only = false
+	http_if_terminated = false
 }
 `

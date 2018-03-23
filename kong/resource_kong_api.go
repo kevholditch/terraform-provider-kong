@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/kevholditch/gokong"
+	"strconv"
 )
 
 func resourceKongApi() *schema.Resource {
@@ -178,7 +179,7 @@ func createKongApiRequestFromResourceData(d *schema.ResourceData) *gokong.ApiReq
 	apiRequest.UpstreamUrl = readStringFromResource(d, "upstream_url")
 	apiRequest.StripUri = readBoolFromResource(d, "strip_uri")
 	apiRequest.PreserveHost = readBoolFromResource(d, "preserve_host")
-	apiRequest.Retries = readIntFromResource(d, "retries")
+	apiRequest.Retries = strconv.Itoa(readIntFromResource(d, "retries"))
 	apiRequest.UpstreamConnectTimeout = readIntFromResource(d, "upstream_connect_timeout")
 	apiRequest.UpstreamSendTimeout = readIntFromResource(d, "upstream_send_timeout")
 	apiRequest.UpstreamReadTimeout = readIntFromResource(d, "upstream_read_timeout")
