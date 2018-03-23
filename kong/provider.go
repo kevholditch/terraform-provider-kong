@@ -1,10 +1,11 @@
 package kong
 
 import (
+	"os"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/kevholditch/gokong"
-	"os"
 )
 
 func Provider() terraform.ResourceProvider {
@@ -27,6 +28,12 @@ func Provider() terraform.ResourceProvider {
 				Optional:    true,
 				DefaultFunc: envDefaultFuncWithDefault("KONG_ADMIN_PASSWORD", ""),
 				Description: "An basic auth password for kong admin",
+			},
+			"tls_insecure_skip_verify": &schema.Schema{
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "Skips TLS verification",
 			},
 		},
 
@@ -67,9 +74,10 @@ func envDefaultFuncWithDefault(key string, defaultValue string) schema.SchemaDef
 
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	config := &gokong.Config{
-		HostAddress: d.Get("kong_admin_uri").(string),
-		Username:    d.Get("kong_admin_username").(string),
-		Password:    d.Get("kong_admin_password").(string),
+		HostAddress:        d.Get("kong_admin_uri").(string),
+		Username:           d.Get("kong_admin_username").(string),
+		Password:           d.Get("kong_admin_password").(string),
+		InsecureSkipVerify: d.Get("tls_insecure_skip_verify").(bool),
 	}
 
 	return gokong.NewClient(config), nil
