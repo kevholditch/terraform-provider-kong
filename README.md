@@ -29,8 +29,15 @@ provider "kong" {
 }
 ```
 
-By convention the provider will first check the env variable `KONG_ADMIN_ADDR` if that variable is not set then it will default to `http://localhost:8001` if
-you do not provide a provider block as above.
+You can use environment variables to set the provider properties instead.  The following table shows the corresponding environment variables and thei property defaults if you do not set them.
+
+| Provider property     | Env variable         | Default if not set    |
+|:----------------------|:---------------------|-----------------------|
+| kong_admin_uri        | KONG_ADMIN_ADDR      | http://localhost:8001 |
+| kong_admin_username   | KONG_ADMIN_USERNAME  | not set               |
+| kong_admin_password   | KONG_ADMIN_PASSWORD  | not set               |
+
+
 
 # Resources
 
