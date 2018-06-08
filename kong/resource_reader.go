@@ -68,10 +68,7 @@ func readStringPtrFromResource(d *schema.ResourceData, key string) *string {
 }
 
 func readBoolPtrFromResource(d *schema.ResourceData, key string) *bool {
-	if attr, ok := d.GetOk(key); ok {
-		return gokong.Bool(attr.(bool))
-	}
-	return nil
+	return gokong.Bool(d.Get(key).(bool))
 }
 
 func readIntFromResource(d *schema.ResourceData, key string) int {

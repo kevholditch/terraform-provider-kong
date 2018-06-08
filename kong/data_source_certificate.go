@@ -62,7 +62,7 @@ func dataSourceKongCertificateRead(d *schema.ResourceData, meta interface{}) err
 		d.Set("certificate", result.Cert)
 	}
 
-	if result.Key != nil{
+	if result.Key != nil {
 		d.Set("private_key", result.Key)
 	}
 

@@ -50,7 +50,6 @@ func resourceKongApi() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: false,
-				Default:  true,
 			},
 			"preserve_host": &schema.Schema{
 				Type:     schema.TypeBool,
@@ -206,21 +205,19 @@ func resourceKongApiDelete(d *schema.ResourceData, meta interface{}) error {
 
 func createKongApiRequestFromResourceData(d *schema.ResourceData) *gokong.ApiRequest {
 
-	apiRequest := &gokong.ApiRequest{}
-
-	apiRequest.Name = readStringPtrFromResource(d, "name")
-	apiRequest.Hosts = readStringArrayPtrFromResource(d, "hosts")
-	apiRequest.Uris = readStringArrayPtrFromResource(d, "uris")
-	apiRequest.Methods = readStringArrayPtrFromResource(d, "methods")
-	apiRequest.UpstreamUrl = readStringPtrFromResource(d, "upstream_url")
-	apiRequest.StripUri = readBoolPtrFromResource(d, "strip_uri")
-	apiRequest.PreserveHost = readBoolPtrFromResource(d, "preserve_host")
-	apiRequest.Retries = readIntPtrFromResource(d, "retries")
-	apiRequest.UpstreamConnectTimeout = readIntPtrFromResource(d, "upstream_connect_timeout")
-	apiRequest.UpstreamSendTimeout = readIntPtrFromResource(d, "upstream_send_timeout")
-	apiRequest.UpstreamReadTimeout = readIntPtrFromResource(d, "upstream_read_timeout")
-	apiRequest.HttpsOnly = readBoolPtrFromResource(d, "https_only")
-	apiRequest.HttpIfTerminated = readBoolPtrFromResource(d, "http_if_terminated")
-
-	return apiRequest
+	return &gokong.ApiRequest{
+		Name:                   readStringPtrFromResource(d, "name"),
+		Hosts:                  readStringArrayPtrFromResource(d, "hosts"),
+		Uris:                   readStringArrayPtrFromResource(d, "uris"),
+		Methods:                readStringArrayPtrFromResource(d, "methods"),
+		UpstreamUrl:            readStringPtrFromResource(d, "upstream_url"),
+		StripUri:               readBoolPtrFromResource(d, "strip_uri"),
+		PreserveHost:           readBoolPtrFromResource(d, "preserve_host"),
+		Retries:                readIntPtrFromResource(d, "retries"),
+		UpstreamConnectTimeout: readIntPtrFromResource(d, "upstream_connect_timeout"),
+		UpstreamSendTimeout:    readIntPtrFromResource(d, "upstream_send_timeout"),
+		UpstreamReadTimeout:    readIntPtrFromResource(d, "upstream_read_timeout"),
+		HttpsOnly:              readBoolPtrFromResource(d, "https_only"),
+		HttpIfTerminated:       readBoolPtrFromResource(d, "http_if_terminated"),
+	}
 }
