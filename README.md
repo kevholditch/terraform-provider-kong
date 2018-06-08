@@ -4,6 +4,12 @@ Terraform Provider Kong
 =======================
 The Kong Terraform Provider tested against real Kong!
 
+Notice
+------
+I have recently updated the provider to use `v1.0.0` of [gokong](http://github.com/kevholditch/gokong) this pulls in the changes to use pointers to all api fields.  If you update to the latest provider
+be aware of this change.  Terraform may want to update some api resources as this fixes a bug where if you set a string from a value to `""` it will now be treated as empty string and not ignored.  If you
+have set any of your api fields to empty string this will now be picked up.
+
 Requirements
 ------------
 
@@ -310,6 +316,6 @@ If when you run the make command you get the following error:
 ```
 gofmt needs running on the following files:
 ```
-Then all you need to do is run `make fmt` this will reformat all of the code (I know awesome)!!  
+Then all you need to do is run `make goimports` this will reformat all of the code (I know awesome)!!
 
 Please write tests for your new feature/bug fix, PRs will only be accepted with covering tests and where all tests pass.  If you want to start work on a feature feel free to open a PR early so we can discuss it or if you need help.

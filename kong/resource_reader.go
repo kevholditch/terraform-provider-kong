@@ -79,10 +79,7 @@ func readIntFromResource(d *schema.ResourceData, key string) int {
 }
 
 func readIntPtrFromResource(d *schema.ResourceData, key string) *int {
-	if attr, ok := d.GetOk(key); ok {
-		return gokong.Int(attr.(int))
-	}
-	return nil
+	return gokong.Int(d.Get(key).(int))
 }
 
 func readMapFromResource(d *schema.ResourceData, key string) map[string]interface{} {

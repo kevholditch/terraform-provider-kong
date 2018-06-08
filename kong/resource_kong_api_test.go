@@ -34,28 +34,47 @@ func TestAccKongApi(t *testing.T) {
 					resource.TestCheckResourceAttr("kong_api.api", "http_if_terminated", "false"),
 				),
 			},
-			//{
-			//	Config: testUpdateApiConfig,
-			//	Check: resource.ComposeTestCheckFunc(
-			//		testAccCheckKongApiExists("kong_api.api"),
-			//		resource.TestCheckResourceAttr("kong_api.api", "name", "MyApi"),
-			//		resource.TestCheckResourceAttr("kong_api.api", "hosts.0", "different.com"),
-			//		resource.TestCheckResourceAttr("kong_api.api", "uris.0", "/somedomain"),
-			//		resource.TestCheckResourceAttr("kong_api.api", "methods.0", "PUT"),
-			//		resource.TestCheckResourceAttr("kong_api.api", "methods.1", "PATCH"),
-			//		resource.TestCheckResourceAttr("kong_api.api", "upstream_url", "http://localhost:4242"),
-			//		resource.TestCheckResourceAttr("kong_api.api", "strip_uri", "true"),
-			//		resource.TestCheckResourceAttr("kong_api.api", "preserve_host", "true"),
-			//		resource.TestCheckResourceAttr("kong_api.api", "retries", "0"),
-			//		resource.TestCheckResourceAttr("kong_api.api", "upstream_connect_timeout", "50000"),
-			//		resource.TestCheckResourceAttr("kong_api.api", "upstream_send_timeout", "22000"),
-			//		resource.TestCheckResourceAttr("kong_api.api", "upstream_read_timeout", "11000"),
-			//		resource.TestCheckResourceAttr("kong_api.api", "https_only", "true"),
-			//		resource.TestCheckResourceAttr("kong_api.api", "http_if_terminated", "true"),
-			//	),
-			//},
+			{
+				Config: testUpdateApiConfig,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKongApiExists("kong_api.api"),
+					resource.TestCheckResourceAttr("kong_api.api", "name", "MyApi"),
+					resource.TestCheckResourceAttr("kong_api.api", "hosts.0", "different.com"),
+					resource.TestCheckResourceAttr("kong_api.api", "uris.0", "/somedomain"),
+					resource.TestCheckResourceAttr("kong_api.api", "methods.0", "PUT"),
+					resource.TestCheckResourceAttr("kong_api.api", "methods.1", "PATCH"),
+					resource.TestCheckResourceAttr("kong_api.api", "upstream_url", "http://localhost:4242"),
+					resource.TestCheckResourceAttr("kong_api.api", "strip_uri", "true"),
+					resource.TestCheckResourceAttr("kong_api.api", "preserve_host", "true"),
+					resource.TestCheckResourceAttr("kong_api.api", "retries", "0"),
+					resource.TestCheckResourceAttr("kong_api.api", "upstream_connect_timeout", "50000"),
+					resource.TestCheckResourceAttr("kong_api.api", "upstream_send_timeout", "22000"),
+					resource.TestCheckResourceAttr("kong_api.api", "upstream_read_timeout", "11000"),
+					resource.TestCheckResourceAttr("kong_api.api", "https_only", "true"),
+					resource.TestCheckResourceAttr("kong_api.api", "http_if_terminated", "true"),
+				),
+			},
 		},
 	})
+}
+
+func TestAccKongMinimalApi(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongApiDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testMinimumValuesApiConfig,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKongApiExists("kong_api.minimal_api"),
+					resource.TestCheckResourceAttr("kong_api.minimal_api", "name", "MyMinimalApi"),
+					resource.TestCheckResourceAttr("kong_api.minimal_api", "hosts.0", "different2.com"),
+					resource.TestCheckResourceAttr("kong_api.minimal_api", "upstream_url", "http://localhost:4140"),
+				),
+			},
+		},
+	})
+
 }
 
 func TestAccKongApiImport(t *testing.T) {
@@ -175,5 +194,12 @@ resource "kong_api" "api" {
 	upstream_read_timeout = 10000
 	https_only = false
 	http_if_terminated = false
+}
+`
+const testMinimumValuesApiConfig = `
+resource "kong_api" "minimal_api" {
+	name 	= "MyMinimalApi"
+  	hosts   = [ "different2.com" ]
+	upstream_url = "http://localhost:4140"
 }
 `
