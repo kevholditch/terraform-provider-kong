@@ -1,11 +1,12 @@
 package gokong
 
 import (
-	"github.com/google/go-querystring/query"
 	"net/url"
 	"os"
 	"reflect"
 	"strings"
+
+	"github.com/google/go-querystring/query"
 )
 
 const EnvKongAdminHostAddress = "KONG_ADMIN_ADDR"
@@ -17,9 +18,10 @@ type KongAdminClient struct {
 }
 
 type Config struct {
-	HostAddress string
-	Username    string
-	Password    string
+	HostAddress        string
+	Username           string
+	Password           string
+	InsecureSkipVerify bool
 }
 
 func addQueryString(currentUrl string, filter interface{}) (string, error) {
@@ -44,9 +46,10 @@ func addQueryString(currentUrl string, filter interface{}) (string, error) {
 
 func NewDefaultConfig() *Config {
 	config := &Config{
-		HostAddress: "http://localhost:8001",
-		Username:    "",
-		Password:    "",
+		HostAddress:        "http://localhost:8001",
+		Username:           "",
+		Password:           "",
+		InsecureSkipVerify: false,
 	}
 
 	if os.Getenv(EnvKongAdminHostAddress) != "" {
@@ -107,6 +110,18 @@ func (kongAdminClient *KongAdminClient) Snis() *SnisClient {
 
 func (kongAdminClient *KongAdminClient) Upstreams() *UpstreamClient {
 	return &UpstreamClient{
+		config: kongAdminClient.config,
+	}
+}
+
+func (kongAdminClient *KongAdminClient) Routes() *RouteClient {
+	return &RouteClient{
+		config: kongAdminClient.config,
+	}
+}
+
+func (kongAdminClient *KongAdminClient) Services() *ServiceClient {
+	return &ServiceClient{
 		config: kongAdminClient.config,
 	}
 }

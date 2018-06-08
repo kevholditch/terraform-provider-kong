@@ -10,16 +10,62 @@ type UpstreamClient struct {
 }
 
 type UpstreamRequest struct {
-	Name      string `json:"name,omitempty"`
-	Slots     int    `json:"slots,omitempty"`
-	OrderList []int  `json:"orderlist,omitempty"`
+	Name               string               `json:"name"`
+	Slots              int                  `json:"slots,omitempty"`
+	HashOn             string               `json:"hash_on,omitempty"`
+	HashFallback       string               `json:"hash_fallback,omitempty"`
+	HashOnHeader       string               `json:"hash_on_header,omitempty"`
+	HashFallbackHeader string               `json:"hash_fallback_header,omitempty"`
+	HealthChecks       *UpstreamHealthCheck `json:"healthchecks,omitempty"`
+}
+
+type UpstreamHealthCheck struct {
+	Active  *UpstreamHealthCheckActive  `json:"active,omitempty"`
+	Passive *UpstreamHealthCheckPassive `json:"passive,omitempty"`
+}
+
+type UpstreamHealthCheckActive struct {
+	Concurrency int              `json:"concurrency,omitempty"`
+	Healthy     *ActiveHealthy   `json:"healthy,omitempty"`
+	HttpPath    string           `json:"http_path,omitempty"`
+	Timeout     int              `json:"timeout,omitempty"`
+	Unhealthy   *ActiveUnhealthy `json:"unhealthy,omitempty"`
+}
+
+type ActiveHealthy struct {
+	HttpStatuses []int `json:"http_statuses,omitempty"`
+	Interval     int   `json:"interval,omitempty"`
+	Successes    int   `json:"successes,omitempty"`
+}
+
+type ActiveUnhealthy struct {
+	HttpFailures int   `json:"http_failures,omitempty"`
+	HttpStatuses []int `json:"http_statuses,omitempty"`
+	Interval     int   `json:"interval,omitempty"`
+	TcpFailures  int   `json:"tcp_failures,omitempty"`
+	Timeouts     int   `json:"timeouts,omitempty"`
+}
+
+type UpstreamHealthCheckPassive struct {
+	Healthy   *PassiveHealthy   `json:"healthy,omitempty"`
+	Unhealthy *PassiveUnhealthy `json:"unhealthy,omitempty"`
+}
+
+type PassiveHealthy struct {
+	HttpStatuses []int `json:"http_statuses,omitempty"`
+	Successes    int   `json:"successes,omitempty"`
+}
+
+type PassiveUnhealthy struct {
+	HttpFailures int   `json:"http_failures,omitempty"`
+	HttpStatuses []int `json:"http_statuses,omitempty"`
+	TcpFailures  int   `json:"tcp_failures,omitempty"`
+	Timeouts     int   `json:"timeouts,omitempty"`
 }
 
 type Upstream struct {
-	Id        string `json:"id,omitempty"`
-	Name      string `json:"name,omitempty"`
-	Slots     int    `json:"slots,omitempty"`
-	OrderList []int  `json:"orderlist,omitempty"`
+	Id string `json:"id,omitempty"`
+	UpstreamRequest
 }
 
 type Upstreams struct {

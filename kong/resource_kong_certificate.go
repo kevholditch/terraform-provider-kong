@@ -42,7 +42,7 @@ func resourceKongCertificateCreate(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("failed to create kong certificate: %v error: %v", certificateRequest, err)
 	}
 
-	d.SetId(certificate.Id)
+	d.SetId(*certificate.Id)
 
 	return resourceKongCertificateRead(d, meta)
 }
@@ -72,8 +72,13 @@ func resourceKongCertificateRead(d *schema.ResourceData, meta interface{}) error
 	if certificate == nil {
 		d.SetId("")
 	} else {
-		d.Set("certificate", certificate.Cert)
-		d.Set("private_key", certificate.Key)
+		if certificate.Cert != nil {
+			d.Set("certificate", certificate.Cert)
+		}
+
+		if certificate.Key != nil {
+			d.Set("private_key", certificate.Key)
+		}
 	}
 
 	return nil
@@ -94,8 +99,8 @@ func createKongCertificateRequestFromResourceData(d *schema.ResourceData) *gokon
 
 	certificateRequest := &gokong.CertificateRequest{}
 
-	certificateRequest.Cert = readStringFromResource(d, "certificate")
-	certificateRequest.Key = readStringFromResource(d, "private_key")
+	certificateRequest.Cert = readStringPtrFromResource(d, "certificate")
+	certificateRequest.Key = readStringPtrFromResource(d, "private_key")
 
 	return certificateRequest
 }

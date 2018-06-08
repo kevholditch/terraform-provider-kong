@@ -81,7 +81,6 @@ func dataSourceKongUpstreamRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("id", upstream.Id)
 	d.Set("name", upstream.Name)
 	d.Set("slots", upstream.Slots)
-	d.Set("order_list", upstream.OrderList)
 
 	return nil
 }

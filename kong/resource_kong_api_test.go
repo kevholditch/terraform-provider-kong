@@ -23,7 +23,7 @@ func TestAccKongApi(t *testing.T) {
 					resource.TestCheckResourceAttr("kong_api.api", "methods.0", "GET"),
 					resource.TestCheckResourceAttr("kong_api.api", "methods.1", "POST"),
 					resource.TestCheckResourceAttr("kong_api.api", "upstream_url", "http://localhost:4140"),
-					resource.TestCheckResourceAttr("kong_api.api", "strip_uri", "false"),
+					resource.TestCheckResourceAttr("kong_api.api", "strip_uri", "true"),
 					resource.TestCheckResourceAttr("kong_api.api", "preserve_host", "false"),
 					resource.TestCheckResourceAttr("kong_api.api", "retries", "5"),
 					resource.TestCheckResourceAttr("kong_api.api", "upstream_connect_timeout", "60000"),

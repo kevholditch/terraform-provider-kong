@@ -56,9 +56,15 @@ func dataSourceKongCertificateRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("could not find certificate by id: %v", filterId)
 	}
 
-	d.SetId(result.Id)
-	d.Set("certificate", result.Cert)
-	d.Set("private_key", result.Key)
+	d.SetId(*result.Id)
+
+	if result.Cert != nil {
+		d.Set("certificate", result.Cert)
+	}
+
+	if result.Key != nil{
+		d.Set("private_key", result.Key)
+	}
 
 	return nil
 }
