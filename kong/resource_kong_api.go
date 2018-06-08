@@ -141,15 +141,15 @@ func resourceKongApiRead(d *schema.ResourceData, meta interface{}) error {
 		}
 
 		if api.Hosts != nil {
-			d.Set("hosts", api.Hosts)
+			d.Set("hosts", gokong.StringValueSlice(api.Hosts))
 		}
 
 		if api.Uris != nil {
-			d.Set("uris", api.Uris)
+			d.Set("uris", gokong.StringValueSlice(api.Uris))
 		}
 
 		if api.Methods != nil {
-			d.Set("methods", api.Methods)
+			d.Set("methods", gokong.StringValueSlice(api.Methods))
 		}
 
 		if api.UpstreamUrl != nil {

@@ -699,5 +699,5 @@ If when you run the make command you get the following error:
 ```
 gofmt needs running on the following files:
 ```
-Then all you need to do is run `make fmt` this will reformat all of the code (I know awesome)!!
+Then all you need to do is run `make goimports` this will reformat all of the code (I know awesome)!!
 

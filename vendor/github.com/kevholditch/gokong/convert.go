@@ -19,3 +19,13 @@ func StringSlice(src []string) []*string {
 	}
 	return dst
 }
+
+func StringValueSlice(src []*string) []string {
+	dst := make([]string, len(src))
+	for i := 0; i < len(src); i++ {
+		if src[i] != nil {
+			dst[i] = *(src[i])
+		}
+	}
+	return dst
+}

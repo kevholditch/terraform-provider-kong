@@ -200,11 +200,9 @@ For more information on creating SNIs in Kong [see their documentaton](https://g
 resource "kong_upstream" "upstream" {
     name  		= "sample_upstream"
     slots 		= 10
-    order_list  = [ 3, 2, 1, 4, 5, 6, 7, 8, 9, 10 ]
 }
 ```
-`order_list` is optional if not supplied then one will be generated at random by kong and it will be set in the resource state.  For more
-information on creating Upstreams in Kong [see their documentaton](https://getkong.org/docs/0.11.x/admin-api/#upstream-objects)
+
 
 # Data Sources
 ## APIs
@@ -213,8 +211,8 @@ To look up an existing api you can do so by using a filter:
 data "kong_api" "api_data_source" {
     filter = {
         id = "de539d26-97d2-4d5b-aaf9-628e51087d9c"
-	name = "TestDataSourceApi"
-	upstream_url = "http://localhost:4140"
+	    name = "TestDataSourceApi"
+	    upstream_url = "http://localhost:4140"
     }
 }
 ```
