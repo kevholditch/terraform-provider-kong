@@ -4,6 +4,13 @@ Terraform Provider Kong
 =======================
 The Kong Terraform Provider tested against real Kong!
 
+
+Notice
+------
+I have recently updated the provider to use `v1.0.0` of [gokong](http://github.com/kevholditch/gokong) this pulls in the changes to use pointers to all api fields.  If you update to the latest provider
+be aware of this change.  Terraform may want to update some api resources as this fixes a bug where if you set a string from a value to `""` it will now be treated as empty string and not ignored.  If you
+have set any of your api fields to empty string this will now be picked up.
+
 Requirements
 ------------
 
@@ -194,11 +201,9 @@ For more information on creating SNIs in Kong [see their documentaton](https://g
 resource "kong_upstream" "upstream" {
     name  		= "sample_upstream"
     slots 		= 10
-    order_list  = [ 3, 2, 1, 4, 5, 6, 7, 8, 9, 10 ]
 }
 ```
-`order_list` is optional if not supplied then one will be generated at random by kong and it will be set in the resource state.  For more
-information on creating Upstreams in Kong [see their documentaton](https://getkong.org/docs/0.11.x/admin-api/#upstream-objects)
+
 
 # Data Sources
 ## APIs
@@ -207,8 +212,8 @@ To look up an existing api you can do so by using a filter:
 data "kong_api" "api_data_source" {
     filter = {
         id = "de539d26-97d2-4d5b-aaf9-628e51087d9c"
-	name = "TestDataSourceApi"
-	upstream_url = "http://localhost:4140"
+	    name = "TestDataSourceApi"
+	    upstream_url = "http://localhost:4140"
     }
 }
 ```
@@ -310,6 +315,6 @@ If when you run the make command you get the following error:
 ```
 gofmt needs running on the following files:
 ```
-Then all you need to do is run `make fmt` this will reformat all of the code (I know awesome)!!  
+Then all you need to do is run `make goimports` this will reformat all of the code (I know awesome)!!
 
 Please write tests for your new feature/bug fix, PRs will only be accepted with covering tests and where all tests pass.  If you want to start work on a feature feel free to open a PR early so we can discuss it or if you need help.

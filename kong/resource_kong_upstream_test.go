@@ -2,10 +2,11 @@ package kong
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/kevholditch/gokong"
-	"testing"
 )
 
 func TestAccKongUpstream(t *testing.T) {
@@ -33,53 +34,6 @@ func TestAccKongUpstream(t *testing.T) {
 		},
 	})
 }
-
-func TestAccKongUpstreamWithOrderList(t *testing.T) {
-
-	resource.Test(t, resource.TestCase{
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKongUpstreamDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testCreateUpstreamWithOrderList,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckKongUpstreamExists("kong_upstream.upstream_orderlist"),
-					resource.TestCheckResourceAttr("kong_upstream.upstream_orderlist", "name", "MyOrderListUpstream"),
-					resource.TestCheckResourceAttr("kong_upstream.upstream_orderlist", "slots", "10"),
-					resource.TestCheckResourceAttr("kong_upstream.upstream_orderlist", "order_list.0", "3"),
-					resource.TestCheckResourceAttr("kong_upstream.upstream_orderlist", "order_list.1", "2"),
-					resource.TestCheckResourceAttr("kong_upstream.upstream_orderlist", "order_list.2", "1"),
-					resource.TestCheckResourceAttr("kong_upstream.upstream_orderlist", "order_list.3", "4"),
-					resource.TestCheckResourceAttr("kong_upstream.upstream_orderlist", "order_list.4", "5"),
-					resource.TestCheckResourceAttr("kong_upstream.upstream_orderlist", "order_list.5", "6"),
-					resource.TestCheckResourceAttr("kong_upstream.upstream_orderlist", "order_list.6", "7"),
-					resource.TestCheckResourceAttr("kong_upstream.upstream_orderlist", "order_list.7", "8"),
-					resource.TestCheckResourceAttr("kong_upstream.upstream_orderlist", "order_list.8", "9"),
-					resource.TestCheckResourceAttr("kong_upstream.upstream_orderlist", "order_list.9", "10"),
-				),
-			},
-			{
-				Config: testUpdateUpstreamWithOrderList,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckKongUpstreamExists("kong_upstream.upstream_orderlist"),
-					resource.TestCheckResourceAttr("kong_upstream.upstream_orderlist", "name", "MyOrderListUpstream"),
-					resource.TestCheckResourceAttr("kong_upstream.upstream_orderlist", "slots", "10"),
-					resource.TestCheckResourceAttr("kong_upstream.upstream_orderlist", "order_list.0", "7"),
-					resource.TestCheckResourceAttr("kong_upstream.upstream_orderlist", "order_list.1", "8"),
-					resource.TestCheckResourceAttr("kong_upstream.upstream_orderlist", "order_list.2", "9"),
-					resource.TestCheckResourceAttr("kong_upstream.upstream_orderlist", "order_list.3", "10"),
-					resource.TestCheckResourceAttr("kong_upstream.upstream_orderlist", "order_list.4", "3"),
-					resource.TestCheckResourceAttr("kong_upstream.upstream_orderlist", "order_list.5", "2"),
-					resource.TestCheckResourceAttr("kong_upstream.upstream_orderlist", "order_list.6", "1"),
-					resource.TestCheckResourceAttr("kong_upstream.upstream_orderlist", "order_list.7", "4"),
-					resource.TestCheckResourceAttr("kong_upstream.upstream_orderlist", "order_list.8", "5"),
-					resource.TestCheckResourceAttr("kong_upstream.upstream_orderlist", "order_list.9", "6"),
-				),
-			},
-		},
-	})
-}
-
 func TestAccKongUpstreamImport(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
@@ -159,21 +113,5 @@ const testUpdateUpstreamConfig = `
 resource "kong_upstream" "upstream" {
 	name  		= "MyUpstream"
 	slots 		= 20
-}
-`
-
-const testCreateUpstreamWithOrderList = `
-resource "kong_upstream" "upstream_orderlist" {
-	name  		= "MyOrderListUpstream"
-	slots 		= 10
-	order_list  = [ 3, 2, 1, 4, 5, 6, 7, 8, 9, 10 ]
-}
-`
-
-const testUpdateUpstreamWithOrderList = `
-resource "kong_upstream" "upstream_orderlist" {
-	name  		= "MyOrderListUpstream"
-	slots 		= 10
-	order_list  = [ 7, 8, 9, 10, 3, 2, 1, 4, 5, 6,  ]
 }
 `

@@ -2,6 +2,7 @@ package kong
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/kevholditch/gokong"
 )
@@ -123,21 +124,67 @@ func dataSourceKongApiRead(d *schema.ResourceData, meta interface{}) error {
 
 	api := results.Results[0]
 
-	d.SetId(api.Id)
-	d.Set("id", api.Id)
-	d.Set("name", api.Name)
-	d.Set("hosts", api.Hosts)
-	d.Set("uris", api.Uris)
-	d.Set("methods", api.Methods)
-	d.Set("upstream_url", api.UpstreamUrl)
-	d.Set("strip_uri", api.StripUri)
-	d.Set("preserve_host", api.PreserveHost)
-	d.Set("retries", api.Retries)
-	d.Set("upstream_connect_timeout", api.UpstreamConnectTimeout)
-	d.Set("upstream_send_timeout", api.UpstreamSendTimeout)
-	d.Set("upstream_read_timeout", api.UpstreamReadTimeout)
-	d.Set("https_only", api.HttpsOnly)
-	d.Set("http_if_terminated", api.HttpIfTerminated)
+	if api == nil {
+		return nil
+	}
+
+	d.SetId(*api.Id)
+
+	if api.Id != nil {
+		d.Set("id", api.Id)
+	}
+
+	if api.Name != nil {
+		d.Set("name", api.Name)
+	}
+
+	if api.Hosts != nil {
+		d.Set("hosts", gokong.StringValueSlice(api.Hosts))
+	}
+
+	if api.Uris != nil {
+		d.Set("uris", gokong.StringValueSlice(api.Uris))
+	}
+
+	if api.Methods != nil {
+		d.Set("methods", gokong.StringValueSlice(api.Methods))
+	}
+
+	if api.UpstreamUrl != nil {
+		d.Set("upstream_url", api.UpstreamUrl)
+	}
+
+	if api.StripUri != nil {
+		d.Set("strip_uri", api.StripUri)
+	}
+
+	if api.PreserveHost != nil {
+		d.Set("preserve_host", api.PreserveHost)
+	}
+
+	if api.Retries != nil {
+		d.Set("retries", api.Retries)
+	}
+
+	if api.UpstreamConnectTimeout != nil {
+		d.Set("upstream_connect_timeout", api.UpstreamConnectTimeout)
+	}
+
+	if api.UpstreamSendTimeout != nil {
+		d.Set("upstream_send_timeout", api.UpstreamSendTimeout)
+	}
+
+	if api.UpstreamReadTimeout != nil {
+		d.Set("upstream_read_timeout", api.UpstreamReadTimeout)
+	}
+
+	if api.HttpsOnly != nil {
+		d.Set("https_only", api.HttpsOnly)
+	}
+
+	if api.HttpIfTerminated != nil {
+		d.Set("http_if_terminated", api.HttpIfTerminated)
+	}
 
 	return nil
 }

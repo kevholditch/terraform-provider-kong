@@ -1,16 +1,16 @@
-GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
+GOFMT_FILES?=$$(find ./ -name '*.go' | grep -v vendor)
 
 default: build test testacc
 
 travisbuild: deps default
 
-test: fmtcheck
+test:
 	go test -v . ./kong
 
-testacc: fmtcheck
+testacc:
 	go test -v ./kong -run="TestAcc"
 
-build: fmtcheck vet testacc
+build: goimportscheck vet testacc
 	@go install
 	@mkdir -p ~/.terraform.d/plugins/
 	@cp $(GOPATH)/bin/terraform-provider-kong ~/.terraform.d/plugins/terraform-provider-kong
@@ -30,11 +30,15 @@ deps:
 
 clean:
 	rm -rf pkg/
-fmt:
-	gofmt -w $(GOFMT_FILES)
 
-fmtcheck:
-	@sh -c "'$(CURDIR)/scripts/gofmtcheck.sh'"
+goimports:
+	goimports -w $(GOFMT_FILES)
+
+install-goimports:
+	@go get golang.org/x/tools/cmd/goimports
+
+goimportscheck:
+	@sh -c "'$(CURDIR)/scripts/goimportscheck.sh'"
 
 vet:
 	@echo "go vet ."
@@ -45,4 +49,4 @@ vet:
 		exit 1; \
 	fi
 
-.PHONY: build test testacc vet fmt fmtcheck errcheck vendor-status test-compile
+.PHONY: build test testacc vet goimports goimportscheck errcheck vendor-status test-compile

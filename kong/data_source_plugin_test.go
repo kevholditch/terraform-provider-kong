@@ -1,8 +1,9 @@
 package kong
 
 import (
-	"github.com/hashicorp/terraform/helper/resource"
 	"testing"
+
+	"github.com/hashicorp/terraform/helper/resource"
 )
 
 func TestAccDataSourceKongPlugin(t *testing.T) {

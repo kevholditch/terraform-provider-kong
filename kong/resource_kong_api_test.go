@@ -2,10 +2,11 @@ package kong
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/kevholditch/gokong"
-	"testing"
 )
 
 func TestAccKongApi(t *testing.T) {
@@ -55,6 +56,25 @@ func TestAccKongApi(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestAccKongMinimalApi(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongApiDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testMinimumValuesApiConfig,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKongApiExists("kong_api.minimal_api"),
+					resource.TestCheckResourceAttr("kong_api.minimal_api", "name", "MyMinimalApi"),
+					resource.TestCheckResourceAttr("kong_api.minimal_api", "hosts.0", "different2.com"),
+					resource.TestCheckResourceAttr("kong_api.minimal_api", "upstream_url", "http://localhost:4140"),
+				),
+			},
+		},
+	})
+
 }
 
 func TestAccKongApiImport(t *testing.T) {
@@ -174,5 +194,12 @@ resource "kong_api" "api" {
 	upstream_read_timeout = 10000
 	https_only = false
 	http_if_terminated = false
+}
+`
+const testMinimumValuesApiConfig = `
+resource "kong_api" "minimal_api" {
+	name 	= "MyMinimalApi"
+  	hosts   = [ "different2.com" ]
+	upstream_url = "http://localhost:4140"
 }
 `

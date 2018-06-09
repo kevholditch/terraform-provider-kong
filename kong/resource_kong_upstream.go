@@ -27,13 +27,6 @@ func resourceKongUpstream() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"order_list": &schema.Schema{
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeInt},
-				Default:  nil,
-				ForceNew: true,
-			},
 		},
 	}
 }
@@ -88,7 +81,6 @@ func createKongUpstreamRequestFromResourceData(d *schema.ResourceData) *gokong.U
 
 	upstreamRequest.Name = readStringFromResource(d, "name")
 	upstreamRequest.Slots = readIntFromResource(d, "slots")
-	upstreamRequest.OrderList = readIntArrayFromResource(d, "order_list")
 
 	return upstreamRequest
 }

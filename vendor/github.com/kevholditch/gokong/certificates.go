@@ -10,14 +10,14 @@ type CertificateClient struct {
 }
 
 type CertificateRequest struct {
-	Cert string `json:"cert,omitempty"`
-	Key  string `json:"key,omitempty"`
+	Cert *string `json:"cert,omitempty"`
+	Key  *string `json:"key,omitempty"`
 }
 
 type Certificate struct {
-	Id   string `json:"id,omitempty"`
-	Cert string `json:"cert,omitempty"`
-	Key  string `json:"key,omitempty"`
+	Id   *string `json:"id,omitempty"`
+	Cert *string `json:"cert,omitempty"`
+	Key  *string `json:"key,omitempty"`
 }
 
 type Certificates struct {
@@ -40,7 +40,7 @@ func (certificateClient *CertificateClient) GetById(id string) (*Certificate, er
 		return nil, fmt.Errorf("could not parse certificate get response, error: %v", err)
 	}
 
-	if certificate.Id == "" {
+	if certificate.Id == nil {
 		return nil, nil
 	}
 
@@ -60,7 +60,7 @@ func (certificateClient *CertificateClient) Create(certificateRequest *Certifica
 		return nil, fmt.Errorf("could not parse certificate creation response, error: %v", err)
 	}
 
-	if createdCertificate.Id == "" {
+	if createdCertificate.Id == nil {
 		return nil, fmt.Errorf("could not create certificate, error: %v", body)
 	}
 
@@ -106,7 +106,7 @@ func (certificateClient *CertificateClient) UpdateById(id string, certificateReq
 		return nil, fmt.Errorf("could not parse certificate update response, error: %v", err)
 	}
 
-	if updatedCertificate.Id == "" {
+	if updatedCertificate.Id == nil {
 		return nil, fmt.Errorf("could not update certificate, error: %v", body)
 	}
 

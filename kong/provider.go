@@ -1,10 +1,11 @@
 package kong
 
 import (
+	"os"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/kevholditch/gokong"
-	"os"
 )
 
 func Provider() terraform.ResourceProvider {

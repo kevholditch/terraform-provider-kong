@@ -1,13 +1,14 @@
 package kong
 
 import (
+	"log"
+	"os"
+	"testing"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/kevholditch/gokong"
 	"github.com/kevholditch/gokong/containers"
-	"log"
-	"os"
-	"testing"
 )
 
 const defaultKongVersion = "0.11"
