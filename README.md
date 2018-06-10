@@ -27,7 +27,7 @@ provider "kong" {
 }
 ```
 
-Optionaly you can configure Username and Password for BasicAuth:
+Optionally you can configure Username and Password for BasicAuth:
 ```hcl
 provider "kong" {
     kong_admin_uri  = "http://myKong:8001"
@@ -36,13 +36,17 @@ provider "kong" {
 }
 ```
 
+
+
 You can use environment variables to set the provider properties instead.  The following table shows the corresponding environment variables and thei property defaults if you do not set them.
 
-| Provider property     | Env variable         | Default if not set    |
-|:----------------------|:---------------------|-----------------------|
-| kong_admin_uri        | KONG_ADMIN_ADDR      | http://localhost:8001 |
-| kong_admin_username   | KONG_ADMIN_USERNAME  | not set               |
-| kong_admin_password   | KONG_ADMIN_PASSWORD  | not set               |
+| Provider property     | Env variable         | Default if not set    | Use                                                                             |
+|:----------------------|:---------------------|:----------------------|:--------------------------------------------------------------------------------|
+| kong_admin_uri        | KONG_ADMIN_ADDR      | http://localhost:8001 | The url of the kong admin api                                                   |
+| kong_admin_username   | KONG_ADMIN_USERNAME  | not set               | Username for the kong admin api                                                 |
+| kong_admin_password   | KONG_ADMIN_PASSWORD  | not set               | Password for the kong admin api                                                 |
+| tls_skip_verify       | TLS_SKIP_VERIFY      | false                 | Whether to skip tls certificate verification for the kong api when using https  |
+
 
 
 
