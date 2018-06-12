@@ -21,8 +21,7 @@ build-gox: deps fmtcheck vet
 	-output="pkg/{{.OS}}_{{.Arch}}/terraform-provider-kong" .
 
 release:
-	go get github.com/goreleaser/goreleaser; \
-    goreleaser; \
+	@curl -sL http://git.io/goreleaser | bash
 
 deps:
 	go get -u golang.org/x/net/context; \
