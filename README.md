@@ -317,7 +317,7 @@ Once you have cloned the repository the `env TF_ACC=1 make` command will build t
 
 If when you run the make command you get the following error:
 ```
-gofmt needs running on the following files:
+goimports needs running on the following files:
 ```
 Then all you need to do is run `make goimports` this will reformat all of the code (I know awesome)!!
 
