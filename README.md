@@ -37,8 +37,7 @@ provider "kong" {
 ```
 
 
-
-You can use environment variables to set the provider properties instead.  The following table shows the corresponding environment variables and thei property defaults if you do not set them.
+You can use environment variables to set the provider properties instead.  The following table shows all of the config options, the corresponding environment variables and their property defaults if you do not set them.
 
 | Provider property     | Env variable         | Default if not set    | Use                                                                             |
 |:----------------------|:---------------------|:----------------------|:--------------------------------------------------------------------------------|
@@ -46,6 +45,7 @@ You can use environment variables to set the provider properties instead.  The f
 | kong_admin_username   | KONG_ADMIN_USERNAME  | not set               | Username for the kong admin api                                                 |
 | kong_admin_password   | KONG_ADMIN_PASSWORD  | not set               | Password for the kong admin api                                                 |
 | tls_skip_verify       | TLS_SKIP_VERIFY      | false                 | Whether to skip tls certificate verification for the kong api when using https  |
+| kong_api_key          | KONG_API_KEY         | not set               | API key used to secure the kong admin API                                       |
 
 
 

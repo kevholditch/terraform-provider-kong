@@ -70,7 +70,7 @@ func (serviceClient *ServiceClient) AddService(serviceRequest *ServiceRequest) (
 		serviceRequest.Retries = 60000
 	}
 
-	_, body, errs := NewRequest(serviceClient.config).Post(serviceClient.config.HostAddress + ServicesPath).Send(serviceRequest).End()
+	_, body, errs := newPost(serviceClient.config, serviceClient.config.HostAddress+ServicesPath).Send(serviceRequest).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not register the service, error: %v", errs)
 	}
@@ -101,7 +101,7 @@ func (serviceClient *ServiceClient) GetServiceFromRouteId(id string) (*Service, 
 }
 
 func (serviceClient *ServiceClient) getService(endpoint string) (*Service, error) {
-	_, body, errs := NewRequest(serviceClient.config).Get(endpoint).End()
+	_, body, errs := newGet(serviceClient.config, endpoint).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not get the service, error: %v", errs)
 	}
@@ -128,7 +128,7 @@ func (serviceClient *ServiceClient) GetServices(query *ServiceQueryString) ([]*S
 	}
 
 	for {
-		_, body, errs := NewRequest(serviceClient.config).Get(serviceClient.config.HostAddress + ServicesPath).Query(query).End()
+		_, body, errs := newGet(serviceClient.config, serviceClient.config.HostAddress+ServicesPath).Query(query).End()
 		if errs != nil {
 			return nil, fmt.Errorf("could not get the service, error: %v", errs)
 		}
@@ -163,7 +163,7 @@ func (serviceClient *ServiceClient) UpdateServicebyRouteId(id string, serviceReq
 }
 
 func (serviceClient *ServiceClient) updateService(endpoint string, serviceRequest *ServiceRequest) (*Service, error) {
-	_, body, errs := NewRequest(serviceClient.config).Patch(endpoint).Send(serviceRequest).End()
+	_, body, errs := newPatch(serviceClient.config, endpoint).Send(serviceRequest).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not update service, error: %v", errs)
 	}
@@ -186,7 +186,7 @@ func (serviceClient *ServiceClient) DeleteServiceByName(name string) error {
 }
 
 func (serviceClient *ServiceClient) DeleteServiceById(id string) error {
-	res, _, errs := NewRequest(serviceClient.config).Delete(serviceClient.config.HostAddress + ServicesPath + id).End()
+	res, _, errs := newDelete(serviceClient.config, serviceClient.config.HostAddress+ServicesPath+id).End()
 	if errs != nil {
 		return fmt.Errorf("could not delete the service, result: %v error: %v", res, errs)
 	}

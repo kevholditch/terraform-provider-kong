@@ -29,7 +29,7 @@ const CertificatesPath = "/certificates/"
 
 func (certificateClient *CertificateClient) GetById(id string) (*Certificate, error) {
 
-	_, body, errs := NewRequest(certificateClient.config).Get(certificateClient.config.HostAddress + CertificatesPath + id).End()
+	_, body, errs := newGet(certificateClient.config, certificateClient.config.HostAddress+CertificatesPath+id).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not get certificate, error: %v", errs)
 	}
@@ -49,7 +49,7 @@ func (certificateClient *CertificateClient) GetById(id string) (*Certificate, er
 
 func (certificateClient *CertificateClient) Create(certificateRequest *CertificateRequest) (*Certificate, error) {
 
-	_, body, errs := NewRequest(certificateClient.config).Post(certificateClient.config.HostAddress + CertificatesPath).Send(certificateRequest).End()
+	_, body, errs := newPost(certificateClient.config, certificateClient.config.HostAddress+CertificatesPath).Send(certificateRequest).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not create new certificate, error: %v", errs)
 	}
@@ -69,7 +69,7 @@ func (certificateClient *CertificateClient) Create(certificateRequest *Certifica
 
 func (certificateClient *CertificateClient) DeleteById(id string) error {
 
-	res, _, errs := NewRequest(certificateClient.config).Delete(certificateClient.config.HostAddress + CertificatesPath + id).End()
+	res, _, errs := newDelete(certificateClient.config, certificateClient.config.HostAddress+CertificatesPath+id).End()
 	if errs != nil {
 		return fmt.Errorf("could not delete certificate, result: %v error: %v", res, errs)
 	}
@@ -79,7 +79,7 @@ func (certificateClient *CertificateClient) DeleteById(id string) error {
 
 func (certificateClient *CertificateClient) List() (*Certificates, error) {
 
-	_, body, errs := NewRequest(certificateClient.config).Get(certificateClient.config.HostAddress + CertificatesPath).End()
+	_, body, errs := newGet(certificateClient.config, certificateClient.config.HostAddress+CertificatesPath).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not get certificates, error: %v", errs)
 	}
@@ -95,7 +95,7 @@ func (certificateClient *CertificateClient) List() (*Certificates, error) {
 
 func (certificateClient *CertificateClient) UpdateById(id string, certificateRequest *CertificateRequest) (*Certificate, error) {
 
-	_, body, errs := NewRequest(certificateClient.config).Patch(certificateClient.config.HostAddress + CertificatesPath + id).Send(certificateRequest).End()
+	_, body, errs := newPatch(certificateClient.config, certificateClient.config.HostAddress+CertificatesPath+id).Send(certificateRequest).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not update certificate, error: %v", errs)
 	}
