@@ -91,7 +91,7 @@ func (upstreamClient *UpstreamClient) GetByName(name string) (*Upstream, error) 
 
 func (upstreamClient *UpstreamClient) GetById(id string) (*Upstream, error) {
 
-	_, body, errs := NewRequest(upstreamClient.config).Get(upstreamClient.config.HostAddress + UpstreamsPath + id).End()
+	_, body, errs := newGet(upstreamClient.config, upstreamClient.config.HostAddress+UpstreamsPath+id).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not get upstream, error: %v", errs)
 	}
@@ -111,7 +111,7 @@ func (upstreamClient *UpstreamClient) GetById(id string) (*Upstream, error) {
 
 func (upstreamClient *UpstreamClient) Create(upstreamRequest *UpstreamRequest) (*Upstream, error) {
 
-	_, body, errs := NewRequest(upstreamClient.config).Post(upstreamClient.config.HostAddress + UpstreamsPath).Send(upstreamRequest).End()
+	_, body, errs := newPost(upstreamClient.config, upstreamClient.config.HostAddress+UpstreamsPath).Send(upstreamRequest).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not create new upstream, error: %v", errs)
 	}
@@ -135,7 +135,7 @@ func (upstreamClient *UpstreamClient) DeleteByName(name string) error {
 
 func (upstreamClient *UpstreamClient) DeleteById(id string) error {
 
-	res, _, errs := NewRequest(upstreamClient.config).Delete(upstreamClient.config.HostAddress + UpstreamsPath + id).End()
+	res, _, errs := newDelete(upstreamClient.config, upstreamClient.config.HostAddress+UpstreamsPath+id).End()
 	if errs != nil {
 		return fmt.Errorf("could not delete upstream, result: %v error: %v", res, errs)
 	}
@@ -155,7 +155,7 @@ func (upstreamClient *UpstreamClient) ListFiltered(filter *UpstreamFilter) (*Ups
 		return nil, fmt.Errorf("could not build query string for upstreams filter, error: %v", err)
 	}
 
-	_, body, errs := NewRequest(upstreamClient.config).Get(address).End()
+	_, body, errs := newGet(upstreamClient.config, address).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not get upstreams, error: %v", errs)
 	}
@@ -175,7 +175,7 @@ func (upstreamClient *UpstreamClient) UpdateByName(name string, upstreamRequest 
 
 func (upstreamClient *UpstreamClient) UpdateById(id string, upstreamRequest *UpstreamRequest) (*Upstream, error) {
 
-	_, body, errs := NewRequest(upstreamClient.config).Patch(upstreamClient.config.HostAddress + UpstreamsPath + id).Send(upstreamRequest).End()
+	_, body, errs := newPatch(upstreamClient.config, upstreamClient.config.HostAddress+UpstreamsPath+id).Send(upstreamRequest).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not update upstream, error: %v", errs)
 	}

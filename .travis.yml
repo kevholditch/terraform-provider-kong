@@ -3,6 +3,8 @@ go:
 - 1.10.x
 services:
 - docker
+install:
+- go get golang.org/x/tools/cmd/goimports
 script:
 - make travisbuild
 after_success:

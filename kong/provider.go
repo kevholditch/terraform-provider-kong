@@ -35,6 +35,12 @@ func Provider() terraform.ResourceProvider {
 				DefaultFunc: envDefaultFuncWithDefault("TLS_SKIP_VERIFY", "false"),
 				Description: "Whether to skip tls verify for https kong api endpoint using self signed or untrusted certs",
 			},
+			"kong_api_key": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: envDefaultFuncWithDefault("KONG_API_KEY", ""),
+				Description: "API key for the kong api (if you have locked it down)",
+			},
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -79,6 +85,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		Username:           d.Get("kong_admin_username").(string),
 		Password:           d.Get("kong_admin_password").(string),
 		InsecureSkipVerify: d.Get("tls_skip_verify").(bool),
+		ApiKey:             d.Get("kong_api_key").(string),
 	}
 
 	return gokong.NewClient(config), nil

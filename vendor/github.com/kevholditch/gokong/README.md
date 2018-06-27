@@ -48,6 +48,20 @@ config := gokong.NewDefaultConfig()
 `NewDefaultConfig` creates a config with the host address set to the value of the env variable `KONG_ADMIN_ADDR`.
 If the env variable is not set then the address is defaulted to `http://localhost:8001`.
 
+There are a number of options you can set via config either by explicitly setting them when creating a config instance or
+ by simply using the `NewDefaultConfig` method and using env variables.  Below is a table of the fields, the env variables that can be used
+ to set them and their default values if you do not provide one via an env variable:
+
+| Config property       | Env variable         | Default if not set    | Use                                                                             |
+|:----------------------|:---------------------|:----------------------|:--------------------------------------------------------------------------------|
+| HostAddress           | KONG_ADMIN_ADDR      | http://localhost:8001 | The url of the kong admin api                                                   |
+| Username              | KONG_ADMIN_USERNAME  | not set               | Username for the kong admin api                                                 |
+| Password              | KONG_ADMIN_PASSWORD  | not set               | Password for the kong admin api                                                 |
+| InsecureSkipVerify    | TLS_SKIP_VERIFY      | false                 | Whether to skip tls certificate verification for the kong api when using https  |
+| ApiKey                | KONG_API_KEY         | not set               | The api key you have used to lock down the kong admin api (via key-auth plugin) |
+
+
+
 You can of course create your own config with the address set to whatever you want:
 ```go
 config := gokong.Config{HostAddress:"http://localhost:1234"}
