@@ -14,6 +14,10 @@ func resourceKongPlugin() *schema.Resource {
 		Delete: resourceKongPluginDelete,
 		Update: resourceKongPluginUpdate,
 
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
