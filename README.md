@@ -37,7 +37,7 @@ provider "kong" {
 ```
 
 
-You can use environment variables to set the provider properties instead.  The following table shows all of the config options, the corresponding environment variables and their property defaults if you do not set them.  When using the `kong_api_ke`y parameter ensure that the key name parameter in the key-auth plugin is set to `apikey`.
+You can use environment variables to set the provider properties instead.  The following table shows all of the config options, the corresponding environment variables and their property defaults if you do not set them.  When using the `kong_api_key` parameter ensure that the key name parameter in the key-auth plugin is set to `apikey`.
 
 | Provider property     | Env variable         | Default if not set    | Use                                                                             |
 |:----------------------|:---------------------|:----------------------|:--------------------------------------------------------------------------------|
