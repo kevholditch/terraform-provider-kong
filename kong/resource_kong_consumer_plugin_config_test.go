@@ -61,6 +61,25 @@ func TestAccKongConsumerPluginConfigKV(t *testing.T) {
 	})
 }
 
+func TestAccKongConsumerPluginConfigImport(t *testing.T) {
+
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongConsumerPluginConfig,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testImportConsumerPluginConfigKV,
+			},
+
+			resource.TestStep{
+				ResourceName:      "kong_consumer_plugin_config.consumer_acl_config",
+				ImportState:       true,
+				ImportStateVerify: false,
+			},
+		},
+	})
+}
+
 func testAccCheckKongConsumerPluginConfig(state *terraform.State) error {
 
 	client := testAccProvider.Meta().(*gokong.KongAdminClient)
@@ -215,6 +234,45 @@ resource "kong_consumer_plugin_config" "consumer_acl_config" {
 `
 
 const testUpdateConsumerPluginConfigKV = `
+resource "kong_api" "api" {
+	name 	= "TestApi"
+  	hosts   = [ "example.com" ]
+	uris 	= [ "/example" ]
+	methods = [ "GET", "POST" ]
+	upstream_url = "http://localhost:4140"
+	strip_uri = false
+	preserve_host = false
+	retries = 3
+	upstream_connect_timeout = 60000
+	upstream_send_timeout = 30000
+	upstream_read_timeout = 10000
+	https_only = false
+	http_if_terminated = false
+}
+
+resource "kong_consumer" "my_consumer" {
+	username  = "User1"
+	custom_id = "123"
+}
+
+resource "kong_plugin" "acl_plugin" {
+	name        = "acl"	
+	api_id      = "${kong_api.api.id}"
+	config = {
+		whitelist = "apache"
+	}
+}
+
+resource "kong_consumer_plugin_config" "consumer_acl_config" {
+	consumer_id = "${kong_consumer.my_consumer.id}"
+	plugin_name = "acls"
+	config      = {
+		group = "apache"
+	}
+}
+`
+
+const testImportConsumerPluginConfigKV = `
 resource "kong_api" "api" {
 	name 	= "TestApi"
   	hosts   = [ "example.com" ]
