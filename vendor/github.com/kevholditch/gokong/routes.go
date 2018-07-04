@@ -10,12 +10,12 @@ type RouteClient struct {
 }
 
 type RouteRequest struct {
-	Protocols    []string            `json:"protocols"`
-	Methods      []string            `json:"methods,omitempty"`
-	Hosts        []string            `json:"hosts,omitempty"`
-	Paths        []string            `json:"paths,omitempty"`
-	StripPath    bool                `json:"strip_path,omitempty"`
-	PreserveHost bool                `json:"preserve_host,omitempty"`
+	Protocols    []*string           `json:"protocols"`
+	Methods      []*string           `json:"methods,omitempty"`
+	Hosts        []*string           `json:"hosts,omitempty"`
+	Paths        []*string           `json:"paths,omitempty"`
+	StripPath    *bool               `json:"strip_path,omitempty"`
+	PreserveHost *bool               `json:"preserve_host,omitempty"`
 	Service      *RouteServiceObject `json:"service"`
 }
 
@@ -24,23 +24,23 @@ type RouteServiceObject struct {
 }
 
 type Route struct {
-	Id            string             `json:"id"`
-	CreatedAt     int                `json:"created_at"`
-	UpdatedAt     int                `json:"updated_at"`
-	Protocols     *[]string          `json:"protocols"`
-	Methods       *[]string          `json:"methods"`
-	Hosts         *[]string          `json:"hosts"`
-	Paths         *[]string          `json:"paths"`
-	RegexPriority int                `json:"regex_priority"`
-	StripPath     bool               `json:"strip_path"`
-	PreserveHost  bool               `json:"preserve_host"`
-	Service       RouteServiceObject `json:"service"`
+	Id            *string             `json:"id"`
+	CreatedAt     *int                `json:"created_at"`
+	UpdatedAt     *int                `json:"updated_at"`
+	Protocols     []*string           `json:"protocols"`
+	Methods       []*string           `json:"methods"`
+	Hosts         []*string           `json:"hosts"`
+	Paths         []*string           `json:"paths"`
+	RegexPriority *int                `json:"regex_priority"`
+	StripPath     *bool               `json:"strip_path"`
+	PreserveHost  *bool               `json:"preserve_host"`
+	Service       *RouteServiceObject `json:"service"`
 }
 
 type Routes struct {
 	Data  []*Route `json:"data"`
 	Total int      `json:"total"`
-	Next  *string  `json:"next"`
+	Next  string   `json:"next"`
 }
 
 type RouteQueryString struct {
@@ -62,7 +62,7 @@ func (routeClient *RouteClient) AddRoute(routeRequest *RouteRequest) (*Route, er
 		return nil, fmt.Errorf("could not parse route get response, error: %v", err)
 	}
 
-	if createdRoute.Id == "" {
+	if createdRoute.Id == nil {
 		return nil, fmt.Errorf("could not register the route, error: %v", body)
 	}
 
@@ -109,7 +109,7 @@ func (routeClient *RouteClient) GetRoutes(query *RouteQueryString) ([]*Route, er
 
 		routes = append(routes, data.Data...)
 
-		if data.Next == nil || *data.Next == "" {
+		if data.Next == "" {
 			break
 		}
 
@@ -140,7 +140,7 @@ func (routeClient *RouteClient) GetRoutesFromServiceId(id string) ([]*Route, err
 
 		routes = append(routes, data.Data...)
 
-		if data.Next == nil || *data.Next == "" {
+		if data.Next == "" {
 			break
 		}
 
@@ -160,7 +160,7 @@ func (routeClient *RouteClient) UpdateRoute(id string, routeRequest *RouteReques
 		return nil, fmt.Errorf("could not parse route update response, error: %v", err)
 	}
 
-	if updatedRoute.Id == "" {
+	if updatedRoute.Id == nil {
 		return nil, fmt.Errorf("could not update route, error: %v", body)
 	}
 
