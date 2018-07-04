@@ -71,7 +71,7 @@ func resourceKongRouteCreate(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("failed to create kong route: %v error: %v", routeRequest, err)
 	}
 
-	d.SetId(route.Id)
+	d.SetId(*route.Id)
 
 	return resourceKongRouteRead(d, meta)
 }
@@ -150,12 +150,12 @@ func createKongRouteRequestFromResourceData(d *schema.ResourceData) *gokong.Rout
 	}
 
 	return &gokong.RouteRequest{
-		Protocols:    readStringArrayFromResource(d, "protocols"),
-		Methods:      readStringArrayFromResource(d, "methods"),
-		Hosts:        readStringArrayFromResource(d, "hosts"),
-		Paths:        readStringArrayFromResource(d, "paths"),
-		StripPath:    readBoolFromResource(d, "strip_path"),
-		PreserveHost: readBoolFromResource(d, "preserve_host"),
+		Protocols:    readStringArrayPtrFromResource(d, "protocols"),
+		Methods:      readStringArrayPtrFromResource(d, "methods"),
+		Hosts:        readStringArrayPtrFromResource(d, "hosts"),
+		Paths:        readStringArrayPtrFromResource(d, "paths"),
+		StripPath:    readBoolPtrFromResource(d, "strip_path"),
+		PreserveHost: readBoolPtrFromResource(d, "preserve_host"),
 		Service:      &service,
 	}
 }
