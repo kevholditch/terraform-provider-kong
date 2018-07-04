@@ -56,7 +56,7 @@ func NewKongContainer(pool *dockertest.Pool, postgres *postgresContainer, kongVe
 
 	options = &dockertest.RunOptions{
 		Repository: "kong",
-		Tag:        kongVersion,
+		Tag:        "0.11",
 		Env:        envVars,
 		Links:      []string{fmt.Sprintf("%s:postgres", postgres.Name)},
 	}
