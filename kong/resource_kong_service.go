@@ -34,7 +34,7 @@ func resourceKongService() *schema.Resource {
 				ForceNew: false,
 			},
 			"port": &schema.Schema{
-				Type:     schema.TypeString,
+				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: false,
 			},
