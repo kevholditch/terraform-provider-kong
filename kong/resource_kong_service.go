@@ -80,7 +80,7 @@ func resourceKongServiceCreate(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("failed to create kong service: %v error: %v", serviceRequest, err)
 	}
 
-	d.SetId(service.Id)
+	d.SetId(*service.Id)
 
 	return resourceKongServiceRead(d, meta)
 }
@@ -163,14 +163,14 @@ func resourceKongServiceDelete(d *schema.ResourceData, meta interface{}) error {
 
 func createKongServiceRequestFromResourceData(d *schema.ResourceData) *gokong.ServiceRequest {
 	return &gokong.ServiceRequest{
-		Name:           readStringFromResource(d, "name"),
-		Protocol:       readStringFromResource(d, "protocol"),
-		Host:           readStringFromResource(d, "host"),
-		Port:           readIntFromResource(d, "port"),
-		Path:           readStringFromResource(d, "path"),
-		Retries:        readIntFromResource(d, "retries"),
-		ConnectTimeout: readIntFromResource(d, "connect_timeout"),
-		WriteTimeout:   readIntFromResource(d, "write_timeout"),
-		ReadTimeout:    readIntFromResource(d, "read_timeout"),
+		Name:           readStringPtrFromResource(d, "name"),
+		Protocol:       readStringPtrFromResource(d, "protocol"),
+		Host:           readStringPtrFromResource(d, "host"),
+		Port:           readIntPtrFromResource(d, "port"),
+		Path:           readStringPtrFromResource(d, "path"),
+		Retries:        readIntPtrFromResource(d, "retries"),
+		ConnectTimeout: readIntPtrFromResource(d, "connect_timeout"),
+		WriteTimeout:   readIntPtrFromResource(d, "write_timeout"),
+		ReadTimeout:    readIntPtrFromResource(d, "read_timeout"),
 	}
 }

@@ -448,24 +448,24 @@ updatedCertificate, err := gokong.NewClient(gokong.NewDefaultConfig()).Certifica
 
 Create a Route ([for more information on the Sni Fields see the Kong documentation](https://getkong.org/docs/0.13.x/admin-api/#route-object)):
 ```go
-serviceRequest := &ServiceRequest{
-  Name:     "service-name" + uuid.NewV4().String(),
-  Protocol: "http",
-  Host:     "foo.com",
+serviceRequest := &gokong.ServiceRequest{
+  Name:     gokong.String("service-name" + uuid.NewV4().String()),
+  Protocol: gokong.String("http"),
+  Host:     gokong.String("foo.com"),
 }
 
-client := NewClient(NewDefaultConfig())
+client := gokong.NewClient(NewDefaultConfig())
 
 createdService, err := client.Services().AddService(serviceRequest)
 
 routeRequest := &RouteRequest{
-  Protocols:    []string{"http"},
-  Methods:      []string{"GET"},
-  Hosts:        []string{"foo.com"},
-  StripPath:    true,
-  PreserveHost: true,
-  Service:      &RouteServiceObject{Id: createdService.Id},
-  Paths: []string{"/bar"}
+  Protocols:    gokong.StringSlice([]string{"http"}),
+  Methods:      gokong.StringSlice([]string{"GET"}),
+  Hosts:        gokong.StringSlice([]string{"foo.com"}),
+  StripPath:    gokong.Bool(true),
+  PreserveHost: gokong.Bool(true),
+  Service:      &RouteServiceObject{Id: *createdService.Id},
+  Paths:        gokong.StringSlice([]string{"/bar"})
 }
 
 createdRoute, err := client.Routes().AddRoute(routeRequest)
@@ -473,35 +473,35 @@ createdRoute, err := client.Routes().AddRoute(routeRequest)
 
 Get a route by ID:
 ```go
-result, err := client.Routes().GetRoute(createdRoute.Id)
+result, err := gokong.NewClient(gokong.NewDefaultConfig()).Routes().GetRoute(createdRoute.Id)
 ```
 
 Get all routes:
 ```go
-result, err := client.Routes().GetRoutes(&RouteQueryString{})
+result, err := gokong.NewClient(gokong.NewDefaultConfig()).Routes().GetRoutes(&RouteQueryString{})
 ```
 
 Get routes from service ID or Name:
 ```go
-result, err := client.Routes().GetRoutesFromServiceId(createdService.Id)
+result, err := gokong.NewClient(gokong.NewDefaultConfig()).Routes().GetRoutesFromServiceId(createdService.Id)
 ```
 
 Update a route:
 ```go
 routeRequest := &RouteRequest{
-  Protocols:    []string{"http"},
-  Methods:      []string{"GET"},
-  Hosts:        []string{"foo.com"},
-  Paths:        []string{"/bar"},
-  StripPath:    true,
-  PreserveHost: true,
-  Service:      &RouteServiceObject{Id: createdService.Id},
+  Protocols:    gokong.StringSlice([]string{"http"}),
+  Methods:      gokong.StringSlice([]string{"GET"}),
+  Hosts:        gokong.StringSlice([]string{"foo.com"}),
+  Paths:        gokong.StringSlice([]string{"/bar"}),
+  StripPath:    gokong.Bool(true),
+  PreserveHost: gokong.Bool(true),
+  Service:      &RouteServiceObject{Id: *createdService.Id},
 }
 
-createdRoute, err := client.Routes().AddRoute(routeRequest)
+createdRoute, err := gokong.NewClient(gokong.NewDefaultConfig()).Routes().AddRoute(routeRequest)
 
-routeRequest.Paths = []string{"/qux"}
-updatedRoute, err := client.Routes().UpdateRoute(createdRoute.Id, routeRequest)
+routeRequest.Paths = gokong.StringSlice([]string{"/qux"})
+updatedRoute, err := gokong.NewClient(gokong.NewDefaultConfig()).Routes().UpdateRoute(*createdRoute.Id, routeRequest)
 ```
 
 Delete a route:
@@ -514,12 +514,12 @@ client.Routes().DeleteRoute(createdRoute.Id)
 Create an Service ([for more information on the Sni Fields see the Kong documentation](https://getkong.org/docs/0.13.x/admin-api/#service-object)):
 ```go
 serviceRequest := &ServiceRequest{
-		Name:     "service-name-0",
-		Protocol: "http",
-		Host:     "foo.com",
+		Name:     gokong.String("service-name-0"),
+		Protocol: gokong.String("http"),
+		Host:     gokong.String("foo.com"),
 	}
 
-	client := NewClient(NewDefaultConfig())
+	client := gokong.NewClient(gokong.NewDefaultConfig())
 
 	createdService, err := client.Services().AddService(serviceRequest)
 ```
@@ -527,12 +527,12 @@ serviceRequest := &ServiceRequest{
 Get information about a service with the service ID or Name
 ```go
 serviceRequest := &ServiceRequest{
-		Name:     "service-name-0",
-		Protocol: "http",
-		Host:     "foo.com",
+		Name:     gokong.String("service-name-0"),
+    Protocol: gokong.String("http"),
+    Host:     gokong.String("foo.com")
 	}
 
-client := NewClient(NewDefaultConfig())
+client := gokong.NewClient(gokong.NewDefaultConfig())
 
 createdService, err := client.Services().AddService(serviceRequest)
 
@@ -543,12 +543,12 @@ resultFromName, err := client.Services().GetServiceByName(createdService.Id)
 
 Get information about a service with the route ID
 ```go
-result, err := client.Services().GetServiceRouteId(routeInformation.Id)
+result, err := gokong.NewClient(gokong.NewDefaultConfig()).Services().GetServiceRouteId(routeInformation.Id)
 ```
 
 Get many services information
 ```go
-result, err := client.Services().GetServices(&ServiceQueryString{
+result, err := gokong.NewClient(gokong.NewDefaultConfig()).Services().GetServices(&ServiceQueryString{
 	Size: 500
 	Offset: 300
 })
@@ -557,16 +557,16 @@ result, err := client.Services().GetServices(&ServiceQueryString{
 Update a service with the service ID or Name
 ```go
 serviceRequest := &ServiceRequest{
-  Name:     "service-name-0",
-  Protocol: "http",
-  Host:     "foo.com",
+  Name:     gokong.String("service-name-0"),
+  Protocol: gokong.String("http"),
+  Host:     gokong.String("foo.com"),
 }
 
-client := NewClient(NewDefaultConfig())
+client := gokong.NewClient(gokong.NewDefaultConfig())
 
 createdService, err := client.Services().AddService(serviceRequest)
 
-serviceRequest.Host = "bar.io"
+serviceRequest.Host = gokong.String("bar.io")
 updatedService, err := client.Services().UpdateServiceById(createdService.Id, serviceRequest)
 result, err := client.Services().GetServiceById(createdService.Id)
 ```
@@ -574,12 +574,12 @@ result, err := client.Services().GetServiceById(createdService.Id)
 Update a service by the route ID
 ```go
 serviceRequest := &ServiceRequest{
-  Name:     "service-name-0",
-  Protocol: "http",
-  Host:     "foo.com",
+  Name:     gokong.String("service-name-0"),
+  Protocol: gokong.String("http"),
+  Host:     gokong.String("foo.com"),
 }
 
-client := NewClient(NewDefaultConfig())
+client := gokong.NewClient(gokong.NewDefaultConfig())
 
 createdService, err := client.Services().AddService(serviceRequest)
 

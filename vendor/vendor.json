@@ -535,10 +535,10 @@
 			"revisionTime": "2016-08-03T19:07:31Z"
 		},
 		{
-			"checksumSHA1": "RuUrgbPWcSd0+2JhG+Ipn9iyhEw=",
+			"checksumSHA1": "fIQgkdhAOFMYCdMn0kuwzVX3rQs=",
 			"path": "github.com/kevholditch/gokong",
-			"revision": "1b8fc6f14c62d127e6776eecae72d75379511cff",
-			"revisionTime": "2018-07-04T11:55:45Z"
+			"revision": "a07fa77d0b55119b68f25f90c2ad5be1354c6786",
+			"revisionTime": "2018-07-09T20:29:47Z"
 		},
 		{
 			"path": "github.com/kevholditch/gokong...",
@@ -714,5 +714,5 @@
 			"versionExact": "v1.6.1"
 		}
 	],
-	"rootPath": "github.com/kamsz/terraform-provider-kong"
+	"rootPath": "github.com/kevholditch/terraform-provider-kong"
 }

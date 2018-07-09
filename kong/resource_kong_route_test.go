@@ -121,13 +121,13 @@ resource "kong_service" "service" {
   }
 
   resource "kong_route" "route" {
-	protocols = [ "http" ]
-	methods = [ "GET" ]
-	hosts = [ "example.com" ]
-	paths = [ "/" ]
-	strip_path = true
-	preserve_host = false
-	service = "${kong_service.service.id}"
+	protocols 		= [ "http" ]
+	methods 		= [ "GET" ]
+	hosts 			=	[ "example.com" ]
+	paths 			= [ "/" ]
+	strip_path 		= true
+	preserve_host 	= false
+	service_id  	= "${kong_service.service.id}"
 }
 `
 const testUpdateRouteConfig = `
@@ -138,13 +138,13 @@ resource "kong_service" "service" {
   }
 
   resource "kong_route" "route" {
-	protocols = [ "http", "https" ]
-	methods = [ "GET", "POST" ]
-	hosts = [ "example2.com" ]
-	paths = [ "/test" ]
-	strip_path = false
-	preserve_host = true
-	service = "${kong_service.service.id}"
+	protocols 		= [ "http", "https" ]
+	methods 		= [ "GET", "POST" ]
+	hosts 			= [ "example2.com" ]
+	paths 			= [ "/test" ]
+	strip_path 		= false
+	preserve_host 	= true
+	service_id 		= "${kong_service.service.id}"
 }
 `
 const testImportRouteConfig = `
@@ -155,12 +155,12 @@ resource "kong_service" "service" {
   }
 
   resource "kong_route" "route" {
-	protocols = [ "http" ]
-	methods = [ "GET" ]
-	hosts = [ "example.com" ]
-	paths = [ "/" ]
-	strip_path = true
-	preserve_host = false
-	service = "${kong_service.service.id}"
+	protocols 		= [ "http" ]
+	methods 		= [ "GET" ]
+	hosts 			= [ "example.com" ]
+	paths 			= [ "/" ]
+	strip_path 		= true
+	preserve_host 	= false
+	service_id		= "${kong_service.service.id}"
 }
 `

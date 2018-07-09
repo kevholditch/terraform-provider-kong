@@ -81,6 +81,10 @@ func (routeClient *RouteClient) GetRoute(id string) (*Route, error) {
 		return nil, fmt.Errorf("could not parse route get response, error: %v", err)
 	}
 
+	if route.Id == nil {
+		return nil, nil
+	}
+
 	return route, nil
 }
 

@@ -53,7 +53,7 @@ func resourceKongRoute() *schema.Resource {
 				Optional: true,
 				ForceNew: false,
 			},
-			"service": &schema.Schema{
+			"service_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: false,
@@ -102,31 +102,31 @@ func resourceKongRouteRead(d *schema.ResourceData, meta interface{}) error {
 		d.SetId("")
 	} else {
 		if &route.Protocols != nil {
-			d.Set("protocols", &route.Protocols)
+			d.Set("protocols", gokong.StringValueSlice(route.Protocols))
 		}
 
 		if &route.Methods != nil {
-			d.Set("methods", &route.Methods)
+			d.Set("methods", gokong.StringValueSlice(route.Methods))
 		}
 
 		if &route.Hosts != nil {
-			d.Set("hosts", &route.Hosts)
+			d.Set("hosts", gokong.StringValueSlice(route.Hosts))
 		}
 
 		if &route.Paths != nil {
-			d.Set("paths", &route.Paths)
+			d.Set("paths", gokong.StringValueSlice(route.Paths))
 		}
 
 		if &route.StripPath != nil {
-			d.Set("strip_path", &route.StripPath)
+			d.Set("strip_path", route.StripPath)
 		}
 
 		if &route.PreserveHost != nil {
-			d.Set("preserve_host", &route.PreserveHost)
+			d.Set("preserve_host", route.PreserveHost)
 		}
 
-		if &route.Service != nil {
-			d.Set("service", route.Service.Id)
+		if route.Service != nil {
+			d.Set("service_id", route.Service.Id)
 		}
 	}
 
@@ -146,7 +146,7 @@ func resourceKongRouteDelete(d *schema.ResourceData, meta interface{}) error {
 
 func createKongRouteRequestFromResourceData(d *schema.ResourceData) *gokong.RouteRequest {
 	service := gokong.RouteServiceObject{
-		Id: readStringFromResource(d, "service"),
+		Id: readStringFromResource(d, "service_id"),
 	}
 
 	return &gokong.RouteRequest{
