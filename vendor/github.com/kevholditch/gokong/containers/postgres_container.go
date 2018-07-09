@@ -3,9 +3,10 @@ package containers
 import (
 	"database/sql"
 	"fmt"
+	"log"
+
 	_ "github.com/lib/pq"
 	"gopkg.in/ory-am/dockertest.v3"
-	"log"
 )
 
 type postgresContainer struct {
