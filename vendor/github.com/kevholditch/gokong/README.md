@@ -118,7 +118,7 @@ api, err := gokong.NewClient(gokong.NewDefaultConfig()).Apis().GetById("cdf5372e
 
 Get an API by name:
 ```go
-api, err :=  gokong.NewClient(gokong.NewDefaultConfig()).Apis().GetByName("Example")
+api, err := gokong.NewClient(gokong.NewDefaultConfig()).Apis().GetByName("Example")
 ```
 
 List all APIs:
@@ -133,12 +133,12 @@ apis, err := gokong.NewClient(gokong.NewDefaultConfig()).Apis().ListFiltered(&go
 
 Delete an API by id:
 ```go
-err :=  gokong.NewClient(gokong.NewDefaultConfig()).Apis().DeleteById("f138641a-a15b-43c3-bd76-7157a68eae24")
+err := gokong.NewClient(gokong.NewDefaultConfig()).Apis().DeleteById("f138641a-a15b-43c3-bd76-7157a68eae24")
 ```
 
 Delete an API by name:
 ```go
-err :=  gokong.NewClient(gokong.NewDefaultConfig()).Apis().DeleteByName("Example")
+err := gokong.NewClient(gokong.NewDefaultConfig()).Apis().DeleteByName("Example")
 ```
 
 Update an API by id:
@@ -159,7 +159,7 @@ apiRequest := &gokong.ApiRequest{
     HttpIfTerminated:       gokong.Bool(true),
 }
 
-updatedApi, err :=  gokong.NewClient(gokong.NewDefaultConfig()).Apis().UpdateById("1213a00d-2b12-4d65-92ad-5a02d6c710c2", apiRequest)
+updatedApi, err := gokong.NewClient(gokong.NewDefaultConfig()).Apis().UpdateById("1213a00d-2b12-4d65-92ad-5a02d6c710c2", apiRequest)
 ```
 
 Update an API by name:
@@ -179,7 +179,7 @@ apiRequest := &gokong.ApiRequest{
   HttpsOnly:              gokong.Bool(true),
   HttpIfTerminated:       gokong.Bool(true),
 
-updatedApi, err :=  gokong.NewClient(gokong.NewDefaultConfig()).Apis().UpdateByName("Example", apiRequest)
+updatedApi, err := gokong.NewClient(gokong.NewDefaultConfig()).Apis().UpdateByName("Example", apiRequest)
 ```
 
 
@@ -216,12 +216,12 @@ consumers, err := gokong.NewClient(gokong.NewDefaultConfig()).Consumers().ListFi
 
 Delete a Consumer by id:
 ```go
-err :=  gokong.NewClient(gokong.NewDefaultConfig()).Consumers().DeleteById("7c8741b7-3cf5-4d90-8674-b34153efbcd6")
+err := gokong.NewClient(gokong.NewDefaultConfig()).Consumers().DeleteById("7c8741b7-3cf5-4d90-8674-b34153efbcd6")
 ```
 
 Delete a Consumer by username:
 ```go
-err :=  gokong.NewClient(gokong.NewDefaultConfig()).Consumers().DeleteByUsername("User1")
+err := gokong.NewClient(gokong.NewDefaultConfig()).Consumers().DeleteByUsername("User1")
 ```
 
 Update a Consumer by id:
@@ -231,7 +231,7 @@ consumerRequest := &gokong.ConsumerRequest{
   CustomId: "SomeId",
 }
 
-updatedConsumer, err :=  gokong.NewClient(gokong.NewDefaultConfig()).Consumers().UpdateById("44a37c3d-a252-4968-ab55-58c41b0289c2", consumerRequest)
+updatedConsumer, err := gokong.NewClient(gokong.NewDefaultConfig()).Consumers().UpdateById("44a37c3d-a252-4968-ab55-58c41b0289c2", consumerRequest)
 ```
 
 Update a Consumer by username:
@@ -241,7 +241,7 @@ consumerRequest := &gokong.ConsumerRequest{
   CustomId: "SomeId",
 }
 
-updatedConsumer, err :=  gokong.NewClient(gokong.NewDefaultConfig()).Consumers().UpdateByUsername("User2", consumerRequest)
+updatedConsumer, err := gokong.NewClient(gokong.NewDefaultConfig()).Consumers().UpdateByUsername("User2", consumerRequest)
 ```
 
 ## Plugins
@@ -289,7 +289,7 @@ pluginRequest := &gokong.PluginRequest{
   },
 }
 
-createdPlugin, err :=  client.Plugins().Create(pluginRequest)
+createdPlugin, err := client.Plugins().Create(pluginRequest)
 ```
 
 Create a new Plugin for a single Consumer (only set `ConsumerId`), Not all plugins can be configured in this way ([for more information on the Plugin Fields see the Kong documentation](https://getkong.org/docs/0.13.x/admin-api/#plugin-object)):
@@ -311,7 +311,65 @@ pluginRequest := &gokong.PluginRequest{
   },
 }
 
-createdPlugin, err :=  client.Plugins().Create(pluginRequest)
+createdPlugin, err := client.Plugins().Create(pluginRequest)
+```
+
+Create a new Plugin for a single Service (only set `ServiceId`), Not all plugins can be configured in this way ([for more information on the Plugin Fields see the Kong documentation](https://getkong.org/docs/0.13.x/admin-api/#plugin-object)):
+```go
+client := gokong.NewClient(gokong.NewDefaultConfig())
+
+serviceRequest := &ServiceRequest{
+  Name:     String("service"),
+  Protocol: String("http"),
+  Host:     String("example.com"),
+}
+
+createdService, err := client.Services().AddService(serviceRequest)
+
+pluginRequest := &gokong.PluginRequest{
+  Name: "response-ratelimiting",
+  ServiceId: *createdService.Id,
+  Config: map[string]interface{}{
+    "limits.sms.minute": 20,
+  },
+}
+
+createdPlugin, err := client.Plugins().Create(pluginRequest)
+```
+
+Create a new Plugin for a single Route (only set `RouteId`), Not all plugins can be configured in this way ([for more information on the Plugin Fields see the Kong documentation](https://getkong.org/docs/0.13.x/admin-api/#plugin-object)):
+```go
+client := gokong.NewClient(gokong.NewDefaultConfig())
+
+serviceRequest := &ServiceRequest{
+  Name:     String("service"),
+  Protocol: String("http"),
+  Host:     String("example.com"),
+}
+
+createdService, err := client.Services().AddService(serviceRequest)
+
+routeRequest := &RouteRequest{
+  Protocols:    StringSlice([]string{"http"}),
+  Methods:      StringSlice([]string{"GET"}),
+  Hosts:        StringSlice([]string{"example.com"}),
+  Paths:        StringSlice([]string{"/"}),
+  StripPath:    Bool(true),
+  PreserveHost: Bool(false),
+  Service:      &RouteServiceObject{Id: *createdService.Id},
+}
+
+createdRoute, err := client.Routes().AddRoute(routeRequest)
+
+pluginRequest := &gokong.PluginRequest{
+  Name: "response-ratelimiting",
+  RouteId: *createdRoute.Id,
+  Config: map[string]interface{}{
+    "limits.sms.minute": 20,
+  },
+}
+
+createdPlugin, err := client.Plugins().Create(pluginRequest)
 ```
 
 Create a new Plugin for a single Consumer and Api (set `ConsumerId` and `ApiId`), Not all plugins can be configured in this way ([for more information on the Plugin Fields see the Kong documentation](https://getkong.org/docs/0.13.x/admin-api/#plugin-object)):
@@ -352,7 +410,7 @@ pluginRequest := &gokong.PluginRequest{
   },
 }
 
-createdPlugin, err :=  client.Plugins().Create(pluginRequest)
+createdPlugin, err := client.Plugins().Create(pluginRequest)
 ```
 
 Get a plugin by id:
@@ -714,4 +772,3 @@ If when you run the make command you get the following error:
 gofmt needs running on the following files:
 ```
 Then all you need to do is run `make goimports` this will reformat all of the code (I know awesome)!!
-

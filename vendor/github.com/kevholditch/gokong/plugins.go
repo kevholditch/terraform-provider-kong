@@ -13,6 +13,8 @@ type PluginRequest struct {
 	Name       string                 `json:"name"`
 	ApiId      string                 `json:"api_id,omitempty"`
 	ConsumerId string                 `json:"consumer_id,omitempty"`
+	ServiceId  string                 `json:"service_id,omitempty"`
+	RouteId    string                 `json:"route_id,omitempty"`
 	Config     map[string]interface{} `json:"config,omitempty"`
 }
 
@@ -21,6 +23,8 @@ type Plugin struct {
 	Name       string                 `json:"name"`
 	ApiId      string                 `json:"api_id,omitempty"`
 	ConsumerId string                 `json:"consumer_id,omitempty"`
+	ServiceId  string                 `json:"service_id,omitempty"`
+	RouteId    string                 `json:"route_id,omitempty"`
 	Config     map[string]interface{} `json:"config,omitempty"`
 	Enabled    bool                   `json:"enabled,omitempty"`
 }
@@ -36,6 +40,8 @@ type PluginFilter struct {
 	Name       string `url:"name,omitempty"`
 	ApiId      string `url:"api_id,omitempty"`
 	ConsumerId string `url:"consumer_id,omitempty"`
+	ServiceId  string `url:"service_id,omitempty"`
+	RouteId    string `url:"route_id,omitempty"`
 	Size       int    `url:"size,omitempty"`
 	Offset     int    `url:"offset,omitempty"`
 }
