@@ -95,6 +95,68 @@ func TestAccKongPluginForASpecificConsumer(t *testing.T) {
 	})
 }
 
+func TestAccKongPluginForASpecificService(t *testing.T) {
+
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongPluginDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testCreatePluginForASpecificServiceConfig,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKongPluginExists("kong_plugin.rate_limit"),
+					testAccCheckKongServiceExists("kong_service.service"),
+					testAccCheckForChildIdCorrect("kong_service.service", "kong_plugin.rate_limit", "service_id"),
+					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "name", "response-ratelimiting"),
+					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "config.limits.sms.minute", "20"),
+				),
+			},
+			{
+				Config: testUpdatePluginForASpecificServiceConfig,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKongPluginExists("kong_plugin.rate_limit"),
+					testAccCheckKongServiceExists("kong_service.service"),
+					testAccCheckForChildIdCorrect("kong_service.service", "kong_plugin.rate_limit", "service_id"),
+					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "name", "response-ratelimiting"),
+					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "config.limits.sms.minute", "11"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccKongPluginForASpecificRoute(t *testing.T) {
+
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongPluginDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testCreatePluginForASpecificRouteConfig,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKongPluginExists("kong_plugin.rate_limit"),
+					testAccCheckKongServiceExists("kong_service.service"),
+					testAccCheckKongRouteExists("kong_route.route"),
+					testAccCheckForChildIdCorrect("kong_route.route", "kong_plugin.rate_limit", "route_id"),
+					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "name", "response-ratelimiting"),
+					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "config.limits.sms.minute", "20"),
+				),
+			},
+			{
+				Config: testUpdatePluginForASpecificRouteConfig,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKongPluginExists("kong_plugin.rate_limit"),
+					testAccCheckKongServiceExists("kong_service.service"),
+					testAccCheckKongRouteExists("kong_route.route"),
+					testAccCheckForChildIdCorrect("kong_route.route", "kong_plugin.rate_limit", "route_id"),
+					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "name", "response-ratelimiting"),
+					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "config.limits.sms.minute", "11"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccKongPluginForASpecificApiAndConsumer(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
@@ -316,6 +378,48 @@ resource "kong_plugin" "rate_limit" {
 }
 `
 
+const testCreatePluginForASpecificServiceConfig = `
+resource "kong_service" "service" {
+	name     = "test"
+	protocol = "http"
+	host     = "test.org"
+}
+
+resource "kong_plugin" "rate_limit" {
+	name        = "response-ratelimiting"
+	service_id = "${kong_service.service.id}"
+	config 		= {
+		limits.sms.minute = 20
+	}
+}
+`
+
+const testCreatePluginForASpecificRouteConfig = `
+resource "kong_service" "service" {
+	name     = "test"
+	protocol = "http"
+	host     = "test.org"
+}
+
+resource "kong_route" "route" {
+	protocols 		= [ "http", "https" ]
+	methods 		= [ "GET", "POST" ]
+	hosts 			= [ "example2.com" ]
+	paths 			= [ "/test" ]
+	strip_path 		= false
+	preserve_host 	= true
+	service_id 		= "${kong_service.service.id}"
+}
+
+resource "kong_plugin" "rate_limit" {
+	name        = "response-ratelimiting"
+	route_id = "${kong_route.route.id}"
+	config 		= {
+		limits.sms.minute = 20
+	}
+}
+`
+
 const testUpdatePluginForASpecificConsumerConfig = `
 resource "kong_consumer" "plugin_consumer" {
 	username  = "PluginUser"
@@ -325,6 +429,48 @@ resource "kong_consumer" "plugin_consumer" {
 resource "kong_plugin" "rate_limit" {
 	name        = "response-ratelimiting"
 	consumer_id = "${kong_consumer.plugin_consumer.id}"
+	config 		= {
+		limits.sms.minute = 11
+	}
+}
+`
+
+const testUpdatePluginForASpecificServiceConfig = `
+resource "kong_service" "service" {
+	name     = "test"
+	protocol = "http"
+	host     = "test.org"
+}
+
+resource "kong_plugin" "rate_limit" {
+	name        = "response-ratelimiting"
+	service_id = "${kong_service.service.id}"
+	config 		= {
+		limits.sms.minute = 11
+	}
+}
+`
+
+const testUpdatePluginForASpecificRouteConfig = `
+resource "kong_service" "service" {
+	name     = "test"
+	protocol = "http"
+	host     = "test.org"
+}
+
+resource "kong_route" "route" {
+	protocols 		= [ "http", "https" ]
+	methods 		= [ "GET", "POST" ]
+	hosts 			= [ "example2.com" ]
+	paths 			= [ "/test" ]
+	strip_path 		= false
+	preserve_host 	= true
+	service_id 		= "${kong_service.service.id}"
+}
+
+resource "kong_plugin" "rate_limit" {
+	name        = "response-ratelimiting"
+	route_id = "${kong_route.route.id}"
 	config 		= {
 		limits.sms.minute = 11
 	}

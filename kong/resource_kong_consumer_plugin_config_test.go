@@ -151,7 +151,7 @@ resource "kong_consumer" "my_consumer" {
 }
 
 resource "kong_plugin" "jwt_plugin" {
-	name        = "jwt"	
+	name        = "jwt"
 	config 		= {
 		claims_to_verify = "exp"
 	}
@@ -176,7 +176,7 @@ resource "kong_consumer" "my_consumer" {
 }
 
 resource "kong_plugin" "jwt_plugin" {
-	name        = "jwt"	
+	name        = "jwt"
 	config 		= {
 		claims_to_verify = "exp"
 	}
@@ -217,7 +217,7 @@ resource "kong_consumer" "my_consumer" {
 }
 
 resource "kong_plugin" "acl_plugin" {
-	name        = "acl"	
+	name        = "acl"
 	api_id      = "${kong_api.api.id}"
 	config      = {
 		whitelist = "nginx"
@@ -256,7 +256,7 @@ resource "kong_consumer" "my_consumer" {
 }
 
 resource "kong_plugin" "acl_plugin" {
-	name        = "acl"	
+	name        = "acl"
 	api_id      = "${kong_api.api.id}"
 	config = {
 		whitelist = "apache"
@@ -295,7 +295,7 @@ resource "kong_consumer" "my_consumer" {
 }
 
 resource "kong_plugin" "acl_plugin" {
-	name        = "acl"	
+	name        = "acl"
 	api_id      = "${kong_api.api.id}"
 	config = {
 		whitelist = "apache"
