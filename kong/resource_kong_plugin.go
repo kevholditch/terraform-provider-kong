@@ -34,6 +34,16 @@ func resourceKongPlugin() *schema.Resource {
 				Optional: true,
 				ForceNew: false,
 			},
+			"service_id": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+			},
+			"route_id": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+			},
 			"config": &schema.Schema{
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -108,6 +118,8 @@ func createKongPluginRequestFromResourceData(d *schema.ResourceData) *gokong.Plu
 	pluginRequest.Name = readStringFromResource(d, "name")
 	pluginRequest.ApiId = readStringFromResource(d, "api_id")
 	pluginRequest.ConsumerId = readStringFromResource(d, "consumer_id")
+	pluginRequest.ServiceId = readStringFromResource(d, "service_id")
+	pluginRequest.RouteId = readStringFromResource(d, "route_id")
 	pluginRequest.Config = readMapFromResource(d, "config")
 
 	return pluginRequest

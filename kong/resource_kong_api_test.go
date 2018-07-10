@@ -152,9 +152,9 @@ resource "kong_api" "api" {
   	hosts   = [ "example.com" ]
 	uris 	= [ "/example" ]
 	methods = [ "GET", "POST" ]
-	upstream_url = "http://localhost:4140" 
+	upstream_url = "http://localhost:4140"
 	strip_uri = false
-	preserve_host = false	
+	preserve_host = false
 	upstream_connect_timeout = 60000
 	upstream_send_timeout = 30000
 	upstream_read_timeout = 10000
@@ -188,7 +188,7 @@ resource "kong_api" "api" {
 	upstream_url = "http://localhost:4140"
 	retries = 3
 	strip_uri = false
-	preserve_host = false	
+	preserve_host = false
 	upstream_connect_timeout = 60000
 	upstream_send_timeout = 30000
 	upstream_read_timeout = 10000

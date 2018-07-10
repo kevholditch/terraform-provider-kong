@@ -4,6 +4,7 @@ import (
 	"net/url"
 	"os"
 	"reflect"
+	"strconv"
 	"strings"
 
 	"github.com/google/go-querystring/query"
@@ -13,6 +14,7 @@ const EnvKongAdminHostAddress = "KONG_ADMIN_ADDR"
 const EnvKongApiHostAddress = "KONG_API_ADDR"
 const EnvKongAdminUsername = "KONG_ADMIN_USERNAME"
 const EnvKongAdminPassword = "KONG_ADMIN_PASSWORD"
+const EnvKongTLSSkipVerify = "TLS_SKIP_VERIFY"
 const EnvKongApiKey = "KONG_API_KEY"
 
 type KongAdminClient struct {
@@ -63,6 +65,12 @@ func NewDefaultConfig() *Config {
 	}
 	if os.Getenv(EnvKongAdminPassword) != "" {
 		config.Password = os.Getenv(EnvKongAdminPassword)
+	}
+	if os.Getenv(EnvKongTLSSkipVerify) != "" {
+		skip, err := strconv.ParseBool(os.Getenv(EnvKongTLSSkipVerify))
+		if err == nil {
+			config.InsecureSkipVerify = skip
+		}
 	}
 	if os.Getenv(EnvKongApiKey) != "" {
 		config.ApiKey = os.Getenv(EnvKongApiKey)
