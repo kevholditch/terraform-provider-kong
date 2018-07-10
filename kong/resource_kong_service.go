@@ -110,39 +110,39 @@ func resourceKongServiceRead(d *schema.ResourceData, meta interface{}) error {
 	if service == nil {
 		d.SetId("")
 	} else {
-		if &service.Name != nil {
-			d.Set("name", &service.Name)
+		if service.Name != nil {
+			d.Set("name", service.Name)
 		}
 
-		if &service.Protocol != nil {
-			d.Set("protocol", &service.Protocol)
+		if service.Protocol != nil {
+			d.Set("protocol", service.Protocol)
 		}
 
-		if &service.Host != nil {
-			d.Set("host", &service.Host)
+		if service.Host != nil {
+			d.Set("host", service.Host)
 		}
 
-		if &service.Port != nil {
-			d.Set("port", &service.Port)
+		if service.Port != nil {
+			d.Set("port", service.Port)
 		}
 
-		if &service.Path != nil {
-			d.Set("path", &service.Path)
+		if service.Path != nil {
+			d.Set("path", service.Path)
 		}
 
-		if &service.Retries != nil {
-			d.Set("retries", &service.Retries)
+		if service.Retries != nil {
+			d.Set("retries", service.Retries)
 		}
 
-		if &service.ConnectTimeout != nil {
+		if service.ConnectTimeout != nil {
 			d.Set("connect_timeout", service.ConnectTimeout)
 		}
 
-		if &service.WriteTimeout != nil {
+		if service.WriteTimeout != nil {
 			d.Set("write_timeout", service.WriteTimeout)
 		}
 
-		if &service.ReadTimeout != nil {
+		if service.ReadTimeout != nil {
 			d.Set("read_timeout", service.ReadTimeout)
 		}
 	}
