@@ -118,9 +118,9 @@ resource "kong_service" "service" {
 	name     = "test"
 	protocol = "http"
 	host     = "test.org"
-  }
+}
 
-  resource "kong_route" "route" {
+resource "kong_route" "route" {
 	protocols 		= [ "http" ]
 	methods 		= [ "GET" ]
 	hosts 			=	[ "example.com" ]
@@ -135,9 +135,9 @@ resource "kong_service" "service" {
 	name     = "test"
 	protocol = "http"
 	host     = "test.org"
-  }
+}
 
-  resource "kong_route" "route" {
+resource "kong_route" "route" {
 	protocols 		= [ "http", "https" ]
 	methods 		= [ "GET", "POST" ]
 	hosts 			= [ "example2.com" ]
@@ -152,9 +152,9 @@ resource "kong_service" "service" {
 	name     = "test"
 	protocol = "http"
 	host     = "test.org"
-  }
+}
 
-  resource "kong_route" "route" {
+resource "kong_route" "route" {
 	protocols 		= [ "http" ]
 	methods 		= [ "GET" ]
 	hosts 			= [ "example.com" ]
