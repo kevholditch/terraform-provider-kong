@@ -55,12 +55,12 @@ You can use environment variables to set the provider properties instead.  The f
 ## Services
 ```
 resource "kong_service" "service" {
-	name     		= "test"
-	protocol 		= "http"
-	host     		= "test.org"
-	port     		= 8080
-	path     		= "/mypath"
-	retries  		= 5
+	name     	= "test"
+	protocol 	= "http"
+	host     	= "test.org"
+	port     	= 8080
+	path     	= "/mypath"
+	retries  	= 5
 	connect_timeout = 1000
 	write_timeout 	= 2000
 	read_timeout  	= 3000
@@ -77,13 +77,13 @@ terraform import kong_service.<service_identifier> <service_id>
 ## Routes
 ```
 resource "kong_route" "route" {
-	protocols 		= [ "http", "https" ]
-	methods 		= [ "GET", "POST" ]
-	hosts 			= [ "example2.com" ]
-	paths 			= [ "/test" ]
-	strip_path 		= false
+	protocols 	= [ "http", "https" ]
+	methods 	= [ "GET", "POST" ]
+	hosts 		= [ "example2.com" ]
+	paths 		= [ "/test" ]
+	strip_path 	= false
 	preserve_host 	= true
-	service_id 		= "${kong_service.service.id}"
+	service_id 	= "${kong_service.service.id}"
 }
 
 ```
@@ -283,8 +283,8 @@ To look up an existing api you can do so by using a filter:
 data "kong_api" "api_data_source" {
     filter = {
         id = "de539d26-97d2-4d5b-aaf9-628e51087d9c"
-	    name = "TestDataSourceApi"
-	    upstream_url = "http://localhost:4140"
+	name = "TestDataSourceApi"
+	upstream_url = "http://localhost:4140"
     }
 }
 ```
