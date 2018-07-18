@@ -21,6 +21,12 @@ func TestAccKongService(t *testing.T) {
 					resource.TestCheckResourceAttr("kong_service.service", "name", "test"),
 					resource.TestCheckResourceAttr("kong_service.service", "protocol", "http"),
 					resource.TestCheckResourceAttr("kong_service.service", "host", "test.org"),
+					resource.TestCheckResourceAttr("kong_service.service", "port", "8080"),
+					resource.TestCheckResourceAttr("kong_service.service", "path", "/mypath"),
+					resource.TestCheckResourceAttr("kong_service.service", "retries", "5"),
+					resource.TestCheckResourceAttr("kong_service.service", "connect_timeout", "1000"),
+					resource.TestCheckResourceAttr("kong_service.service", "write_timeout", "2000"),
+					resource.TestCheckResourceAttr("kong_service.service", "read_timeout", "3000"),
 				),
 			},
 			{
@@ -30,6 +36,11 @@ func TestAccKongService(t *testing.T) {
 					resource.TestCheckResourceAttr("kong_service.service", "name", "test2"),
 					resource.TestCheckResourceAttr("kong_service.service", "protocol", "https"),
 					resource.TestCheckResourceAttr("kong_service.service", "host", "test2.org"),
+					resource.TestCheckResourceAttr("kong_service.service", "path", "/"),
+					resource.TestCheckResourceAttr("kong_service.service", "retries", "5"),
+					resource.TestCheckResourceAttr("kong_service.service", "connect_timeout", "6000"),
+					resource.TestCheckResourceAttr("kong_service.service", "write_timeout", "5000"),
+					resource.TestCheckResourceAttr("kong_service.service", "read_timeout", "4000"),
 				),
 			},
 		},
@@ -107,22 +118,40 @@ func testAccCheckKongServiceExists(resourceKey string) resource.TestCheckFunc {
 
 const testCreateServiceConfig = `
 resource "kong_service" "service" {
-	name     = "test"
-	protocol = "http"
-	host     = "test.org"
+	name     		= "test"
+	protocol 		= "http"
+	host     		= "test.org"
+	port     		= 8080
+	path     		= "/mypath"
+	retries  		= 5
+	connect_timeout = 1000
+	write_timeout 	= 2000
+	read_timeout  	= 3000
+	
 }
 `
 const testUpdateServiceConfig = `
 resource "kong_service" "service" {
-	name     = "test2"
-	protocol = "https"
-	host     = "test2.org"
+	name     		= "test2"
+	protocol 		= "https"
+	host     		= "test2.org"
+	port     		= 8081
+	path     		= "/"
+	connect_timeout = 6000
+	write_timeout 	= 5000
+	read_timeout  	= 4000
 }
 `
 const testImportServiceConfig = `
 resource "kong_service" "service" {
-	name     = "test"
-	protocol = "http"
-	host     = "test.org"
+	name     		= "test"
+	protocol 		= "http"
+	host     		= "test.org"
+	port     		= 8080
+	path     		= "/mypath"
+	retries  		= 5
+	connect_timeout = 8000
+	write_timeout 	= 9000
+	read_timeout  	= 10000
 }
 `

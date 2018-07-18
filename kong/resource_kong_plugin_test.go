@@ -95,6 +95,40 @@ func TestAccKongPluginForASpecificConsumer(t *testing.T) {
 	})
 }
 
+func TestAccKongPluginForASpecificApiAndConsumer(t *testing.T) {
+
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongPluginDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testCreatePluginForASpecificApiAndConsumerConfig,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKongPluginExists("kong_plugin.rate_limit"),
+					testAccCheckKongConsumerExists("kong_consumer.plugin_consumer"),
+					testAccCheckKongApiExists("kong_api.api"),
+					testAccCheckForChildIdCorrect("kong_api.api", "kong_plugin.rate_limit", "api_id"),
+					testAccCheckForChildIdCorrect("kong_consumer.plugin_consumer", "kong_plugin.rate_limit", "consumer_id"),
+					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "name", "response-ratelimiting"),
+					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "config.limits.sms.minute", "77"),
+				),
+			},
+			{
+				Config: testUpdatePluginForASpecificApiAndConsumerConfig,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKongPluginExists("kong_plugin.rate_limit"),
+					testAccCheckKongConsumerExists("kong_consumer.plugin_consumer"),
+					testAccCheckKongApiExists("kong_api.api"),
+					testAccCheckForChildIdCorrect("kong_api.api", "kong_plugin.rate_limit", "api_id"),
+					testAccCheckForChildIdCorrect("kong_consumer.plugin_consumer", "kong_plugin.rate_limit", "consumer_id"),
+					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "name", "response-ratelimiting"),
+					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "config.limits.sms.minute", "23"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccKongPluginForASpecificService(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
@@ -151,40 +185,6 @@ func TestAccKongPluginForASpecificRoute(t *testing.T) {
 					testAccCheckForChildIdCorrect("kong_route.route", "kong_plugin.rate_limit", "route_id"),
 					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "name", "response-ratelimiting"),
 					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "config.limits.sms.minute", "11"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccKongPluginForASpecificApiAndConsumer(t *testing.T) {
-
-	resource.Test(t, resource.TestCase{
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKongPluginDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testCreatePluginForASpecificApiAndConsumerConfig,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckKongPluginExists("kong_plugin.rate_limit"),
-					testAccCheckKongConsumerExists("kong_consumer.plugin_consumer"),
-					testAccCheckKongApiExists("kong_api.api"),
-					testAccCheckForChildIdCorrect("kong_api.api", "kong_plugin.rate_limit", "api_id"),
-					testAccCheckForChildIdCorrect("kong_consumer.plugin_consumer", "kong_plugin.rate_limit", "consumer_id"),
-					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "name", "response-ratelimiting"),
-					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "config.limits.sms.minute", "77"),
-				),
-			},
-			{
-				Config: testUpdatePluginForASpecificApiAndConsumerConfig,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckKongPluginExists("kong_plugin.rate_limit"),
-					testAccCheckKongConsumerExists("kong_consumer.plugin_consumer"),
-					testAccCheckKongApiExists("kong_api.api"),
-					testAccCheckForChildIdCorrect("kong_api.api", "kong_plugin.rate_limit", "api_id"),
-					testAccCheckForChildIdCorrect("kong_consumer.plugin_consumer", "kong_plugin.rate_limit", "consumer_id"),
-					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "name", "response-ratelimiting"),
-					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "config.limits.sms.minute", "23"),
 				),
 			},
 		},
