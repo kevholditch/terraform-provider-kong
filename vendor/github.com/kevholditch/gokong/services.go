@@ -10,30 +10,30 @@ type ServiceClient struct {
 }
 
 type ServiceRequest struct {
-	Name           string `json:"name"`
-	Protocol       string `json:"protocol"`
-	Host           string `json:"host"`
-	Port           int    `json:"port,omitempty"`
-	Path           string `json:"path,omitempty"`
-	Retries        int    `json:"retries,omitempty"`
-	ConnectTimeout int    `json:"connect_timeout,omitempty"`
-	WriteTimeout   int    `json:"write_timeout,omitempty"`
-	ReadTimeout    int    `json:"read_timeout,omitempty"`
+	Name           *string `json:"name"`
+	Protocol       *string `json:"protocol"`
+	Host           *string `json:"host"`
+	Port           *int    `json:"port,omitempty"`
+	Path           *string `json:"path,omitempty"`
+	Retries        *int    `json:"retries,omitempty"`
+	ConnectTimeout *int    `json:"connect_timeout,omitempty"`
+	WriteTimeout   *int    `json:"write_timeout,omitempty"`
+	ReadTimeout    *int    `json:"read_timeout,omitempty"`
 }
 
 type Service struct {
-	Id             string `json:"id"`
-	CreatedAt      int    `json:"created_at"`
-	UpdatedAt      int    `json:"updated_at"`
-	Protocol       string `json:"protocol"`
-	Host           string `json:"host"`
-	Port           int    `json:"int"`
-	Path           string `json:"path"`
-	Name           string `json:"name"`
-	Retries        int    `json:"retries"`
-	ConnectTimeout int    `json:"connect_timeout"`
-	WriteTimeout   int    `json:"write_timeout"`
-	ReadTimeout    int    `json:"read_timeout"`
+	Id             *string `json:"id"`
+	CreatedAt      *int    `json:"created_at"`
+	UpdatedAt      *int    `json:"updated_at"`
+	Protocol       *string `json:"protocol"`
+	Host           *string `json:"host"`
+	Port           *int    `json:"port"`
+	Path           *string `json:"path"`
+	Name           *string `json:"name"`
+	Retries        *int    `json:"retries"`
+	ConnectTimeout *int    `json:"connect_timeout"`
+	WriteTimeout   *int    `json:"write_timeout"`
+	ReadTimeout    *int    `json:"read_timeout"`
 }
 
 type Services struct {
@@ -50,24 +50,24 @@ const ServicesPath = "/services/"
 
 func (serviceClient *ServiceClient) AddService(serviceRequest *ServiceRequest) (*Service, error) {
 
-	if serviceRequest.Port == 0 {
-		serviceRequest.Port = 80
+	if serviceRequest.Port == nil {
+		serviceRequest.Port = Int(80)
 	}
 
-	if serviceRequest.Retries == 0 {
-		serviceRequest.Retries = 5
+	if serviceRequest.Retries == nil {
+		serviceRequest.Retries = Int(5)
 	}
 
-	if serviceRequest.ConnectTimeout == 0 {
-		serviceRequest.ConnectTimeout = 60000
+	if serviceRequest.ConnectTimeout == nil {
+		serviceRequest.ConnectTimeout = Int(60000)
 	}
 
-	if serviceRequest.ReadTimeout == 0 {
-		serviceRequest.ReadTimeout = 60000
+	if serviceRequest.ReadTimeout == nil {
+		serviceRequest.ReadTimeout = Int(60000)
 	}
 
-	if serviceRequest.Retries == 0 {
-		serviceRequest.Retries = 60000
+	if serviceRequest.Retries == nil {
+		serviceRequest.Retries = Int(60000)
 	}
 
 	_, body, errs := newPost(serviceClient.config, serviceClient.config.HostAddress+ServicesPath).Send(serviceRequest).End()
@@ -81,7 +81,7 @@ func (serviceClient *ServiceClient) AddService(serviceRequest *ServiceRequest) (
 		return nil, fmt.Errorf("could not parse service get response, error: %v", err)
 	}
 
-	if createdService.Id == "" {
+	if createdService.Id == nil {
 		return nil, fmt.Errorf("could not register the service, error: %v", body)
 	}
 
@@ -110,6 +110,10 @@ func (serviceClient *ServiceClient) getService(endpoint string) (*Service, error
 	err := json.Unmarshal([]byte(body), service)
 	if err != nil {
 		return nil, fmt.Errorf("could not parse service get response, error: %v", err)
+	}
+
+	if service.Id == nil {
+		return nil, nil
 	}
 
 	return service, nil
@@ -174,7 +178,7 @@ func (serviceClient *ServiceClient) updateService(endpoint string, serviceReques
 		return nil, fmt.Errorf("could not parse service update response, error: %v", err)
 	}
 
-	if updatedService.Id == "" {
+	if updatedService.Id == nil {
 		return nil, fmt.Errorf("could not update service, error: %v", body)
 	}
 

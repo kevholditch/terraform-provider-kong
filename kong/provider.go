@@ -51,6 +51,8 @@ func Provider() terraform.ResourceProvider {
 			"kong_plugin":                 resourceKongPlugin(),
 			"kong_sni":                    resourceKongSni(),
 			"kong_upstream":               resourceKongUpstream(),
+			"kong_service":                resourceKongService(),
+			"kong_route":                  resourceKongRoute(),
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{

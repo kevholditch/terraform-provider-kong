@@ -52,6 +52,48 @@ You can use environment variables to set the provider properties instead.  The f
 
 # Resources
 
+## Services
+```
+resource "kong_service" "service" {
+	name     		= "test"
+	protocol 		= "http"
+	host     		= "test.org"
+	port     		= 8080
+	path     		= "/mypath"
+	retries  		= 5
+	connect_timeout = 1000
+	write_timeout 	= 2000
+	read_timeout  	= 3000
+	
+}
+```
+The service resource maps directly onto the json for the service endpoint in Kong.  For more information on the parameters [see the Kong Service create documentation](https://getkong.org/docs/0.13.x/admin-api/#service-object).
+
+To import a service:
+```
+terraform import kong_service.<service_identifier> <service_id>
+```
+
+## Routes
+```
+resource "kong_route" "route" {
+	protocols 		= [ "http", "https" ]
+	methods 		= [ "GET", "POST" ]
+	hosts 			= [ "example2.com" ]
+	paths 			= [ "/test" ]
+	strip_path 		= false
+	preserve_host 	= true
+	service_id 		= "${kong_service.service.id}"
+}
+
+```
+The route resource maps directly onto the json for the route endpoint in Kong.  For more information on the parameters [see the Kong Route create documentation](https://getkong.org/docs/0.13.x/admin-api/#route-object).
+
+To import a route:
+```
+terraform import kong_route.<route_identifier> <route_id>
+```
+
 ## Apis
 ```hcl
 resource "kong_api" "api" {
@@ -70,7 +112,12 @@ resource "kong_api" "api" {
     http_if_terminated       = false
 }
 ```
-The api resource maps directly onto the json for the API endpoint in Kong.  For more information on the parameters [see the Kong Api create documentation](https://getkong.org/docs/0.11.x/admin-api/#api-object).
+The api resource maps directly onto the json for the API endpoint in Kong.  For more information on the parameters [see the Kong Api create documentation](https://getkong.org/docs/0.13.x/admin-api/#api-object).
+
+To import an API:
+```
+terraform import kong_api.<api_identifier> <api_id>
+```
 
 ## Plugins
 ```hcl
@@ -82,7 +129,12 @@ resource "kong_plugin" "response_rate_limiting" {
 }
 ```
 
-The plugin resource maps directly onto the json for the API endpoint in Kong.  For more information on the parameters [see the Kong Api create documentation](https://getkong.org/docs/0.11.x/admin-api/#plugin-object).
+The plugin resource maps directly onto the json for the API endpoint in Kong.  For more information on the parameters [see the Kong Api create documentation](https://getkong.org/docs/0.13.x/admin-api/#plugin-object).
+
+To import a plugin:
+```
+terraform import kong_plugin.<plugin_identifier> <plugin_id>
+```
 
 Here is a more complex example for creating a plugin for a consumer and an API:
 
@@ -168,7 +220,12 @@ resource "kong_consumer" "consumer" {
 }
 ```
 
-The consumer resource maps directly onto the json for creating an Consumer in Kong.  For more information on the parameters [see the Kong Consumer create documentation](https://getkong.org/docs/0.11.x/admin-api/#consumer-object).
+The consumer resource maps directly onto the json for creating an Consumer in Kong.  For more information on the parameters [see the Kong Consumer create documentation](https://getkong.org/docs/0.13.x/admin-api/#consumer-object).
+
+To import a consumer:
+```
+terraform import kong_consumer.<consumer_identifier> <consumer_id>
+```
 
 ## Certificates
 ```hcl
@@ -181,7 +238,12 @@ resource "kong_certificate" "certificate" {
 `certificate` should be the public key of your certificate it is mapped to the `Cert` parameter on the Kong API.
 `private_key` should be the private key of your certificate it is mapped to the `Key` parameter on the Kong API.
 
-For more information on creating certificates in Kong [see their documentation](https://getkong.org/docs/0.11.x/admin-api/#certificate-object)
+For more information on creating certificates in Kong [see their documentation](https://getkong.org/docs/0.13.x/admin-api/#certificate-object)
+
+To import a certificate:
+```
+terraform import kong_certificate.<certifcate_identifier> <certificate_id>
+```
 
 ## SNIs
 ```hcl
@@ -198,7 +260,12 @@ resource "kong_sni" "sni" {
 `name` is your domain you want to assign to the certificate
 `certificate_id` is the id of a certificate
 
-For more information on creating SNIs in Kong [see their documentaton](https://getkong.org/docs/0.11.x/admin-api/#sni-objects)
+For more information on creating SNIs in Kong [see their documentaton](https://getkong.org/docs/0.13.x/admin-api/#sni-objects)
+
+To import a SNI:
+```
+terraform import kong_sni.<sni_identifier> <sni_id>
+```
 
 ## Upstreams
 ```hcl
