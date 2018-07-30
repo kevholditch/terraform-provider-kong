@@ -3,6 +3,7 @@ package gokong
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 )
 
 type ApiClient struct {
@@ -11,18 +12,18 @@ type ApiClient struct {
 
 type ApiRequest struct {
 	Name                   *string   `json:"name"`
-	Hosts                  []*string `json:"hosts,omitempty"`
-	Uris                   []*string `json:"uris,omitempty"`
-	Methods                []*string `json:"methods,omitempty"`
+	Hosts                  []*string `json:"hosts"`
+	Uris                   []*string `json:"uris"`
+	Methods                []*string `json:"methods"`
 	UpstreamUrl            *string   `json:"upstream_url"`
-	StripUri               *bool     `json:"strip_uri"`
-	PreserveHost           *bool     `json:"preserve_host"`
+	StripUri               *bool     `json:"strip_uri,omitempty"`
+	PreserveHost           *bool     `json:"preserve_host,omitempty"`
 	Retries                *int      `json:"retries,omitempty"`
 	UpstreamConnectTimeout *int      `json:"upstream_connect_timeout,omitempty"`
 	UpstreamSendTimeout    *int      `json:"upstream_send_timeout,omitempty"`
 	UpstreamReadTimeout    *int      `json:"upstream_read_timeout,omitempty"`
-	HttpsOnly              *bool     `json:"https_only"`
-	HttpIfTerminated       *bool     `json:"http_if_terminated"`
+	HttpsOnly              *bool     `json:"https_only,omitempty"`
+	HttpIfTerminated       *bool     `json:"http_if_terminated,omitempty"`
 }
 
 type Api struct {
@@ -151,6 +152,10 @@ func (apiClient *ApiClient) UpdateByName(name string, apiRequest *ApiRequest) (*
 
 func (apiClient *ApiClient) UpdateById(id string, apiRequest *ApiRequest) (*Api, error) {
 
+	j, _ := json.Marshal(apiRequest)
+	js := string(j)
+	fmt.Sprintf("%s", js)
+
 	_, body, errs := newPatch(apiClient.config, apiClient.config.HostAddress+ApisPath+id).Send(apiRequest).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not update api, error: %v", errs)
@@ -163,8 +168,55 @@ func (apiClient *ApiClient) UpdateById(id string, apiRequest *ApiRequest) (*Api,
 	}
 
 	if updatedApi.Id == nil {
-		return nil, fmt.Errorf("could not update certificate, error: %v", body)
+		return nil, fmt.Errorf("could not update api, error: %v", body)
 	}
 
 	return updatedApi, nil
+}
+
+func (a *ApiRequest) MarshalJSON() ([]byte, error) {
+
+	uris := a.Uris
+	if uris == nil {
+		uris = make([]*string, 0)
+	}
+
+	hosts := a.Hosts
+	if hosts == nil {
+		hosts = make([]*string, 0)
+	}
+
+	methods := a.Methods
+	if methods == nil {
+		methods = make([]*string, 0)
+	}
+
+	type Alias ApiRequest
+	return json.Marshal(&struct {
+		Uris    []*string `json:"uris"`
+		Hosts   []*string `json:"hosts"`
+		Methods []*string `json:"methods"`
+		*Alias
+	}{
+		Uris:    uris,
+		Hosts:   hosts,
+		Methods: methods,
+		Alias:   (*Alias)(a),
+	})
+}
+
+func (a *Api) UnmarshalJSON(data []byte) error {
+
+	fixedJson := strings.Replace(string(data), `"hosts":{}`, `"hosts":[]`, -1)
+	fixedJson = strings.Replace(fixedJson, `"uris":{}`, `"uris":[]`, -1)
+	fixedJson = strings.Replace(fixedJson, `"methods":{}`, `"methods":[]`, -1)
+
+	type Alias Api
+	aux := &struct {
+		*Alias
+	}{
+		Alias: (*Alias)(a),
+	}
+
+	return json.Unmarshal([]byte(fixedJson), &aux)
 }

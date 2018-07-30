@@ -535,10 +535,10 @@
 			"revisionTime": "2016-08-03T19:07:31Z"
 		},
 		{
-			"checksumSHA1": "ZVv247RQ+kBLRlmy+nLt2zFTxFs=",
+			"checksumSHA1": "b3mQ8dVkpRngbnRQ0Wh7hpYLW0Y=",
 			"path": "github.com/kevholditch/gokong",
-			"revision": "ef943ada1515033fe7e1d211468eaf33be91a057",
-			"revisionTime": "2018-07-10T14:04:32Z"
+			"revision": "c1adf45559cf3f834a9ad995f21d6fc7c635f560",
+			"revisionTime": "2018-07-30T20:22:00Z"
 		},
 		{
 			"path": "github.com/kevholditch/gokong...",
@@ -547,8 +547,8 @@
 		{
 			"checksumSHA1": "w9MW3oDsZxi3k5QotS+3iWMa/eg=",
 			"path": "github.com/kevholditch/gokong/containers",
-			"revision": "157771deb83af0dc2f189ec247aaab067e4860c0",
-			"revisionTime": "2018-07-07T06:11:15Z"
+			"revision": "c1adf45559cf3f834a9ad995f21d6fc7c635f560",
+			"revisionTime": "2018-07-30T20:22:00Z"
 		},
 		{
 			"checksumSHA1": "IfZcD4U1dtllJKlPNeD2aU4Jn98=",
@@ -714,5 +714,5 @@
 			"versionExact": "v1.6.1"
 		}
 	],
-	"rootPath": "github.com/kamsz/terraform-provider-kong"
+	"rootPath": "github.com/kevholditch/terraform-provider-kong"
 }

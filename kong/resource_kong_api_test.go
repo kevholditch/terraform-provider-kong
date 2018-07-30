@@ -96,6 +96,63 @@ func TestAccKongApiImport(t *testing.T) {
 	})
 }
 
+func TestAccKongApiImportNoHosts(t *testing.T) {
+
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongApiDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testImportApiNoHostsConfig,
+			},
+
+			resource.TestStep{
+				ResourceName:      "kong_api.api",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccKongApiImportNoUris(t *testing.T) {
+
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongApiDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testImportApiNoUrisConfig,
+			},
+
+			resource.TestStep{
+				ResourceName:      "kong_api.api",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccKongApiImportNoMethods(t *testing.T) {
+
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongApiDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testImportApiNoMethodsConfig,
+			},
+
+			resource.TestStep{
+				ResourceName:      "kong_api.api",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckKongApiDestroy(state *terraform.State) error {
 
 	client := testAccProvider.Meta().(*gokong.KongAdminClient)
@@ -195,7 +252,61 @@ resource "kong_api" "api" {
 	https_only = false
 	http_if_terminated = false
 }
+
 `
+const testImportApiNoHostsConfig = `
+resource "kong_api" "api" {
+	name 	= "TestApi"
+  	hosts   = []
+	uris 	= [ "/example" ]
+	methods = [ "GET", "POST" ]
+	upstream_url = "http://localhost:4140"
+	retries = 3
+	strip_uri = false
+	preserve_host = false
+	upstream_connect_timeout = 60000
+	upstream_send_timeout = 30000
+	upstream_read_timeout = 10000
+	https_only = false
+	http_if_terminated = false
+}
+`
+const testImportApiNoMethodsConfig = `
+resource "kong_api" "api" {
+	name 	= "TestApi"
+  	hosts   = [ "example.com"]
+	uris 	= [ "/example" ]
+	methods = []
+	upstream_url = "http://localhost:4140"
+	retries = 3
+	strip_uri = false
+	preserve_host = false
+	upstream_connect_timeout = 60000
+	upstream_send_timeout = 30000
+	upstream_read_timeout = 10000
+	https_only = false
+	http_if_terminated = false
+}
+`
+
+const testImportApiNoUrisConfig = `
+resource "kong_api" "api" {
+	name 	= "TestApi"
+  	hosts   = [ "example.com"]
+	uris 	= []
+	methods = [ "GET" ]
+	upstream_url = "http://localhost:4140"
+	retries = 3
+	strip_uri = false
+	preserve_host = false
+	upstream_connect_timeout = 60000
+	upstream_send_timeout = 30000
+	upstream_read_timeout = 10000
+	https_only = false
+	http_if_terminated = false
+}
+`
+
 const testMinimumValuesApiConfig = `
 resource "kong_api" "minimal_api" {
 	name 	= "MyMinimalApi"

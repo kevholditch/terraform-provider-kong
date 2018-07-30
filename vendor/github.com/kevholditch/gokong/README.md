@@ -93,8 +93,8 @@ status, err := gokong.NewClient(gokong.NewDefaultConfig()).Status().Get()
 Create a new API ([for more information on the API fields see the Kong documentation](https://getkong.org/docs/0.13.x/admin-api/#api-object):
 ```go
 apiRequest := &gokong.ApiRequest{
-	Name:                   "Example",
-	Hosts:                  gokong.StringSlice([]string{"example.com"}),
+  Name:                   "Example",
+  Hosts:                  gokong.StringSlice([]string{"example.com"}),
   Uris:                   gokong.StringSlice([]string{"/example"}),
   Methods:                gokong.StringSlice([]string{"GET", "POST"}),
   UpstreamUrl:            gokong.String("http://localhost:4140/testservice"),
@@ -144,8 +144,8 @@ err := gokong.NewClient(gokong.NewDefaultConfig()).Apis().DeleteByName("Example"
 Update an API by id:
 ```go
 apiRequest := &gokong.ApiRequest{
-  	Name:                   "Example",
-  	Hosts:                  gokong.StringSlice([]string{"example.com"}),
+    Name:                   "Example",
+    Hosts:                  gokong.StringSlice([]string{"example.com"}),
     Uris:                   gokong.StringSlice([]string{"/example"}),
     Methods:                gokong.StringSlice([]string{"GET", "POST"}),
     UpstreamUrl:            gokong.String("http://localhost:4140/testservice"),
@@ -164,9 +164,9 @@ updatedApi, err := gokong.NewClient(gokong.NewDefaultConfig()).Apis().UpdateById
 
 Update an API by name:
 ```go
-apiRequest := &gokong.ApiRequest{
- 	Name:                   "Example",
- 	Hosts:                  gokong.StringSlice([]string{"example.com"}),
+apiRequest := &gokong.ApiRequest{ 
+  Name:                   "Example",
+  Hosts:                  gokong.StringSlice([]string{"example.com"}),
   Uris:                   gokong.StringSlice([]string{"/example"}),
   Methods:                gokong.StringSlice([]string{"GET", "POST"}),
   UpstreamUrl:            gokong.String("http://localhost:4140/testservice"),
@@ -504,7 +504,7 @@ updatedCertificate, err := gokong.NewClient(gokong.NewDefaultConfig()).Certifica
 
 # Routes
 
-Create a Route ([for more information on the Sni Fields see the Kong documentation](https://getkong.org/docs/0.13.x/admin-api/#route-object)):
+Create a Route ([for more information on the Route Fields see the Kong documentation](https://getkong.org/docs/0.13.x/admin-api/#route-object)):
 ```go
 serviceRequest := &gokong.ServiceRequest{
   Name:     gokong.String("service-name" + uuid.NewV4().String()),
@@ -569,7 +569,7 @@ client.Routes().DeleteRoute(createdRoute.Id)
 
 # Services
 
-Create an Service ([for more information on the Sni Fields see the Kong documentation](https://getkong.org/docs/0.13.x/admin-api/#service-object)):
+Create an Service ([for more information on the Service Fields see the Kong documentation](https://getkong.org/docs/0.13.x/admin-api/#service-object)):
 ```go
 serviceRequest := &ServiceRequest{
 		Name:     gokong.String("service-name-0"),
