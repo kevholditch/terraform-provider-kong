@@ -91,9 +91,13 @@ func (upstreamClient *UpstreamClient) GetByName(name string) (*Upstream, error) 
 
 func (upstreamClient *UpstreamClient) GetById(id string) (*Upstream, error) {
 
-	_, body, errs := newGet(upstreamClient.config, upstreamClient.config.HostAddress+UpstreamsPath+id).End()
+	r, body, errs := newGet(upstreamClient.config, upstreamClient.config.HostAddress+UpstreamsPath+id).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not get upstream, error: %v", errs)
+	}
+
+	if r.StatusCode == 401 || r.StatusCode == 403 {
+		return nil, fmt.Errorf("not authorised, message from kong: %s", body)
 	}
 
 	upstream := &Upstream{}
@@ -111,9 +115,13 @@ func (upstreamClient *UpstreamClient) GetById(id string) (*Upstream, error) {
 
 func (upstreamClient *UpstreamClient) Create(upstreamRequest *UpstreamRequest) (*Upstream, error) {
 
-	_, body, errs := newPost(upstreamClient.config, upstreamClient.config.HostAddress+UpstreamsPath).Send(upstreamRequest).End()
+	r, body, errs := newPost(upstreamClient.config, upstreamClient.config.HostAddress+UpstreamsPath).Send(upstreamRequest).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not create new upstream, error: %v", errs)
+	}
+
+	if r.StatusCode == 401 || r.StatusCode == 403 {
+		return nil, fmt.Errorf("not authorised, message from kong: %s", body)
 	}
 
 	createdUpstream := &Upstream{}
@@ -135,9 +143,13 @@ func (upstreamClient *UpstreamClient) DeleteByName(name string) error {
 
 func (upstreamClient *UpstreamClient) DeleteById(id string) error {
 
-	res, _, errs := newDelete(upstreamClient.config, upstreamClient.config.HostAddress+UpstreamsPath+id).End()
+	r, body, errs := newDelete(upstreamClient.config, upstreamClient.config.HostAddress+UpstreamsPath+id).End()
 	if errs != nil {
-		return fmt.Errorf("could not delete upstream, result: %v error: %v", res, errs)
+		return fmt.Errorf("could not delete upstream, result: %v error: %v", r, errs)
+	}
+
+	if r.StatusCode == 401 || r.StatusCode == 403 {
+		return fmt.Errorf("not authorised, message from kong: %s", body)
 	}
 
 	return nil
@@ -155,9 +167,13 @@ func (upstreamClient *UpstreamClient) ListFiltered(filter *UpstreamFilter) (*Ups
 		return nil, fmt.Errorf("could not build query string for upstreams filter, error: %v", err)
 	}
 
-	_, body, errs := newGet(upstreamClient.config, address).End()
+	r, body, errs := newGet(upstreamClient.config, address).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not get upstreams, error: %v", errs)
+	}
+
+	if r.StatusCode == 401 || r.StatusCode == 403 {
+		return nil, fmt.Errorf("not authorised, message from kong: %s", body)
 	}
 
 	upstreams := &Upstreams{}
@@ -175,9 +191,13 @@ func (upstreamClient *UpstreamClient) UpdateByName(name string, upstreamRequest 
 
 func (upstreamClient *UpstreamClient) UpdateById(id string, upstreamRequest *UpstreamRequest) (*Upstream, error) {
 
-	_, body, errs := newPatch(upstreamClient.config, upstreamClient.config.HostAddress+UpstreamsPath+id).Send(upstreamRequest).End()
+	r, body, errs := newPatch(upstreamClient.config, upstreamClient.config.HostAddress+UpstreamsPath+id).Send(upstreamRequest).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not update upstream, error: %v", errs)
+	}
+
+	if r.StatusCode == 401 || r.StatusCode == 403 {
+		return nil, fmt.Errorf("not authorised, message from kong: %s", body)
 	}
 
 	updatedUpstream := &Upstream{}

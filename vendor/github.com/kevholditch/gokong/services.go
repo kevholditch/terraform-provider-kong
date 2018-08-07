@@ -70,9 +70,13 @@ func (serviceClient *ServiceClient) AddService(serviceRequest *ServiceRequest) (
 		serviceRequest.Retries = Int(60000)
 	}
 
-	_, body, errs := newPost(serviceClient.config, serviceClient.config.HostAddress+ServicesPath).Send(serviceRequest).End()
+	r, body, errs := newPost(serviceClient.config, serviceClient.config.HostAddress+ServicesPath).Send(serviceRequest).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not register the service, error: %v", errs)
+	}
+
+	if r.StatusCode == 401 || r.StatusCode == 403 {
+		return nil, fmt.Errorf("not authorised, message from kong: %s", body)
 	}
 
 	createdService := &Service{}
@@ -101,9 +105,13 @@ func (serviceClient *ServiceClient) GetServiceFromRouteId(id string) (*Service, 
 }
 
 func (serviceClient *ServiceClient) getService(endpoint string) (*Service, error) {
-	_, body, errs := newGet(serviceClient.config, endpoint).End()
+	r, body, errs := newGet(serviceClient.config, endpoint).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not get the service, error: %v", errs)
+	}
+
+	if r.StatusCode == 401 || r.StatusCode == 403 {
+		return nil, fmt.Errorf("not authorised, message from kong: %s", body)
 	}
 
 	service := &Service{}
@@ -132,9 +140,13 @@ func (serviceClient *ServiceClient) GetServices(query *ServiceQueryString) ([]*S
 	}
 
 	for {
-		_, body, errs := newGet(serviceClient.config, serviceClient.config.HostAddress+ServicesPath).Query(query).End()
+		r, body, errs := newGet(serviceClient.config, serviceClient.config.HostAddress+ServicesPath).Query(query).End()
 		if errs != nil {
 			return nil, fmt.Errorf("could not get the service, error: %v", errs)
+		}
+
+		if r.StatusCode == 401 || r.StatusCode == 403 {
+			return nil, fmt.Errorf("not authorised, message from kong: %s", body)
 		}
 
 		err := json.Unmarshal([]byte(body), data)
@@ -167,9 +179,13 @@ func (serviceClient *ServiceClient) UpdateServicebyRouteId(id string, serviceReq
 }
 
 func (serviceClient *ServiceClient) updateService(endpoint string, serviceRequest *ServiceRequest) (*Service, error) {
-	_, body, errs := newPatch(serviceClient.config, endpoint).Send(serviceRequest).End()
+	r, body, errs := newPatch(serviceClient.config, endpoint).Send(serviceRequest).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not update service, error: %v", errs)
+	}
+
+	if r.StatusCode == 401 || r.StatusCode == 403 {
+		return nil, fmt.Errorf("not authorised, message from kong: %s", body)
 	}
 
 	updatedService := &Service{}
@@ -190,9 +206,13 @@ func (serviceClient *ServiceClient) DeleteServiceByName(name string) error {
 }
 
 func (serviceClient *ServiceClient) DeleteServiceById(id string) error {
-	res, _, errs := newDelete(serviceClient.config, serviceClient.config.HostAddress+ServicesPath+id).End()
+	r, body, errs := newDelete(serviceClient.config, serviceClient.config.HostAddress+ServicesPath+id).End()
 	if errs != nil {
-		return fmt.Errorf("could not delete the service, result: %v error: %v", res, errs)
+		return fmt.Errorf("could not delete the service, result: %v error: %v", r, errs)
+	}
+
+	if r.StatusCode == 401 || r.StatusCode == 403 {
+		return fmt.Errorf("not authorised, message from kong: %s", body)
 	}
 
 	return nil

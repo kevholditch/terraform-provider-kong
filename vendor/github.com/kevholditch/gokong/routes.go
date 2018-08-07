@@ -51,9 +51,13 @@ type RouteQueryString struct {
 const RoutesPath = "/routes/"
 
 func (routeClient *RouteClient) AddRoute(routeRequest *RouteRequest) (*Route, error) {
-	_, body, errs := newPost(routeClient.config, routeClient.config.HostAddress+RoutesPath).Send(routeRequest).End()
+	r, body, errs := newPost(routeClient.config, routeClient.config.HostAddress+RoutesPath).Send(routeRequest).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not register the route, error: %v", errs)
+	}
+
+	if r.StatusCode == 401 || r.StatusCode == 403 {
+		return nil, fmt.Errorf("not authorised, message from kong: %s", body)
 	}
 
 	createdRoute := &Route{}
@@ -70,9 +74,13 @@ func (routeClient *RouteClient) AddRoute(routeRequest *RouteRequest) (*Route, er
 }
 
 func (routeClient *RouteClient) GetRoute(id string) (*Route, error) {
-	_, body, errs := newGet(routeClient.config, routeClient.config.HostAddress+RoutesPath+id).End()
+	r, body, errs := newGet(routeClient.config, routeClient.config.HostAddress+RoutesPath+id).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not get the route, error: %v", errs)
+	}
+
+	if r.StatusCode == 401 || r.StatusCode == 403 {
+		return nil, fmt.Errorf("not authorised, message from kong: %s", body)
 	}
 
 	route := &Route{}
@@ -101,9 +109,13 @@ func (routeClient *RouteClient) GetRoutes(query *RouteQueryString) ([]*Route, er
 	}
 
 	for {
-		_, body, errs := newGet(routeClient.config, routeClient.config.HostAddress+RoutesPath).Query(query).End()
+		r, body, errs := newGet(routeClient.config, routeClient.config.HostAddress+RoutesPath).Query(query).End()
 		if errs != nil {
 			return nil, fmt.Errorf("could not get the route, error: %v", errs)
+		}
+
+		if r.StatusCode == 401 || r.StatusCode == 403 {
+			return nil, fmt.Errorf("not authorised, message from kong: %s", body)
 		}
 
 		err := json.Unmarshal([]byte(body), data)
@@ -132,9 +144,13 @@ func (routeClient *RouteClient) GetRoutesFromServiceId(id string) ([]*Route, err
 	data := &Routes{}
 
 	for {
-		_, body, errs := newGet(routeClient.config, routeClient.config.HostAddress+fmt.Sprintf("/services/%s/routes", id)).End()
+		r, body, errs := newGet(routeClient.config, routeClient.config.HostAddress+fmt.Sprintf("/services/%s/routes", id)).End()
 		if errs != nil {
 			return nil, fmt.Errorf("could not get the route, error: %v", errs)
+		}
+
+		if r.StatusCode == 401 || r.StatusCode == 403 {
+			return nil, fmt.Errorf("not authorised, message from kong: %s", body)
 		}
 
 		err := json.Unmarshal([]byte(body), data)
@@ -153,9 +169,13 @@ func (routeClient *RouteClient) GetRoutesFromServiceId(id string) ([]*Route, err
 }
 
 func (routeClient *RouteClient) UpdateRoute(id string, routeRequest *RouteRequest) (*Route, error) {
-	_, body, errs := newPatch(routeClient.config, routeClient.config.HostAddress+RoutesPath+id).Send(routeRequest).End()
+	r, body, errs := newPatch(routeClient.config, routeClient.config.HostAddress+RoutesPath+id).Send(routeRequest).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not update route, error: %v", errs)
+	}
+
+	if r.StatusCode == 401 || r.StatusCode == 403 {
+		return nil, fmt.Errorf("not authorised, message from kong: %s", body)
 	}
 
 	updatedRoute := &Route{}
@@ -172,9 +192,13 @@ func (routeClient *RouteClient) UpdateRoute(id string, routeRequest *RouteReques
 }
 
 func (routeClient *RouteClient) DeleteRoute(id string) error {
-	res, _, errs := newDelete(routeClient.config, routeClient.config.HostAddress+RoutesPath+id).End()
+	r, body, errs := newDelete(routeClient.config, routeClient.config.HostAddress+RoutesPath+id).End()
 	if errs != nil {
-		return fmt.Errorf("could not delete the route, result: %v error: %v", res, errs)
+		return fmt.Errorf("could not delete the route, result: %v error: %v", r, errs)
+	}
+
+	if r.StatusCode == 401 || r.StatusCode == 403 {
+		return fmt.Errorf("not authorised, message from kong: %s", body)
 	}
 
 	return nil
