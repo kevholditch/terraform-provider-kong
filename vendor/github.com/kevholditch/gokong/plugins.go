@@ -50,9 +50,13 @@ const PluginsPath = "/plugins/"
 
 func (pluginClient *PluginClient) GetById(id string) (*Plugin, error) {
 
-	_, body, errs := newGet(pluginClient.config, pluginClient.config.HostAddress+PluginsPath+id).End()
+	r, body, errs := newGet(pluginClient.config, pluginClient.config.HostAddress+PluginsPath+id).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not get plugin, error: %v", errs)
+	}
+
+	if r.StatusCode == 401 || r.StatusCode == 403 {
+		return nil, fmt.Errorf("not authorised, message from kong: %s", body)
 	}
 
 	plugin := &Plugin{}
@@ -80,9 +84,13 @@ func (pluginClient *PluginClient) ListFiltered(filter *PluginFilter) (*Plugins, 
 		return nil, fmt.Errorf("could not build query string for plugins filter, error: %v", err)
 	}
 
-	_, body, errs := newGet(pluginClient.config, address).End()
+	r, body, errs := newGet(pluginClient.config, address).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not get plugins, error: %v", errs)
+	}
+
+	if r.StatusCode == 401 || r.StatusCode == 403 {
+		return nil, fmt.Errorf("not authorised, message from kong: %s", body)
 	}
 
 	plugins := &Plugins{}
@@ -96,9 +104,13 @@ func (pluginClient *PluginClient) ListFiltered(filter *PluginFilter) (*Plugins, 
 
 func (pluginClient *PluginClient) Create(pluginRequest *PluginRequest) (*Plugin, error) {
 
-	_, body, errs := newPost(pluginClient.config, pluginClient.config.HostAddress+PluginsPath).Send(pluginRequest).End()
+	r, body, errs := newPost(pluginClient.config, pluginClient.config.HostAddress+PluginsPath).Send(pluginRequest).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not create new plugin, error: %v", errs)
+	}
+
+	if r.StatusCode == 401 || r.StatusCode == 403 {
+		return nil, fmt.Errorf("not authorised, message from kong: %s", body)
 	}
 
 	createdPlugin := &Plugin{}
@@ -116,9 +128,13 @@ func (pluginClient *PluginClient) Create(pluginRequest *PluginRequest) (*Plugin,
 
 func (pluginClient *PluginClient) UpdateById(id string, pluginRequest *PluginRequest) (*Plugin, error) {
 
-	_, body, errs := newPatch(pluginClient.config, pluginClient.config.HostAddress+PluginsPath+id).Send(pluginRequest).End()
+	r, body, errs := newPatch(pluginClient.config, pluginClient.config.HostAddress+PluginsPath+id).Send(pluginRequest).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not update plugin, error: %v", errs)
+	}
+
+	if r.StatusCode == 401 || r.StatusCode == 403 {
+		return nil, fmt.Errorf("not authorised, message from kong: %s", body)
 	}
 
 	updatedPlugin := &Plugin{}
@@ -136,9 +152,13 @@ func (pluginClient *PluginClient) UpdateById(id string, pluginRequest *PluginReq
 
 func (pluginClient *PluginClient) DeleteById(id string) error {
 
-	res, _, errs := newDelete(pluginClient.config, pluginClient.config.HostAddress+PluginsPath+id).End()
+	r, body, errs := newDelete(pluginClient.config, pluginClient.config.HostAddress+PluginsPath+id).End()
 	if errs != nil {
-		return fmt.Errorf("could not delete plugin, result: %v error: %v", res, errs)
+		return fmt.Errorf("could not delete plugin, result: %v error: %v", r, errs)
+	}
+
+	if r.StatusCode == 401 || r.StatusCode == 403 {
+		return fmt.Errorf("not authorised, message from kong: %s", body)
 	}
 
 	return nil

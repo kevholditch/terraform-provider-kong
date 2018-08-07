@@ -67,10 +67,14 @@ func (apiClient *ApiClient) GetByName(name string) (*Api, error) {
 }
 
 func (apiClient *ApiClient) GetById(id string) (*Api, error) {
-	_, body, errs := newGet(apiClient.config, apiClient.config.HostAddress+ApisPath+id).End()
+	r, body, errs := newGet(apiClient.config, apiClient.config.HostAddress+ApisPath+id).End()
 
 	if errs != nil {
 		return nil, fmt.Errorf("could not get api, error: %v", errs)
+	}
+
+	if r.StatusCode == 401 || r.StatusCode == 403 {
+		return nil, fmt.Errorf("not authorised, message from kong: %s", body)
 	}
 
 	api := &Api{}
@@ -98,9 +102,13 @@ func (apiClient *ApiClient) ListFiltered(filter *ApiFilter) (*Apis, error) {
 		return nil, fmt.Errorf("could not build query string for apis filter, error: %v", err)
 	}
 
-	_, body, errs := newGet(apiClient.config, address).End()
+	r, body, errs := newGet(apiClient.config, address).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not get apis, error: %v", errs)
+	}
+
+	if r.StatusCode == 401 || r.StatusCode == 403 {
+		return nil, fmt.Errorf("not authorised, message from kong: %s", body)
 	}
 
 	apis := &Apis{}
@@ -114,9 +122,13 @@ func (apiClient *ApiClient) ListFiltered(filter *ApiFilter) (*Apis, error) {
 
 func (apiClient *ApiClient) Create(newApi *ApiRequest) (*Api, error) {
 
-	_, body, errs := newPost(apiClient.config, apiClient.config.HostAddress+ApisPath).Send(newApi).End()
+	r, body, errs := newPost(apiClient.config, apiClient.config.HostAddress+ApisPath).Send(newApi).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not create new api, error: %v", errs)
+	}
+
+	if r.StatusCode == 401 || r.StatusCode == 403 {
+		return nil, fmt.Errorf("not authorised, message from kong: %s", body)
 	}
 
 	createdApi := &Api{}
@@ -138,9 +150,13 @@ func (apiClient *ApiClient) DeleteByName(name string) error {
 
 func (apiClient *ApiClient) DeleteById(id string) error {
 
-	res, _, errs := newDelete(apiClient.config, apiClient.config.HostAddress+ApisPath+id).End()
+	r, body, errs := newDelete(apiClient.config, apiClient.config.HostAddress+ApisPath+id).End()
 	if errs != nil {
-		return fmt.Errorf("could not delete api, result: %v error: %v", res, errs)
+		return fmt.Errorf("could not delete api, result: %v error: %v", r, errs)
+	}
+
+	if r.StatusCode == 401 || r.StatusCode == 403 {
+		return fmt.Errorf("not authorised, message from kong: %s", body)
 	}
 
 	return nil
@@ -152,13 +168,13 @@ func (apiClient *ApiClient) UpdateByName(name string, apiRequest *ApiRequest) (*
 
 func (apiClient *ApiClient) UpdateById(id string, apiRequest *ApiRequest) (*Api, error) {
 
-	j, _ := json.Marshal(apiRequest)
-	js := string(j)
-	fmt.Sprintf("%s", js)
-
-	_, body, errs := newPatch(apiClient.config, apiClient.config.HostAddress+ApisPath+id).Send(apiRequest).End()
+	r, body, errs := newPatch(apiClient.config, apiClient.config.HostAddress+ApisPath+id).Send(apiRequest).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not update api, error: %v", errs)
+	}
+
+	if r.StatusCode == 401 || r.StatusCode == 403 {
+		return nil, fmt.Errorf("not authorised, message from kong: %s", body)
 	}
 
 	updatedApi := &Api{}

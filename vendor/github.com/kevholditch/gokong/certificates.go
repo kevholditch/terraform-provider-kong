@@ -29,9 +29,13 @@ const CertificatesPath = "/certificates/"
 
 func (certificateClient *CertificateClient) GetById(id string) (*Certificate, error) {
 
-	_, body, errs := newGet(certificateClient.config, certificateClient.config.HostAddress+CertificatesPath+id).End()
+	r, body, errs := newGet(certificateClient.config, certificateClient.config.HostAddress+CertificatesPath+id).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not get certificate, error: %v", errs)
+	}
+
+	if r.StatusCode == 401 || r.StatusCode == 403 {
+		return nil, fmt.Errorf("not authorised, message from kong: %s", body)
 	}
 
 	certificate := &Certificate{}
@@ -49,9 +53,13 @@ func (certificateClient *CertificateClient) GetById(id string) (*Certificate, er
 
 func (certificateClient *CertificateClient) Create(certificateRequest *CertificateRequest) (*Certificate, error) {
 
-	_, body, errs := newPost(certificateClient.config, certificateClient.config.HostAddress+CertificatesPath).Send(certificateRequest).End()
+	r, body, errs := newPost(certificateClient.config, certificateClient.config.HostAddress+CertificatesPath).Send(certificateRequest).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not create new certificate, error: %v", errs)
+	}
+
+	if r.StatusCode == 401 || r.StatusCode == 403 {
+		return nil, fmt.Errorf("not authorised, message from kong: %s", body)
 	}
 
 	createdCertificate := &Certificate{}
@@ -69,9 +77,13 @@ func (certificateClient *CertificateClient) Create(certificateRequest *Certifica
 
 func (certificateClient *CertificateClient) DeleteById(id string) error {
 
-	res, _, errs := newDelete(certificateClient.config, certificateClient.config.HostAddress+CertificatesPath+id).End()
+	r, body, errs := newDelete(certificateClient.config, certificateClient.config.HostAddress+CertificatesPath+id).End()
 	if errs != nil {
-		return fmt.Errorf("could not delete certificate, result: %v error: %v", res, errs)
+		return fmt.Errorf("could not delete certificate, result: %v error: %v", r, errs)
+	}
+
+	if r.StatusCode == 401 || r.StatusCode == 403 {
+		return fmt.Errorf("not authorised, message from kong: %s", body)
 	}
 
 	return nil
@@ -79,9 +91,13 @@ func (certificateClient *CertificateClient) DeleteById(id string) error {
 
 func (certificateClient *CertificateClient) List() (*Certificates, error) {
 
-	_, body, errs := newGet(certificateClient.config, certificateClient.config.HostAddress+CertificatesPath).End()
+	r, body, errs := newGet(certificateClient.config, certificateClient.config.HostAddress+CertificatesPath).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not get certificates, error: %v", errs)
+	}
+
+	if r.StatusCode == 401 || r.StatusCode == 403 {
+		return nil, fmt.Errorf("not authorised, message from kong: %s", body)
 	}
 
 	certificates := &Certificates{}
@@ -95,9 +111,13 @@ func (certificateClient *CertificateClient) List() (*Certificates, error) {
 
 func (certificateClient *CertificateClient) UpdateById(id string, certificateRequest *CertificateRequest) (*Certificate, error) {
 
-	_, body, errs := newPatch(certificateClient.config, certificateClient.config.HostAddress+CertificatesPath+id).Send(certificateRequest).End()
+	r, body, errs := newPatch(certificateClient.config, certificateClient.config.HostAddress+CertificatesPath+id).Send(certificateRequest).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not update certificate, error: %v", errs)
+	}
+
+	if r.StatusCode == 401 || r.StatusCode == 403 {
+		return nil, fmt.Errorf("not authorised, message from kong: %s", body)
 	}
 
 	updatedCertificate := &Certificate{}
