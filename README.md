@@ -53,7 +53,7 @@ You can use environment variables to set the provider properties instead.  The f
 # Resources
 
 ## Services
-```
+```hcl
 resource "kong_service" "service" {
 	name     	= "test"
 	protocol 	= "http"
@@ -75,7 +75,7 @@ terraform import kong_service.<service_identifier> <service_id>
 ```
 
 ## Routes
-```
+```hcl
 resource "kong_route" "route" {
 	protocols 	= [ "http", "https" ]
 	methods 	= [ "GET", "POST" ]
