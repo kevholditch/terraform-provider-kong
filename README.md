@@ -155,7 +155,7 @@ resource "kong_api" "api" {
     http_if_terminated       = false
 }
 
-resource "_" "plugin_consumer" {
+resource "kong_consumer" "plugin_consumer" {
     username  = "PluginUser"
     custom_id = "111"
 }
