@@ -20,6 +20,8 @@ Requirements
 Usage
 -----
 
+First, install the desired [plugin release](https://github.com/kevholditch/terraform-provider-kong/releases) following Terraform's [Third-party plugin docs](https://www.terraform.io/docs/configuration/providers.html#third-party-plugins).
+
 To configure the provider:
 ```hcl
 provider "kong" {
