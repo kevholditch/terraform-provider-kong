@@ -46,7 +46,7 @@ You can use environment variables to set the provider properties instead.  The f
 | kong_admin_password   | KONG_ADMIN_PASSWORD  | not set               | Password for the kong admin api                                                 |
 | tls_skip_verify       | TLS_SKIP_VERIFY      | false                 | Whether to skip tls certificate verification for the kong api when using https  |
 | kong_api_key          | KONG_API_KEY         | not set               | API key used to secure the kong admin API                                       |
-
+| kong_admin_token      | KONG_ADMIN_TOKEN     | not set               | API key used to secure the kong admin API in the Enterprise Edition             |
 
 
 

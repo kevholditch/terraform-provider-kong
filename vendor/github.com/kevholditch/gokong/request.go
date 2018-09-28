@@ -16,6 +16,10 @@ func configureRequest(r *gorequest.SuperAgent, config *Config) *gorequest.SuperA
 		r.Set("apikey", config.ApiKey)
 	}
 
+	if config.AdminToken != "" {
+		r.Set("kong-admin-token", config.AdminToken)
+	}
+
 	return r
 }
 
