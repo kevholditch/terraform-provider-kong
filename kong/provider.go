@@ -41,6 +41,12 @@ func Provider() terraform.ResourceProvider {
 				DefaultFunc: envDefaultFuncWithDefault("KONG_API_KEY", ""),
 				Description: "API key for the kong api (if you have locked it down)",
 			},
+			"kong_admin_token": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: envDefaultFuncWithDefault("KONG_ADMIN_TOKEN", ""),
+				Description: "API key for the kong api (Enterprise Edition)",
+			},
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -88,6 +94,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		Password:           d.Get("kong_admin_password").(string),
 		InsecureSkipVerify: d.Get("tls_skip_verify").(bool),
 		ApiKey:             d.Get("kong_api_key").(string),
+		AdminToken:         d.Get("kong_admin_token").(string),
 	}
 
 	return gokong.NewClient(config), nil
