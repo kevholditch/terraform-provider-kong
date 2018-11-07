@@ -48,7 +48,7 @@ You can use environment variables to set the provider properties instead.  The f
 | kong_admin_password   | KONG_ADMIN_PASSWORD  | not set               | Password for the kong admin api                                                 |
 | tls_skip_verify       | TLS_SKIP_VERIFY      | false                 | Whether to skip tls certificate verification for the kong api when using https  |
 | kong_api_key          | KONG_API_KEY         | not set               | API key used to secure the kong admin API                                       |
-
+| kong_admin_token      | KONG_ADMIN_TOKEN     | not set               | API key used to secure the kong admin API in the Enterprise Edition             |
 
 
 
@@ -66,7 +66,7 @@ resource "kong_service" "service" {
 	connect_timeout = 1000
 	write_timeout 	= 2000
 	read_timeout  	= 3000
-	
+
 }
 ```
 The service resource maps directly onto the json for the service endpoint in Kong.  For more information on the parameters [see the Kong Service create documentation](https://getkong.org/docs/0.13.x/admin-api/#service-object).
@@ -345,7 +345,7 @@ returned:
 To look up an existing plugin:
 ```hcl
 data "kong_plugin" "plugin_data_source" {
-    filter = { 
+    filter = {
         id          = "f0e656af-ad53-4622-ac73-ffd46ae05289"
 	name        = "response-ratelimiting"
 	api_id      = "51694bcd-3c72-43b3-b414-a09bbf4e3c30"
@@ -377,8 +377,8 @@ Each of the filter parameters are optional and they are combined for an AND sear
   * `name` - the name of the found upstream
   * `slots` - the number of slots on the found upstream
   * `order_list` - a list containing the slot order on the found upstream
-  
-  
+
+
 # Contributing
 I would love to get contributions to the project so please feel free to submit a PR.  To setup your dev station you need go and docker installed.
 

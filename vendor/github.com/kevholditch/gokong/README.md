@@ -59,7 +59,7 @@ There are a number of options you can set via config either by explicitly settin
 | Password              | KONG_ADMIN_PASSWORD  | not set               | Password for the kong admin api                                                 |
 | InsecureSkipVerify    | TLS_SKIP_VERIFY      | false                 | Whether to skip tls certificate verification for the kong api when using https  |
 | ApiKey                | KONG_API_KEY         | not set               | The api key you have used to lock down the kong admin api (via key-auth plugin) |
-
+| AdminToken            | KONG_ADMIN_TOKEN     | not set               | The api key you have used to lock down the kong admin api (Enterprise Edition ) |
 
 
 You can of course create your own config with the address set to whatever you want:
@@ -164,7 +164,7 @@ updatedApi, err := gokong.NewClient(gokong.NewDefaultConfig()).Apis().UpdateById
 
 Update an API by name:
 ```go
-apiRequest := &gokong.ApiRequest{ 
+apiRequest := &gokong.ApiRequest{
   Name:                   "Example",
   Hosts:                  gokong.StringSlice([]string{"example.com"}),
   Uris:                   gokong.StringSlice([]string{"/example"}),
