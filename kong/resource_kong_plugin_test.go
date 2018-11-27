@@ -191,6 +191,29 @@ func TestAccKongPluginForASpecificRoute(t *testing.T) {
 	})
 }
 
+func TestAccKongPluginWithJson(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongPluginDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testCreatePluginWithJson,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKongPluginExists("kong_plugin.datadog_test"),
+					resource.TestCheckResourceAttr("kong_plugin.datadog_test", "name", "datadog"),
+				),
+			},
+			{
+				Config: testUpdatePluginWithJson,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKongPluginExists("kong_plugin.datadog_test"),
+					resource.TestCheckResourceAttr("kong_plugin.datadog_test", "name", "datadog"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccKongPluginImport(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
@@ -564,5 +587,50 @@ resource "kong_plugin" "basic_auth" {
 	config = {
 		hide_credentials = "false"
 	}
+}
+`
+
+const testCreatePluginWithJson = `
+resource "kong_plugin" "datadog_test" {
+	name  = "datadog"
+	config_json = <<EOT
+	{
+	  "host": "datadog",
+	  "prefix": "kong",
+	  "port": 8125,
+	  "metrics": [
+	    {
+	      "sample_rate": 1,
+	      "name": "request_count",
+	      "stat_type": "counter"
+	    }
+	  ]
+	}
+	EOT
+}
+`
+
+const testUpdatePluginWithJson = `
+resource "kong_plugin" "datadog_test" {
+	name  = "datadog"
+	config_json = <<EOT
+	{
+	  "host": "datadog",
+	  "prefix": "kong",
+	  "port": 8125,
+	  "metrics": [
+	    {
+	      "sample_rate": 1,
+	      "name": "request_count",
+	      "stat_type": "counter"
+	    },
+	    {
+	      "sample_rate": 1,
+	      "name": "latency",
+	      "stat_type": "gauge"
+	    }
+	  ]
+	}
+	EOT
 }
 `

@@ -8,7 +8,7 @@ test:
 	go test -v . ./kong
 
 testacc:
-	go test -v ./kong -run="TestAcc"
+	TF_ACC=1 go test -v ./kong -run="TestAcc"
 
 build: goimportscheck vet testacc
 	@go install

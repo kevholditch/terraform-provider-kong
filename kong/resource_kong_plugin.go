@@ -1,6 +1,7 @@
 package kong
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -48,7 +49,11 @@ func resourceKongPlugin() *schema.Resource {
 				Type:     schema.TypeMap,
 				Optional: true,
 				Elem:     schema.TypeString,
-				Default:  nil,
+			},
+			"config_json": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "plugin configuration in JSON format, configuration must be a valid JSON object.",
 			},
 		},
 	}
@@ -56,7 +61,10 @@ func resourceKongPlugin() *schema.Resource {
 
 func resourceKongPluginCreate(d *schema.ResourceData, meta interface{}) error {
 
-	pluginRequest := createKongPluginRequestFromResourceData(d)
+	pluginRequest, err := createKongPluginRequestFromResourceData(d)
+	if err != nil {
+		return err
+	}
 
 	plugin, err := meta.(*gokong.KongAdminClient).Plugins().Create(pluginRequest)
 
@@ -72,9 +80,12 @@ func resourceKongPluginCreate(d *schema.ResourceData, meta interface{}) error {
 func resourceKongPluginUpdate(d *schema.ResourceData, meta interface{}) error {
 	d.Partial(false)
 
-	pluginRequest := createKongPluginRequestFromResourceData(d)
+	pluginRequest, err := createKongPluginRequestFromResourceData(d)
+	if err != nil {
+		return err
+	}
 
-	_, err := meta.(*gokong.KongAdminClient).Plugins().UpdateById(d.Id(), pluginRequest)
+	_, err = meta.(*gokong.KongAdminClient).Plugins().UpdateById(d.Id(), pluginRequest)
 
 	if err != nil {
 		return fmt.Errorf("error updating kong plugin: %s", err)
@@ -111,7 +122,7 @@ func resourceKongPluginDelete(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func createKongPluginRequestFromResourceData(d *schema.ResourceData) *gokong.PluginRequest {
+func createKongPluginRequestFromResourceData(d *schema.ResourceData) (*gokong.PluginRequest, error) {
 
 	pluginRequest := &gokong.PluginRequest{}
 
@@ -122,5 +133,18 @@ func createKongPluginRequestFromResourceData(d *schema.ResourceData) *gokong.Plu
 	pluginRequest.RouteId = readStringFromResource(d, "route_id")
 	pluginRequest.Config = readMapFromResource(d, "config")
 
-	return pluginRequest
+	if pluginRequest.Config == nil {
+		if data, ok := d.GetOk("config_json"); ok {
+			var configJson map[string]interface{}
+
+			err := json.Unmarshal([]byte(data.(string)), &configJson)
+			if err != nil {
+				return pluginRequest, fmt.Errorf("failed to unmarshal config_json, err: %v", err)
+			}
+
+			pluginRequest.Config = configJson
+		}
+	}
+
+	return pluginRequest, nil
 }
