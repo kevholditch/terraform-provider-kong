@@ -47,6 +47,18 @@ func Provider() terraform.ResourceProvider {
 				DefaultFunc: envDefaultFuncWithDefault("KONG_ADMIN_TOKEN", ""),
 				Description: "API key for the kong api (Enterprise Edition)",
 			},
+			"kong_max_retries": &schema.Schema{
+				Type:        schema.TypeInt,
+				Required:    true,
+				DefaultFunc: envDefaultFuncWithDefault("KONG_MAX_RETRIES", "10"),
+				Description: "Max retries if kong is having trouble",
+			},
+			"kong_retry_interval": &schema.Schema{
+				Type:        schema.TypeInt,
+				Required:    true,
+				DefaultFunc: envDefaultFuncWithDefault("KONG_RETRY_INTERVAL", "2"),
+				Description: "Interval in seconds to wait before retrying on kong errors",
+			},
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -74,7 +86,7 @@ func Provider() terraform.ResourceProvider {
 
 func envDefaultFuncWithDefault(key string, defaultValue string) schema.SchemaDefaultFunc {
 	return func() (interface{}, error) {
-		if v := os.Getenv(key); v != "" {
+		if v, exists := os.LookupEnv(key); exists && v != "" {
 			if v == "true" {
 				return true, nil
 			} else if v == "false" {
@@ -95,6 +107,8 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		InsecureSkipVerify: d.Get("tls_skip_verify").(bool),
 		ApiKey:             d.Get("kong_api_key").(string),
 		AdminToken:         d.Get("kong_admin_token").(string),
+		MaxRetries:         d.Get("kong_max_retries").(int),
+		RetryInterval:      d.Get("kong_retry_interval").(int),
 	}
 
 	return gokong.NewClient(config), nil
