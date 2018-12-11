@@ -20,7 +20,7 @@ func TestAccKongConsumerPluginConfig(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKongConsumerPluginConfigExists("kong_consumer_plugin_config.consumer_jwt_config"),
 					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "plugin_name", "jwt"),
-					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "config_json", `{"key":"my_key","secret":"my_secret"}`),
+					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "config_json", `{"algorithm":"HS256","key":"my_key","secret":"my_secret"}`),
 				),
 			},
 			{
@@ -28,7 +28,7 @@ func TestAccKongConsumerPluginConfig(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKongConsumerPluginConfigExists("kong_consumer_plugin_config.consumer_jwt_config"),
 					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "plugin_name", "jwt"),
-					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "config_json", `{"key":"updated_key","secret":"updated_secret"}`),
+					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "config_json", `{"algorithm":"HS256","key":"updated_key","secret":"updated_secret"}`),
 				),
 			},
 		},
@@ -162,6 +162,7 @@ resource "kong_consumer_plugin_config" "consumer_jwt_config" {
 	plugin_name = "jwt"
 	config_json = <<EOT
 		{
+			"algorithm": "HS256",
 			"key": "my_key",
 			"secret": "my_secret"
 		}
@@ -187,6 +188,7 @@ resource "kong_consumer_plugin_config" "consumer_jwt_config" {
 	plugin_name = "jwt"
 	config_json = <<EOT
 		{
+			"algorithm": "HS256",
 			"key": "updated_key",
 			"secret": "updated_secret"
 		}

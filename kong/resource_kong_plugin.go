@@ -46,14 +46,20 @@ func resourceKongPlugin() *schema.Resource {
 				ForceNew: false,
 			},
 			"config": &schema.Schema{
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     schema.TypeString,
+				Type:          schema.TypeMap,
+				Optional:      true,
+				ForceNew:      true,
+				Elem:          schema.TypeString,
+				ConflictsWith: []string{"config_json"},
 			},
 			"config_json": &schema.Schema{
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "plugin configuration in JSON format, configuration must be a valid JSON object.",
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
+				StateFunc:     normalizeDataJSON,
+				ValidateFunc:  validateDataJSON,
+				Description:   "plugin configuration in JSON format, configuration must be a valid JSON object.",
+				ConflictsWith: []string{"config"},
 			},
 		},
 	}
@@ -106,6 +112,17 @@ func resourceKongPluginRead(d *schema.ResourceData, meta interface{}) error {
 		d.SetId("")
 	} else {
 		d.Set("name", plugin.Name)
+
+		// We sync this property from upstream as a method to allow you to import a resource with the config tracked in
+		// terraform state. We do not track `config` as it will be a source of a perpetual diff.
+		// https://www.terraform.io/docs/extend/best-practices/detecting-drift.html#capture-all-state-in-read
+		confJson := d.Get("config_json").(string)
+
+		// Sync only if it is set in the config to avoid perpetual diff
+		if confJson != "" {
+			upstreamJson := pluginConfigJsonToString(plugin.Config)
+			d.Set("config_json", upstreamJson)
+		}
 	}
 
 	return nil
@@ -147,4 +164,18 @@ func createKongPluginRequestFromResourceData(d *schema.ResourceData) (*gokong.Pl
 	}
 
 	return pluginRequest, nil
+}
+
+// Since this config is a schemaless "blob" we have to remove computed properties
+func pluginConfigJsonToString(data map[string]interface{}) string {
+	marshalledData := map[string]interface{}{}
+	for key, val := range data {
+		if !contains(computedPluginProperties, key) {
+			marshalledData[key] = val
+		}
+	}
+	// We know it is valid JSON at this point
+	rawJson, _ := json.Marshal(marshalledData)
+
+	return string(rawJson)
 }

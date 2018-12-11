@@ -33,18 +33,21 @@ func resourceKongConsumerPluginConfig() *schema.Resource {
 				ForceNew: true,
 			},
 			"config": &schema.Schema{
-				Type:     schema.TypeMap,
-				ForceNew: true,
-				Optional: true,
-				Elem:     schema.TypeString,
-				Default:  nil,
+				Type:          schema.TypeMap,
+				ForceNew:      true,
+				Optional:      true,
+				Elem:          schema.TypeString,
+				Default:       nil,
+				ConflictsWith: []string{"config_json"},
 			},
 			"config_json": &schema.Schema{
-				Type:         schema.TypeString,
-				ForceNew:     true,
-				Optional:     true,
-				StateFunc:    normalizeDataJSON,
-				ValidateFunc: validateDataJSON,
+				Type:          schema.TypeString,
+				ForceNew:      true,
+				Optional:      true,
+				StateFunc:     normalizeDataJSON,
+				ValidateFunc:  validateDataJSON,
+				ConflictsWith: []string{"config"},
+				Description:   "JSON format of plugin config",
 			},
 		},
 	}
@@ -171,6 +174,21 @@ func resourceKongConsumerPluginConfigRead(d *schema.ResourceData, meta interface
 	d.Set("consumer_id", idFields.consumerId)
 	d.Set("plugin_name", idFields.pluginName)
 
+	// We sync this property from upstream as a method to allow you to import a resource with the config tracked in
+	// terraform state. We do not track `config` as it will be a source of a perpetual diff.
+	// https://www.terraform.io/docs/extend/best-practices/detecting-drift.html#capture-all-state-in-read
+	confJson := d.Get("config_json").(string)
+
+	// Sync only if it is set in the config
+	if confJson != "" {
+		upstreamJson, err := consumerPluginConfigJsonToString(consumerPluginConfig.Body)
+		if err != nil {
+			return fmt.Errorf("could not read in consumer plugin config body: %s error: %v", d.Id(), err)
+		}
+
+		d.Set("config_json", upstreamJson)
+	}
+
 	return nil
 }
 
@@ -189,4 +207,27 @@ func resourceKongConsumerPluginConfigDelete(d *schema.ResourceData, meta interfa
 	}
 
 	return nil
+}
+
+// Since this config is a schemaless "blob" we have to remove computed properties
+func consumerPluginConfigJsonToString(body string) (string, error) {
+	data := map[string]interface{}{}
+	marshalledData := map[string]interface{}{}
+	err := json.Unmarshal([]byte(body), &data)
+	if err != nil {
+		return "", err
+	}
+
+	for key, val := range data {
+		if !contains(computedPluginProperties, key) {
+			str := convertInterfaceToString(val)
+
+			if str != "" {
+				marshalledData[key] = str
+			}
+		}
+	}
+	rawJson, _ := json.Marshal(marshalledData)
+
+	return string(rawJson), nil
 }
