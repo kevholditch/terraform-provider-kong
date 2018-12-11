@@ -220,11 +220,7 @@ func consumerPluginConfigJsonToString(body string) (string, error) {
 
 	for key, val := range data {
 		if !contains(computedPluginProperties, key) {
-			str := convertInterfaceToString(val)
-
-			if str != "" {
-				marshalledData[key] = str
-			}
+			marshalledData[key] = val
 		}
 	}
 	rawJson, _ := json.Marshal(marshalledData)
