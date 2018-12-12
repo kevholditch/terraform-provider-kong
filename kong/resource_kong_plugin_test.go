@@ -233,6 +233,29 @@ func TestAccKongPluginImport(t *testing.T) {
 	})
 }
 
+func TestAccKongPluginImportConfigJson(t *testing.T) {
+
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongPluginDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testImportPluginForJson,
+			},
+
+			resource.TestStep{
+				ResourceName:      "kong_plugin.basic_auth_json",
+				ImportState:       true,
+				ImportStateVerify: false,
+				// Ensuring config_json gets set to state when importing existant infrastructure
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("kong_plugin.basic_auth_json", "config_json", `{"anonymous":"","hide_credentials":true}`),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckKongPluginDestroy(state *terraform.State) error {
 
 	client := testAccProvider.Meta().(*gokong.KongAdminClient)
@@ -587,6 +610,34 @@ resource "kong_plugin" "basic_auth" {
 	config = {
 		hide_credentials = "false"
 	}
+}
+`
+const testImportPluginForJson = `
+resource "kong_api" "api" {
+	name 	= "TestApi"
+  	hosts   = [ "example.com" ]
+	uris 	= [ "/example" ]
+	methods = [ "GET", "POST" ]
+	upstream_url = "http://localhost:4140"
+	strip_uri = false
+	preserve_host = false
+	retries = 3
+	upstream_connect_timeout = 60000
+	upstream_send_timeout = 30000
+	upstream_read_timeout = 10000
+	https_only = false
+	http_if_terminated = false
+}
+
+resource "kong_plugin" "basic_auth_json" {
+	name   = "basic-auth"
+	api_id = "${kong_api.api.id}"
+	config_json = <<EOT
+{
+	"hide_credentials": true,
+	"anonymous": ""
+}
+EOT
 }
 `
 
