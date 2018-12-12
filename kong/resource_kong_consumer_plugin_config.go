@@ -40,6 +40,8 @@ func resourceKongConsumerPluginConfig() *schema.Resource {
 				Default:       nil,
 				ConflictsWith: []string{"config_json"},
 			},
+			// Suppress diff when config is empty so we can sync with upstream always
+			// The ForceNew property is what makes this work.
 			"config_json": &schema.Schema{
 				Type:          schema.TypeString,
 				ForceNew:      true,
@@ -48,6 +50,9 @@ func resourceKongConsumerPluginConfig() *schema.Resource {
 				ValidateFunc:  validateDataJSON,
 				ConflictsWith: []string{"config"},
 				Description:   "JSON format of plugin config",
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					return new == ""
+				},
 			},
 		},
 	}
@@ -177,17 +182,12 @@ func resourceKongConsumerPluginConfigRead(d *schema.ResourceData, meta interface
 	// We sync this property from upstream as a method to allow you to import a resource with the config tracked in
 	// terraform state. We do not track `config` as it will be a source of a perpetual diff.
 	// https://www.terraform.io/docs/extend/best-practices/detecting-drift.html#capture-all-state-in-read
-	confJson := d.Get("config_json").(string)
-
-	// Sync only if it is set in the config
-	if confJson != "" {
-		upstreamJson, err := consumerPluginConfigJsonToString(consumerPluginConfig.Body)
-		if err != nil {
-			return fmt.Errorf("could not read in consumer plugin config body: %s error: %v", d.Id(), err)
-		}
-
-		d.Set("config_json", upstreamJson)
+	upstreamJson, err := consumerPluginConfigJsonToString(consumerPluginConfig.Body)
+	if err != nil {
+		return fmt.Errorf("could not read in consumer plugin config body: %s error: %v", d.Id(), err)
 	}
+
+	d.Set("config_json", upstreamJson)
 
 	return nil
 }

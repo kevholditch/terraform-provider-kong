@@ -60,6 +60,11 @@ func resourceKongPlugin() *schema.Resource {
 				ValidateFunc:  validateDataJSON,
 				Description:   "plugin configuration in JSON format, configuration must be a valid JSON object.",
 				ConflictsWith: []string{"config"},
+				// Suppress diff when config is empty so we can sync with upstream always
+				// The ForceNew property is what makes this work.
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					return new == ""
+				},
 			},
 		},
 	}
@@ -120,13 +125,8 @@ func resourceKongPluginRead(d *schema.ResourceData, meta interface{}) error {
 		// We sync this property from upstream as a method to allow you to import a resource with the config tracked in
 		// terraform state. We do not track `config` as it will be a source of a perpetual diff.
 		// https://www.terraform.io/docs/extend/best-practices/detecting-drift.html#capture-all-state-in-read
-		confJson := d.Get("config_json").(string)
-
-		// Sync only if it is set in the config to avoid perpetual diff
-		if confJson != "" {
-			upstreamJson := pluginConfigJsonToString(plugin.Config)
-			d.Set("config_json", upstreamJson)
-		}
+		upstreamJson := pluginConfigJsonToString(plugin.Config)
+		d.Set("config_json", upstreamJson)
 	}
 
 	return nil
