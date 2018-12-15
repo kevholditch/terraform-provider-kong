@@ -48,20 +48,16 @@ func resourceKongPlugin() *schema.Resource {
 			"config": &schema.Schema{
 				Type:          schema.TypeMap,
 				Optional:      true,
-				ForceNew:      true,
 				Elem:          schema.TypeString,
 				ConflictsWith: []string{"config_json"},
 			},
 			"config_json": &schema.Schema{
 				Type:          schema.TypeString,
 				Optional:      true,
-				ForceNew:      true,
 				StateFunc:     normalizeDataJSON,
 				ValidateFunc:  validateDataJSON,
 				Description:   "plugin configuration in JSON format, configuration must be a valid JSON object.",
 				ConflictsWith: []string{"config"},
-				// Suppress diff when config is empty so we can sync with upstream always
-				// The ForceNew property is what makes this work.
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 					return new == ""
 				},

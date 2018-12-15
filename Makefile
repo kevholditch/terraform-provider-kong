@@ -16,7 +16,7 @@ build: goimportscheck vet testacc
 	@cp $(GOPATH)/bin/terraform-provider-kong ~/.terraform.d/plugins/terraform-provider-kong
 	@echo "Build succeeded"
 
-build-gox: deps fmtcheck vet
+build-gox: deps vet
 	gox -osarch="linux/amd64 windows/amd64 darwin/amd64" \
 	-output="pkg/{{.OS}}_{{.Arch}}/terraform-provider-kong" .
 
