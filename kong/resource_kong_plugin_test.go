@@ -191,6 +191,29 @@ func TestAccKongPluginForASpecificRoute(t *testing.T) {
 	})
 }
 
+func TestAccKongPluginWithJson(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongPluginDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testCreatePluginWithJson,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKongPluginExists("kong_plugin.datadog_test"),
+					resource.TestCheckResourceAttr("kong_plugin.datadog_test", "name", "datadog"),
+				),
+			},
+			{
+				Config: testUpdatePluginWithJson,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKongPluginExists("kong_plugin.datadog_test"),
+					resource.TestCheckResourceAttr("kong_plugin.datadog_test", "name", "datadog"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccKongPluginImport(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
@@ -205,6 +228,29 @@ func TestAccKongPluginImport(t *testing.T) {
 				ResourceName:      "kong_plugin.basic_auth",
 				ImportState:       true,
 				ImportStateVerify: false,
+			},
+		},
+	})
+}
+
+func TestAccKongPluginImportConfigJson(t *testing.T) {
+
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongPluginDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testImportPluginForJson,
+			},
+
+			resource.TestStep{
+				ResourceName:      "kong_plugin.basic_auth_json",
+				ImportState:       true,
+				ImportStateVerify: false,
+				// Ensuring config_json gets set to state when importing existant infrastructure
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("kong_plugin.basic_auth_json", "config_json", `{"anonymous":"","hide_credentials":true}`),
+				),
 			},
 		},
 	})
@@ -564,5 +610,78 @@ resource "kong_plugin" "basic_auth" {
 	config = {
 		hide_credentials = "false"
 	}
+}
+`
+const testImportPluginForJson = `
+resource "kong_api" "api" {
+	name 	= "TestApi"
+  	hosts   = [ "example.com" ]
+	uris 	= [ "/example" ]
+	methods = [ "GET", "POST" ]
+	upstream_url = "http://localhost:4140"
+	strip_uri = false
+	preserve_host = false
+	retries = 3
+	upstream_connect_timeout = 60000
+	upstream_send_timeout = 30000
+	upstream_read_timeout = 10000
+	https_only = false
+	http_if_terminated = false
+}
+
+resource "kong_plugin" "basic_auth_json" {
+	name   = "basic-auth"
+	api_id = "${kong_api.api.id}"
+	config_json = <<EOT
+{
+	"hide_credentials": true,
+	"anonymous": ""
+}
+EOT
+}
+`
+
+const testCreatePluginWithJson = `
+resource "kong_plugin" "datadog_test" {
+	name  = "datadog"
+	config_json = <<EOT
+	{
+	  "host": "datadog",
+	  "prefix": "kong",
+	  "port": 8125,
+	  "metrics": [
+	    {
+	      "sample_rate": 1,
+	      "name": "request_count",
+	      "stat_type": "counter"
+	    }
+	  ]
+	}
+	EOT
+}
+`
+
+const testUpdatePluginWithJson = `
+resource "kong_plugin" "datadog_test" {
+	name  = "datadog"
+	config_json = <<EOT
+	{
+	  "host": "datadog",
+	  "prefix": "kong",
+	  "port": 8125,
+	  "metrics": [
+	    {
+	      "sample_rate": 1,
+	      "name": "request_count",
+	      "stat_type": "counter"
+	    },
+	    {
+	      "sample_rate": 1,
+	      "name": "latency",
+	      "stat_type": "gauge"
+	    }
+	  ]
+	}
+	EOT
 }
 `

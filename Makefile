@@ -8,7 +8,7 @@ test:
 	go test -v . ./kong
 
 testacc:
-	go test -v ./kong -run="TestAcc"
+	TF_ACC=1 go test -v ./kong -run="TestAcc"
 
 build: goimportscheck vet testacc
 	@go install
@@ -16,7 +16,7 @@ build: goimportscheck vet testacc
 	@cp $(GOPATH)/bin/terraform-provider-kong ~/.terraform.d/plugins/terraform-provider-kong
 	@echo "Build succeeded"
 
-build-gox: deps fmtcheck vet
+build-gox: deps vet
 	gox -osarch="linux/amd64 windows/amd64 darwin/amd64" \
 	-output="pkg/{{.OS}}_{{.Arch}}/terraform-provider-kong" .
 
