@@ -66,7 +66,7 @@ func resourceKongRouteCreate(d *schema.ResourceData, meta interface{}) error {
 
 	routeRequest := createKongRouteRequestFromResourceData(d)
 
-	route, err := meta.(*gokong.KongAdminClient).Routes().AddRoute(routeRequest)
+	route, err := meta.(*gokong.KongAdminClient).Routes().Create(routeRequest)
 	if err != nil {
 		return fmt.Errorf("failed to create kong route: %v error: %v", routeRequest, err)
 	}
@@ -81,7 +81,7 @@ func resourceKongRouteUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	routeRequest := createKongRouteRequestFromResourceData(d)
 
-	_, err := meta.(*gokong.KongAdminClient).Routes().UpdateRoute(d.Id(), routeRequest)
+	_, err := meta.(*gokong.KongAdminClient).Routes().UpdateById(d.Id(), routeRequest)
 
 	if err != nil {
 		return fmt.Errorf("error updating kong route: %s", err)
@@ -92,7 +92,7 @@ func resourceKongRouteUpdate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceKongRouteRead(d *schema.ResourceData, meta interface{}) error {
 
-	route, err := meta.(*gokong.KongAdminClient).Routes().GetRoute(d.Id())
+	route, err := meta.(*gokong.KongAdminClient).Routes().GetById(d.Id())
 
 	if err != nil {
 		return fmt.Errorf("could not find kong route: %v", err)
@@ -126,7 +126,7 @@ func resourceKongRouteRead(d *schema.ResourceData, meta interface{}) error {
 		}
 
 		if route.Service != nil {
-			d.Set("service_id", route.Service.Id)
+			d.Set("service_id", route.Service)
 		}
 	}
 
@@ -135,7 +135,7 @@ func resourceKongRouteRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceKongRouteDelete(d *schema.ResourceData, meta interface{}) error {
 
-	err := meta.(*gokong.KongAdminClient).Routes().DeleteRoute(d.Id())
+	err := meta.(*gokong.KongAdminClient).Routes().DeleteById(d.Id())
 
 	if err != nil {
 		return fmt.Errorf("could not delete kong route: %v", err)
@@ -145,10 +145,6 @@ func resourceKongRouteDelete(d *schema.ResourceData, meta interface{}) error {
 }
 
 func createKongRouteRequestFromResourceData(d *schema.ResourceData) *gokong.RouteRequest {
-	service := gokong.RouteServiceObject{
-		Id: readStringFromResource(d, "service_id"),
-	}
-
 	return &gokong.RouteRequest{
 		Protocols:    readStringArrayPtrFromResource(d, "protocols"),
 		Methods:      readStringArrayPtrFromResource(d, "methods"),
@@ -156,6 +152,6 @@ func createKongRouteRequestFromResourceData(d *schema.ResourceData) *gokong.Rout
 		Paths:        readStringArrayPtrFromResource(d, "paths"),
 		StripPath:    readBoolPtrFromResource(d, "strip_path"),
 		PreserveHost: readBoolPtrFromResource(d, "preserve_host"),
-		Service:      &service,
+		Service:      readIdPtrFromResource(d, "service_id"),
 	}
 }

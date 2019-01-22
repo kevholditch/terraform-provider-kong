@@ -19,6 +19,7 @@ type ServiceRequest struct {
 	ConnectTimeout *int    `json:"connect_timeout,omitempty"`
 	WriteTimeout   *int    `json:"write_timeout,omitempty"`
 	ReadTimeout    *int    `json:"read_timeout,omitempty"`
+	Url            *string `json:"url,omitempty"`
 }
 
 type Service struct {
@@ -34,6 +35,7 @@ type Service struct {
 	ConnectTimeout *int    `json:"connect_timeout"`
 	WriteTimeout   *int    `json:"write_timeout"`
 	ReadTimeout    *int    `json:"read_timeout"`
+	Url            *string `json:"url"`
 }
 
 type Services struct {

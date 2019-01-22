@@ -35,36 +35,6 @@ func TestAccKongPluginForAllConsumersAndApis(t *testing.T) {
 	})
 }
 
-func TestAccKongPluginForASpecificApi(t *testing.T) {
-
-	resource.Test(t, resource.TestCase{
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKongPluginDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testCreatePluginForASpecificApiConfig,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckKongPluginExists("kong_plugin.basic_auth"),
-					testAccCheckKongApiExists("kong_api.api"),
-					testAccCheckForChildIdCorrect("kong_api.api", "kong_plugin.basic_auth", "api_id"),
-					resource.TestCheckResourceAttr("kong_plugin.basic_auth", "name", "basic-auth"),
-					resource.TestCheckResourceAttr("kong_plugin.basic_auth", "config.hide_credentials", "true"),
-				),
-			},
-			{
-				Config: testUpdatePluginForASpecificApiConfig,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckKongPluginExists("kong_plugin.basic_auth"),
-					testAccCheckKongApiExists("kong_api.api"),
-					testAccCheckForChildIdCorrect("kong_api.api", "kong_plugin.basic_auth", "api_id"),
-					resource.TestCheckResourceAttr("kong_plugin.basic_auth", "name", "basic-auth"),
-					resource.TestCheckResourceAttr("kong_plugin.basic_auth", "config.hide_credentials", "false"),
-				),
-			},
-		},
-	})
-}
-
 func TestAccKongPluginForASpecificConsumer(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
@@ -89,40 +59,6 @@ func TestAccKongPluginForASpecificConsumer(t *testing.T) {
 					testAccCheckForChildIdCorrect("kong_consumer.plugin_consumer", "kong_plugin.rate_limit", "consumer_id"),
 					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "name", "response-ratelimiting"),
 					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "config.limits.sms.minute", "11"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccKongPluginForASpecificApiAndConsumer(t *testing.T) {
-
-	resource.Test(t, resource.TestCase{
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKongPluginDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testCreatePluginForASpecificApiAndConsumerConfig,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckKongPluginExists("kong_plugin.rate_limit"),
-					testAccCheckKongConsumerExists("kong_consumer.plugin_consumer"),
-					testAccCheckKongApiExists("kong_api.api"),
-					testAccCheckForChildIdCorrect("kong_api.api", "kong_plugin.rate_limit", "api_id"),
-					testAccCheckForChildIdCorrect("kong_consumer.plugin_consumer", "kong_plugin.rate_limit", "consumer_id"),
-					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "name", "response-ratelimiting"),
-					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "config.limits.sms.minute", "77"),
-				),
-			},
-			{
-				Config: testUpdatePluginForASpecificApiAndConsumerConfig,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckKongPluginExists("kong_plugin.rate_limit"),
-					testAccCheckKongConsumerExists("kong_consumer.plugin_consumer"),
-					testAccCheckKongApiExists("kong_api.api"),
-					testAccCheckForChildIdCorrect("kong_api.api", "kong_plugin.rate_limit", "api_id"),
-					testAccCheckForChildIdCorrect("kong_consumer.plugin_consumer", "kong_plugin.rate_limit", "consumer_id"),
-					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "name", "response-ratelimiting"),
-					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "config.limits.sms.minute", "23"),
 				),
 			},
 		},
@@ -357,31 +293,6 @@ resource "kong_plugin" "response_rate_limiting" {
 	}
 }
 `
-const testCreatePluginForASpecificApiConfig = `
-resource "kong_api" "api" {
-	name 	= "TestApi"
-  	hosts   = [ "example.com" ]
-	uris 	= [ "/example" ]
-	methods = [ "GET", "POST" ]
-	upstream_url = "http://localhost:4140"
-	strip_uri = false
-	preserve_host = false
-	retries = 3
-	upstream_connect_timeout = 60000
-	upstream_send_timeout = 30000
-	upstream_read_timeout = 10000
-	https_only = false
-	http_if_terminated = false
-}
-
-resource "kong_plugin" "basic_auth" {
-	name   = "basic-auth"
-	api_id = "${kong_api.api.id}"
-	config = {
-		hide_credentials = "true"
-	}
-}
-`
 
 const testUpdatePluginForASpecificApiConfig = `
 resource "kong_api" "api" {
@@ -519,70 +430,6 @@ resource "kong_plugin" "rate_limit" {
 	route_id = "${kong_route.route.id}"
 	config 		= {
 		limits.sms.minute = 11
-	}
-}
-`
-
-const testCreatePluginForASpecificApiAndConsumerConfig = `
-resource "kong_api" "api" {
-	name 	= "TestApi"
-  	hosts   = [ "example.com" ]
-	uris 	= [ "/example" ]
-	methods = [ "GET", "POST" ]
-	upstream_url = "http://localhost:4140"
-	strip_uri = false
-	preserve_host = false
-	retries = 3
-	upstream_connect_timeout = 60000
-	upstream_send_timeout = 30000
-	upstream_read_timeout = 10000
-	https_only = false
-	http_if_terminated = false
-}
-
-resource "kong_consumer" "plugin_consumer" {
-	username  = "PluginUser"
-	custom_id = "111"
-}
-
-resource "kong_plugin" "rate_limit" {
-	name        = "response-ratelimiting"
-	api_id 		= "${kong_api.api.id}"
-	consumer_id = "${kong_consumer.plugin_consumer.id}"
-	config 		= {
-		limits.sms.minute = 77
-	}
-}
-`
-
-const testUpdatePluginForASpecificApiAndConsumerConfig = `
-resource "kong_api" "api" {
-	name 	= "TestApi"
-  	hosts   = [ "example.com" ]
-	uris 	= [ "/example" ]
-	methods = [ "GET", "POST" ]
-	upstream_url = "http://localhost:4140"
-	strip_uri = false
-	preserve_host = false
-	retries = 3
-	upstream_connect_timeout = 60000
-	upstream_send_timeout = 30000
-	upstream_read_timeout = 10000
-	https_only = false
-	http_if_terminated = false
-}
-
-resource "kong_consumer" "plugin_consumer" {
-	username  = "PluginUser"
-	custom_id = "111"
-}
-
-resource "kong_plugin" "rate_limit" {
-	name        = "response-ratelimiting"
-	api_id 		= "${kong_api.api.id}"
-	consumer_id = "${kong_consumer.plugin_consumer.id}"
-	config 		= {
-		limits.sms.minute = 23
 	}
 }
 `

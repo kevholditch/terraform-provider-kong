@@ -6,7 +6,7 @@ import (
 	"log"
 
 	_ "github.com/lib/pq"
-	"gopkg.in/ory-am/dockertest.v3"
+	dockertest "gopkg.in/ory-am/dockertest.v3"
 )
 
 type postgresContainer struct {

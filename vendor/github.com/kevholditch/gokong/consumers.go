@@ -22,16 +22,7 @@ type Consumer struct {
 
 type Consumers struct {
 	Results []*Consumer `json:"data,omitempty"`
-	Total   int         `json:"total,omitempty"`
 	Next    string      `json:"next,omitempty"`
-}
-
-type ConsumerFilter struct {
-	Id       string `url:"id,omitempty"`
-	CustomId string `url:"custom_id,omitempty"`
-	Username string `url:"username,omitempty"`
-	Size     int    `url:"size,omitempty"`
-	Offset   int    `url:"offset,omitempty"`
 }
 
 type ConsumerPluginConfig struct {
@@ -94,18 +85,8 @@ func (consumerClient *ConsumerClient) Create(consumerRequest *ConsumerRequest) (
 }
 
 func (consumerClient *ConsumerClient) List() (*Consumers, error) {
-	return consumerClient.ListFiltered(nil)
-}
 
-func (consumerClient *ConsumerClient) ListFiltered(filter *ConsumerFilter) (*Consumers, error) {
-
-	address, err := addQueryString(consumerClient.config.HostAddress+ConsumersPath, filter)
-
-	if err != nil {
-		return nil, fmt.Errorf("could not build query string for consumer filter, error: %v", err)
-	}
-
-	r, body, errs := newGet(consumerClient.config, address).End()
+	r, body, errs := newGet(consumerClient.config, consumerClient.config.HostAddress+ConsumersPath).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not get consumers, error: %v", errs)
 	}
@@ -115,7 +96,7 @@ func (consumerClient *ConsumerClient) ListFiltered(filter *ConsumerFilter) (*Con
 	}
 
 	consumers := &Consumers{}
-	err = json.Unmarshal([]byte(body), consumers)
+	err := json.Unmarshal([]byte(body), consumers)
 	if err != nil {
 		return nil, fmt.Errorf("could not parse consumers list response, error: %v", err)
 	}

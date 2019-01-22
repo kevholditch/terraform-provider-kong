@@ -97,12 +97,6 @@ func (kongAdminClient *KongAdminClient) Status() *StatusClient {
 
 }
 
-func (kongAdminClient *KongAdminClient) Apis() *ApiClient {
-	return &ApiClient{
-		config: kongAdminClient.config,
-	}
-}
-
 func (kongAdminClient *KongAdminClient) Consumers() *ConsumerClient {
 	return &ConsumerClient{
 		config: kongAdminClient.config,

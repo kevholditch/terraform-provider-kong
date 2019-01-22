@@ -5,9 +5,9 @@ GoKong
 A kong go client fully tested with no mocks!!
 
 ## Notice
-As per version v1.0.0 all values are now pointer to type, this is to allow detection between setting the zero value of the type versus not setting it.
-For example if you want to set a string to "" this will be omitted when serializing to json if you use `string` so to get round this we can use *string.
-This is as per the way the aws go sdk does it.
+GoKong has now been updated to support kong v1.0.0.  This is a breaking change release is not compatible with any versions <1.0.0.
+ The good news is the guys over at Kong have stated that they are not going to make any breaking changes now (following semver).  If you need a version of gokong
+ that supports Kong <1.0.0 then use the branch `kong-pre-1.0.0`.
 
 
 ## GoKong
@@ -16,7 +16,7 @@ GoKong is a easy to use api client for [kong](https://getkong.org/).  The differ
 ## Supported Kong Versions
 As per [travis build](https://travis-ci.org/kevholditch/gokong):
 ```
-KONG_VERSION=0.13.0
+KONG_VERSION=1.0.0
 ```
 
 ## Importing
@@ -89,100 +89,6 @@ Gokong is fluent so we can combine the above two lines into one:
 status, err := gokong.NewClient(gokong.NewDefaultConfig()).Status().Get()
 ```
 
-## APIs
-Create a new API ([for more information on the API fields see the Kong documentation](https://getkong.org/docs/0.13.x/admin-api/#api-object):
-```go
-apiRequest := &gokong.ApiRequest{
-  Name:                   "Example",
-  Hosts:                  gokong.StringSlice([]string{"example.com"}),
-  Uris:                   gokong.StringSlice([]string{"/example"}),
-  Methods:                gokong.StringSlice([]string{"GET", "POST"}),
-  UpstreamUrl:            gokong.String("http://localhost:4140/testservice"),
-  StripUri:               gokong.Bool(true),
-  PreserveHost:           gokong.Bool(true),
-  Retries:                gokong.Int(3),
-  UpstreamConnectTimeout: gokong.Int(1000),
-  UpstreamSendTimeout:    gokong.Int(2000),
-  UpstreamReadTimeout:    gokong.Int(3000),
-  HttpsOnly:              gokong.Bool(true),
-  HttpIfTerminated:       gokong.Bool(true),
-}
-
-api, err := gokong.NewClient(gokong.NewDefaultConfig()).Apis().Create(apiRequest)
-```
-
-Get an API by id:
-```go
-api, err := gokong.NewClient(gokong.NewDefaultConfig()).Apis().GetById("cdf5372e-1c10-4ea5-a3dd-1e4c31bb99f5")
-```
-
-Get an API by name:
-```go
-api, err := gokong.NewClient(gokong.NewDefaultConfig()).Apis().GetByName("Example")
-```
-
-List all APIs:
-```go
-apis, err := gokong.NewClient(gokong.NewDefaultConfig()).Apis().List()
-```
-
-List all APIs with a filter:
-```go
-apis, err := gokong.NewClient(gokong.NewDefaultConfig()).Apis().ListFiltered(&gokong.ApiFilter{Id:"936ad391-c30d-43db-b624-2f820d6fd38d", Name:"MyApi"})
-```
-
-Delete an API by id:
-```go
-err := gokong.NewClient(gokong.NewDefaultConfig()).Apis().DeleteById("f138641a-a15b-43c3-bd76-7157a68eae24")
-```
-
-Delete an API by name:
-```go
-err := gokong.NewClient(gokong.NewDefaultConfig()).Apis().DeleteByName("Example")
-```
-
-Update an API by id:
-```go
-apiRequest := &gokong.ApiRequest{
-    Name:                   "Example",
-    Hosts:                  gokong.StringSlice([]string{"example.com"}),
-    Uris:                   gokong.StringSlice([]string{"/example"}),
-    Methods:                gokong.StringSlice([]string{"GET", "POST"}),
-    UpstreamUrl:            gokong.String("http://localhost:4140/testservice"),
-    StripUri:               gokong.Bool(true),
-    PreserveHost:           gokong.Bool(true),
-    Retries:                gokong.Int(3),
-    UpstreamConnectTimeout: gokong.Int(1000),
-    UpstreamSendTimeout:    gokong.Int(2000),
-    UpstreamReadTimeout:    gokong.Int(3000),
-    HttpsOnly:              gokong.Bool(true),
-    HttpIfTerminated:       gokong.Bool(true),
-}
-
-updatedApi, err := gokong.NewClient(gokong.NewDefaultConfig()).Apis().UpdateById("1213a00d-2b12-4d65-92ad-5a02d6c710c2", apiRequest)
-```
-
-Update an API by name:
-```go
-apiRequest := &gokong.ApiRequest{
-  Name:                   "Example",
-  Hosts:                  gokong.StringSlice([]string{"example.com"}),
-  Uris:                   gokong.StringSlice([]string{"/example"}),
-  Methods:                gokong.StringSlice([]string{"GET", "POST"}),
-  UpstreamUrl:            gokong.String("http://localhost:4140/testservice"),
-  StripUri:               gokong.Bool(true),
-  PreserveHost:           gokong.Bool(true),
-  Retries:                gokong.Int(3),
-  UpstreamConnectTimeout: gokong.Int(1000),
-  UpstreamSendTimeout:    gokong.Int(2000),
-  UpstreamReadTimeout:    gokong.Int(3000),
-  HttpsOnly:              gokong.Bool(true),
-  HttpIfTerminated:       gokong.Bool(true),
-
-updatedApi, err := gokong.NewClient(gokong.NewDefaultConfig()).Apis().UpdateByName("Example", apiRequest)
-```
-
-
 ## Consumers
 Create a new Consumer ([for more information on the Consumer Fields see the Kong documentation](https://getkong.org/docs/0.13.x/admin-api/#consumer-object)):
 ```go
@@ -207,11 +113,6 @@ consumer, err := gokong.NewClient(gokong.NewDefaultConfig()).Consumers().GetByUs
 List all Consumers:
 ```go
 consumers, err := gokong.NewClient(gokong.NewDefaultConfig()).Consumers().List()
-```
-
-List all Consumers with a filter:
-```go
-consumers, err := gokong.NewClient(gokong.NewDefaultConfig()).Consumers().ListFiltered(&gokong.ConsumerFilter{CustomId:"1234", Username: "User1"})
 ```
 
 Delete a Consumer by id:
@@ -245,51 +146,18 @@ updatedConsumer, err := gokong.NewClient(gokong.NewDefaultConfig()).Consumers().
 ```
 
 ## Plugins
-Create a new Plugin to be applied to all APIs and consumers do not set `ApiId` or `ConsumerId`.  Not all plugins can be configured in this way
+Create a new Plugin to be applied to all Services, Routes and Consumers do not set `ServiceId`, `RouteId` or `ConsumerId`.  Not all plugins can be configured in this way
  ([for more information on the Plugin Fields see the Kong documentation](https://getkong.org/docs/0.13.x/admin-api/#add-plugin)):
 
 ```go
 pluginRequest := &gokong.PluginRequest{
-  Name: "response-ratelimiting",
+  Name: "request-size-limiting",
   Config: map[string]interface{}{
-    "limits.sms.minute": 20,
+    "allowed_payload_size": 128,
   },
 }
 
 createdPlugin, err := gokong.NewClient(gokong.NewDefaultConfig()).Plugins().Create(pluginRequest)
-```
-
-Create a new Plugin for a single API (only set `ApiId`), not all plugins can be configured in this way ([for more information on the Plugin Fields see the Kong documentation](https://getkong.org/docs/0.13.x/admin-api/#plugin-object)):
-```go
-client := gokong.NewClient(gokong.NewDefaultConfig())
-
-apiRequest := &gokong.ApiRequest{
-  Name:                   "test-api",
-  Hosts:                  []string{"example.com"},
-  Uris:                   []string{"/example"},
-  Methods:                []string{"GET", "POST"},
-  UpstreamUrl:            "http://localhost:4140/testservice",
-  StripUri:               true,
-  PreserveHost:           true,
-  Retries:                "3",
-  UpstreamConnectTimeout: 1000,
-  UpstreamSendTimeout:    2000,
-  UpstreamReadTimeout:    3000,
-  HttpsOnly:              true,
-  HttpIfTerminated:       true,
-}
-
-createdApi, err := client.Apis().Create(apiRequest)
-
-pluginRequest := &gokong.PluginRequest{
-  Name: "response-ratelimiting",
-  ApiId: createdApi.Id,
-  Config: map[string]interface{}{
-    "limits.sms.minute": 20,
-  },
-}
-
-createdPlugin, err := client.Plugins().Create(pluginRequest)
 ```
 
 Create a new Plugin for a single Consumer (only set `ConsumerId`), Not all plugins can be configured in this way ([for more information on the Plugin Fields see the Kong documentation](https://getkong.org/docs/0.13.x/admin-api/#plugin-object)):
@@ -328,7 +196,7 @@ createdService, err := client.Services().AddService(serviceRequest)
 
 pluginRequest := &gokong.PluginRequest{
   Name: "response-ratelimiting",
-  ServiceId: *createdService.Id,
+  ServiceId: gokong.ToId(*createdService.Id),
   Config: map[string]interface{}{
     "limits.sms.minute": 20,
   },
@@ -359,52 +227,11 @@ routeRequest := &RouteRequest{
   Service:      &RouteServiceObject{Id: *createdService.Id},
 }
 
-createdRoute, err := client.Routes().AddRoute(routeRequest)
+createdRoute, err := client.Routes().Create(routeRequest)
 
 pluginRequest := &gokong.PluginRequest{
   Name: "response-ratelimiting",
-  RouteId: *createdRoute.Id,
-  Config: map[string]interface{}{
-    "limits.sms.minute": 20,
-  },
-}
-
-createdPlugin, err := client.Plugins().Create(pluginRequest)
-```
-
-Create a new Plugin for a single Consumer and Api (set `ConsumerId` and `ApiId`), Not all plugins can be configured in this way ([for more information on the Plugin Fields see the Kong documentation](https://getkong.org/docs/0.13.x/admin-api/#plugin-object)):
-```go
-client := gokong.NewClient(gokong.NewDefaultConfig())
-
-consumerRequest := &gokong.ConsumerRequest{
-  Username: "User1",
-  CustomId: "test",
-}
-
-createdConsumer, err := client.Consumers().Create(consumerRequest)
-
-apiRequest := &gokong.ApiRequest{
-  Name:                   "test-api",
-  Hosts:                  []string{"example.com"},
-  Uris:                   []string{"/example"},
-  Methods:                []string{"GET", "POST"},
-  UpstreamUrl:            "http://localhost:4140/testservice",
-  StripUri:               true,
-  PreserveHost:           true,
-  Retries:                "3",
-  UpstreamConnectTimeout: 1000,
-  UpstreamSendTimeout:    2000,
-  UpstreamReadTimeout:    3000,
-  HttpsOnly:              true,
-  HttpIfTerminated:       true,
-}
-
-createdApi, err := client.Apis().Create(apiRequest)
-
-pluginRequest := &gokong.PluginRequest{
-  Name:       "response-ratelimiting",
-  ConsumerId: createdConsumer.Id,
-  ApiId:      createdApi.Id,
+  RouteId: gokong.ToId(*createdRoute.Id),
   Config: map[string]interface{}{
     "limits.sms.minute": 20,
   },
@@ -423,11 +250,6 @@ List all plugins:
 plugins, err := gokong.NewClient(gokong.NewDefaultConfig()).Plugins().List()
 ```
 
-List all plugins with a filter:
-```go
-plugins, err := gokong.NewClient(gokong.NewDefaultConfig()).Plugins().ListFiltered(&gokong.PluginFilter{Name: "response-ratelimiting", ConsumerId: "7009a608-b40c-4a21-9a90-9219d5fd1ac7"})
-```
-
 Delete a plugin by id:
 ```go
 err := gokong.NewClient(gokong.NewDefaultConfig()).Plugins().DeleteById("f2bbbab8-3e6f-4d9d-bada-d486600b3b4c")
@@ -438,7 +260,6 @@ Update a plugin by id:
 updatePluginRequest := &gokong.PluginRequest{
   Name:       "response-ratelimiting",
   ConsumerId: createdConsumer.Id,
-  ApiId:      createdApi.Id,
   Config: map[string]interface{}{
     "limits.sms.minute": 20,
   },
@@ -522,21 +343,26 @@ routeRequest := &RouteRequest{
   Hosts:        gokong.StringSlice([]string{"foo.com"}),
   StripPath:    gokong.Bool(true),
   PreserveHost: gokong.Bool(true),
-  Service:      &RouteServiceObject{Id: *createdService.Id},
+  Service:      gokong.ToId(*createdService.Id),
   Paths:        gokong.StringSlice([]string{"/bar"})
 }
 
-createdRoute, err := client.Routes().AddRoute(routeRequest)
+createdRoute, err := client.Routes().Create(routeRequest)
 ```
 
 Get a route by ID:
 ```go
-result, err := gokong.NewClient(gokong.NewDefaultConfig()).Routes().GetRoute(createdRoute.Id)
+result, err := gokong.NewClient(gokong.NewDefaultConfig()).Routes().GetById(createdRoute.Id)
 ```
 
-Get all routes:
+Get a route by Name:
 ```go
-result, err := gokong.NewClient(gokong.NewDefaultConfig()).Routes().GetRoutes(&RouteQueryString{})
+result, err := gokong.NewClient(gokong.NewDefaultConfig()).Routes().GetByName(createdRoute.Name)
+```
+
+List all routes:
+```go
+result, err := gokong.NewClient(gokong.NewDefaultConfig()).Routes().List(&RouteQueryString{})
 ```
 
 Get routes from service ID or Name:
@@ -553,18 +379,23 @@ routeRequest := &RouteRequest{
   Paths:        gokong.StringSlice([]string{"/bar"}),
   StripPath:    gokong.Bool(true),
   PreserveHost: gokong.Bool(true),
-  Service:      &RouteServiceObject{Id: *createdService.Id},
+  Service:      gokong.ToId(*createdService.Id),
 }
 
-createdRoute, err := gokong.NewClient(gokong.NewDefaultConfig()).Routes().AddRoute(routeRequest)
+createdRoute, err := gokong.NewClient(gokong.NewDefaultConfig()).Routes().Create(routeRequest)
 
 routeRequest.Paths = gokong.StringSlice([]string{"/qux"})
 updatedRoute, err := gokong.NewClient(gokong.NewDefaultConfig()).Routes().UpdateRoute(*createdRoute.Id, routeRequest)
 ```
 
-Delete a route:
+Delete a route by ID:
 ```go
-client.Routes().DeleteRoute(createdRoute.Id)
+client.Routes().DeleteById(createdRoute.Id)
+```
+
+Delete a route by Name:
+```go
+client.Routes().DeleteByName(createdRoute.Id)
 ```
 
 # Services
@@ -579,7 +410,7 @@ serviceRequest := &ServiceRequest{
 
 	client := gokong.NewClient(gokong.NewDefaultConfig())
 
-	createdService, err := client.Services().AddService(serviceRequest)
+	createdService, err := client.Services().Create(serviceRequest)
 ```
 
 Get information about a service with the service ID or Name
@@ -592,7 +423,7 @@ serviceRequest := &ServiceRequest{
 
 client := gokong.NewClient(gokong.NewDefaultConfig())
 
-createdService, err := client.Services().AddService(serviceRequest)
+createdService, err := client.Services().Create(serviceRequest)
 
 resultFromId, err := client.Services().GetServiceById(createdService.Id)
 
@@ -622,7 +453,7 @@ serviceRequest := &ServiceRequest{
 
 client := gokong.NewClient(gokong.NewDefaultConfig())
 
-createdService, err := client.Services().AddService(serviceRequest)
+createdService, err := client.Services().Create(serviceRequest)
 
 serviceRequest.Host = gokong.String("bar.io")
 updatedService, err := client.Services().UpdateServiceById(createdService.Id, serviceRequest)
@@ -639,7 +470,7 @@ serviceRequest := &ServiceRequest{
 
 client := gokong.NewClient(gokong.NewDefaultConfig())
 
-createdService, err := client.Services().AddService(serviceRequest)
+createdService, err := client.Services().Create(serviceRequest)
 
 serviceRequest.Host = "bar.io"
 updatedService, err := client.Services().UpdateServiceById(createdService.Id, serviceRequest)

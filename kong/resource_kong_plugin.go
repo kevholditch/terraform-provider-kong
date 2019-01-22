@@ -113,7 +113,6 @@ func resourceKongPluginRead(d *schema.ResourceData, meta interface{}) error {
 		d.SetId("")
 	} else {
 		d.Set("name", plugin.Name)
-		d.Set("api_id", plugin.ApiId)
 		d.Set("service_id", plugin.ServiceId)
 		d.Set("route_id", plugin.RouteId)
 		d.Set("consumer_id", plugin.ConsumerId)
@@ -144,10 +143,9 @@ func createKongPluginRequestFromResourceData(d *schema.ResourceData) (*gokong.Pl
 	pluginRequest := &gokong.PluginRequest{}
 
 	pluginRequest.Name = readStringFromResource(d, "name")
-	pluginRequest.ApiId = readStringFromResource(d, "api_id")
-	pluginRequest.ConsumerId = readStringFromResource(d, "consumer_id")
-	pluginRequest.ServiceId = readStringFromResource(d, "service_id")
-	pluginRequest.RouteId = readStringFromResource(d, "route_id")
+	pluginRequest.ConsumerId = readIdPtrFromResource(d, "consumer_id")
+	pluginRequest.ServiceId = readIdPtrFromResource(d, "service_id")
+	pluginRequest.RouteId = readIdPtrFromResource(d, "route_id")
 	pluginRequest.Config = readMapFromResource(d, "config")
 
 	if pluginRequest.Config == nil {
