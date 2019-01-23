@@ -25,11 +25,6 @@ func resourceKongPlugin() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"api_id": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: false,
-			},
 			"consumer_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
@@ -45,19 +40,12 @@ func resourceKongPlugin() *schema.Resource {
 				Optional: true,
 				ForceNew: false,
 			},
-			"config": &schema.Schema{
-				Type:          schema.TypeMap,
-				Optional:      true,
-				Elem:          schema.TypeString,
-				ConflictsWith: []string{"config_json"},
-			},
 			"config_json": &schema.Schema{
 				Type:          schema.TypeString,
 				Optional:      true,
 				StateFunc:     normalizeDataJSON,
 				ValidateFunc:  validateDataJSON,
 				Description:   "plugin configuration in JSON format, configuration must be a valid JSON object.",
-				ConflictsWith: []string{"config"},
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 					return new == ""
 				},
@@ -146,20 +134,18 @@ func createKongPluginRequestFromResourceData(d *schema.ResourceData) (*gokong.Pl
 	pluginRequest.ConsumerId = readIdPtrFromResource(d, "consumer_id")
 	pluginRequest.ServiceId = readIdPtrFromResource(d, "service_id")
 	pluginRequest.RouteId = readIdPtrFromResource(d, "route_id")
-	pluginRequest.Config = readMapFromResource(d, "config")
 
-	if pluginRequest.Config == nil {
-		if data, ok := d.GetOk("config_json"); ok {
-			var configJson map[string]interface{}
+	if data, ok := d.GetOk("config_json"); ok {
+		var configJson map[string]interface{}
 
-			err := json.Unmarshal([]byte(data.(string)), &configJson)
-			if err != nil {
-				return pluginRequest, fmt.Errorf("failed to unmarshal config_json, err: %v", err)
-			}
-
-			pluginRequest.Config = configJson
+		err := json.Unmarshal([]byte(data.(string)), &configJson)
+		if err != nil {
+			return pluginRequest, fmt.Errorf("failed to unmarshal config_json, err: %v", err)
 		}
+
+		pluginRequest.Config = configJson
 	}
+
 
 	return pluginRequest, nil
 }

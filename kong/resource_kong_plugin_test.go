@@ -9,26 +9,26 @@ import (
 	"github.com/kevholditch/gokong"
 )
 
-func TestAccKongPluginForAllConsumersAndApis(t *testing.T) {
+func TestAccKongGlobalPlugin(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckKongPluginDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testCreatePluginForAllApisAndConsumersConfig,
+				Config: testCreateGlobalPluginConfig,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckKongPluginExists("kong_plugin.response_rate_limiting"),
-					resource.TestCheckResourceAttr("kong_plugin.response_rate_limiting", "name", "response-ratelimiting"),
-					resource.TestCheckResourceAttr("kong_plugin.response_rate_limiting", "config.limits.sms.minute", "10"),
+					testAccCheckKongPluginExists("kong_plugin.hmac_auth"),
+					resource.TestCheckResourceAttr("kong_plugin.hmac_auth", "name", "hmac-auth"),
+					resource.TestCheckResourceAttr("kong_plugin.hmac_auth", "config_json", `{"algorithms":["hmac-sha1","hmac-sha256","hmac-sha384","hmac-sha512"],"clock_skew":300,"enforce_headers":[],"hide_credentials":true,"validate_request_body":false}`),
 				),
 			},
 			{
-				Config: testUpdatePluginForAllApisAndConsumersConfig,
+				Config: testUpdateGlobalPluginConfig,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckKongPluginExists("kong_plugin.response_rate_limiting"),
-					resource.TestCheckResourceAttr("kong_plugin.response_rate_limiting", "name", "response-ratelimiting"),
-					resource.TestCheckResourceAttr("kong_plugin.response_rate_limiting", "config.limits.sms.minute", "40"),
+					testAccCheckKongPluginExists("kong_plugin.hmac_auth"),
+					resource.TestCheckResourceAttr("kong_plugin.hmac_auth", "name", "hmac-auth"),
+					resource.TestCheckResourceAttr("kong_plugin.hmac_auth", "config_json", `{"algorithms":["hmac-sha1","hmac-sha256","hmac-sha384","hmac-sha512"],"clock_skew":300,"enforce_headers":[],"hide_credentials":false,"validate_request_body":false}`),
 				),
 			},
 		},
@@ -150,25 +150,6 @@ func TestAccKongPluginWithJson(t *testing.T) {
 	})
 }
 
-func TestAccKongPluginImport(t *testing.T) {
-
-	resource.Test(t, resource.TestCase{
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKongPluginDestroy,
-		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testImportPluginForASpecificApiConfig,
-			},
-
-			resource.TestStep{
-				ResourceName:      "kong_plugin.basic_auth",
-				ImportState:       true,
-				ImportStateVerify: false,
-			},
-		},
-	})
-}
-
 func TestAccKongPluginImportConfigJson(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
@@ -277,46 +258,42 @@ func testAccCheckKongPluginExists(resourceKey string) resource.TestCheckFunc {
 	}
 }
 
-const testCreatePluginForAllApisAndConsumersConfig = `
-resource "kong_plugin" "response_rate_limiting" {
-	name  = "response-ratelimiting"
-	config = {
-		limits.sms.minute = 10
+const testCreateGlobalPluginConfig = `
+resource "kong_plugin" "hmac_auth" {
+	name  = "hmac-auth"
+	config_json = <<EOT
+	{
+    	"algorithms": [
+    	    "hmac-sha1",
+    	    "hmac-sha256",
+    	    "hmac-sha384",
+    	    "hmac-sha512"
+    	],
+    	"clock_skew": 300,
+    	"enforce_headers": [],
+    	"hide_credentials": true,
+    	"validate_request_body": false
 	}
+EOT
 }
 `
-const testUpdatePluginForAllApisAndConsumersConfig = `
-resource "kong_plugin" "response_rate_limiting" {
-	name  = "response-ratelimiting"
-	config = {
-		limits.sms.minute = 40
+const testUpdateGlobalPluginConfig = `
+resource "kong_plugin" "hmac_auth" {
+	name  = "hmac-auth"
+	config_json = <<EOT
+	{
+    	"algorithms": [
+    	    "hmac-sha1",
+    	    "hmac-sha256",
+    	    "hmac-sha384",
+    	    "hmac-sha512"
+    	],
+    	"clock_skew": 300,
+    	"enforce_headers": [],
+    	"hide_credentials": false,
+    	"validate_request_body": false
 	}
-}
-`
-
-const testUpdatePluginForASpecificApiConfig = `
-resource "kong_api" "api" {
-	name 	= "TestApi"
-  	hosts   = [ "example.com" ]
-	uris 	= [ "/example" ]
-	methods = [ "GET", "POST" ]
-	upstream_url = "http://localhost:4140"
-	strip_uri = false
-	preserve_host = false
-	retries = 3
-	upstream_connect_timeout = 60000
-	upstream_send_timeout = 30000
-	upstream_read_timeout = 10000
-	https_only = false
-	http_if_terminated = false
-}
-
-resource "kong_plugin" "basic_auth" {
-	name   = "basic-auth"
-	api_id = "${kong_api.api.id}"
-	config = {
-		hide_credentials = "false"
-	}
+EOT
 }
 `
 

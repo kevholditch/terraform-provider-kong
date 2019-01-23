@@ -145,6 +145,7 @@ func resourceKongRouteDelete(d *schema.ResourceData, meta interface{}) error {
 }
 
 func createKongRouteRequestFromResourceData(d *schema.ResourceData) *gokong.RouteRequest {
+	resource := readIdPtrFromResource(d, "service_id")
 	return &gokong.RouteRequest{
 		Protocols:    readStringArrayPtrFromResource(d, "protocols"),
 		Methods:      readStringArrayPtrFromResource(d, "methods"),
@@ -152,6 +153,6 @@ func createKongRouteRequestFromResourceData(d *schema.ResourceData) *gokong.Rout
 		Paths:        readStringArrayPtrFromResource(d, "paths"),
 		StripPath:    readBoolPtrFromResource(d, "strip_path"),
 		PreserveHost: readBoolPtrFromResource(d, "preserve_host"),
-		Service:      readIdPtrFromResource(d, "service_id"),
+		Service:      resource,
 	}
 }

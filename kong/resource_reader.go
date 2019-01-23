@@ -62,7 +62,7 @@ func readStringFromResource(d *schema.ResourceData, key string) string {
 
 func readIdPtrFromResource(d *schema.ResourceData, key string) *gokong.Id {
 	if attr, ok := d.GetOk(key); ok {
-		id := attr.(gokong.Id)
+		id := gokong.Id(attr.(string))
 		return &id
 	}
 	return nil
