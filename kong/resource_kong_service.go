@@ -75,7 +75,7 @@ func resourceKongServiceCreate(d *schema.ResourceData, meta interface{}) error {
 
 	serviceRequest := createKongServiceRequestFromResourceData(d)
 
-	service, err := meta.(*gokong.KongAdminClient).Services().AddService(serviceRequest)
+	service, err := meta.(*gokong.KongAdminClient).Services().Create(serviceRequest)
 	if err != nil {
 		return fmt.Errorf("failed to create kong service: %v error: %v", serviceRequest, err)
 	}

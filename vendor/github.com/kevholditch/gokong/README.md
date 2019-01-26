@@ -4,7 +4,7 @@ GoKong
 ======
 A kong go client fully tested with no mocks!!
 
-## Notice
+## IMPORTANT
 GoKong has now been updated to support kong v1.0.0.  This is a breaking change release is not compatible with any versions <1.0.0.
  The good news is the guys over at Kong have stated that they are not going to make any breaking changes now (following semver).  If you need a version of gokong
  that supports Kong <1.0.0 then use the branch `kong-pre-1.0.0`.

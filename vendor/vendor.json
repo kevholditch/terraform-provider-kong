@@ -535,24 +535,24 @@
 			"revisionTime": "2016-08-03T19:07:31Z"
 		},
 		{
-			"checksumSHA1": "mtKn9LnWRso6WTdC8Rl+qfTOBow=",
+			"checksumSHA1": "UWtiyMSEDcYqN2YFnyOaUVJsWyw=",
 			"path": "github.com/kevholditch/gokong",
-			"revision": "97daa5f5f9fc4416ae6ad42d9f8e72df5ab00f75",
-			"revisionTime": "2019-01-22T20:23:05Z",
-			"version": "v2.0.0",
-			"versionExact": "v2.0.0"
+			"revision": "091a29709b2dd2357e3f4d1f131eba52ef476603",
+			"revisionTime": "2019-01-26T20:07:04Z",
+			"version": "v3.0.1",
+			"versionExact": "v3.0.1"
 		},
 		{
 			"path": "github.com/kevholditch/gokong...",
 			"revision": ""
 		},
 		{
-			"checksumSHA1": "dC/1W0QNhb5Qv/4bgPY7wuFN8Rs=",
+			"checksumSHA1": "V61yd6PwjU05RLdz+UUUsb/TQOk=",
 			"path": "github.com/kevholditch/gokong/containers",
-			"revision": "97daa5f5f9fc4416ae6ad42d9f8e72df5ab00f75",
-			"revisionTime": "2019-01-22T20:23:05Z",
-			"version": "v2.0.0",
-			"versionExact": "v2.0.0"
+			"revision": "091a29709b2dd2357e3f4d1f131eba52ef476603",
+			"revisionTime": "2019-01-26T20:07:04Z",
+			"version": "v3.0.1",
+			"versionExact": "v3.0.1"
 		},
 		{
 			"checksumSHA1": "IfZcD4U1dtllJKlPNeD2aU4Jn98=",

@@ -5,11 +5,10 @@ Terraform Provider Kong
 The Kong Terraform Provider tested against real Kong!
 
 
-Notice
+IMPORTANT
 ------
-I have recently updated the provider to use `v1.0.0` of [gokong](http://github.com/kevholditch/gokong) this pulls in the changes to use pointers to all api fields.  If you update to the latest provider
-be aware of this change.  Terraform may want to update some api resources as this fixes a bug where if you set a string from a value to `""` it will now be treated as empty string and not ignored.  If you
-have set any of your api fields to empty string this will now be picked up.
+This provider now supports kong v1.0.0 and onwards.  Since the release of Kong v1.0.0 has many breaking changes (e.g. removing APIs) this provider is
+no longer compatible with version of kong pre v1.0.0.  If you want to use the provider with versions of kong pre v1.0.0
 
 Requirements
 ------------

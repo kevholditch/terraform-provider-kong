@@ -50,7 +50,7 @@ type ServiceQueryString struct {
 
 const ServicesPath = "/services/"
 
-func (serviceClient *ServiceClient) AddService(serviceRequest *ServiceRequest) (*Service, error) {
+func (serviceClient *ServiceClient) Create(serviceRequest *ServiceRequest) (*Service, error) {
 
 	if serviceRequest.Port == nil {
 		serviceRequest.Port = Int(80)

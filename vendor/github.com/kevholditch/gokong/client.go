@@ -11,7 +11,6 @@ import (
 )
 
 const EnvKongAdminHostAddress = "KONG_ADMIN_ADDR"
-const EnvKongApiHostAddress = "KONG_API_ADDR"
 const EnvKongAdminUsername = "KONG_ADMIN_USERNAME"
 const EnvKongAdminPassword = "KONG_ADMIN_PASSWORD"
 const EnvKongTLSSkipVerify = "TLS_SKIP_VERIFY"
