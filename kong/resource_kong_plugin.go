@@ -41,14 +41,18 @@ func resourceKongPlugin() *schema.Resource {
 				ForceNew: false,
 			},
 			"config_json": &schema.Schema{
-				Type:          schema.TypeString,
-				Optional:      true,
-				StateFunc:     normalizeDataJSON,
-				ValidateFunc:  validateDataJSON,
-				Description:   "plugin configuration in JSON format, configuration must be a valid JSON object.",
+				Type:         schema.TypeString,
+				Optional:     true,
+				StateFunc:    normalizeDataJSON,
+				ValidateFunc: validateDataJSON,
+				Description:  "plugin configuration in JSON format, configuration must be a valid JSON object.",
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 					return new == ""
 				},
+			},
+			"computed_config": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
@@ -109,7 +113,7 @@ func resourceKongPluginRead(d *schema.ResourceData, meta interface{}) error {
 		// terraform state. We do not track `config` as it will be a source of a perpetual diff.
 		// https://www.terraform.io/docs/extend/best-practices/detecting-drift.html#capture-all-state-in-read
 		upstreamJson := pluginConfigJsonToString(plugin.Config)
-		d.Set("config_json", upstreamJson)
+		d.Set("computed_config", upstreamJson)
 	}
 
 	return nil
@@ -145,7 +149,6 @@ func createKongPluginRequestFromResourceData(d *schema.ResourceData) (*gokong.Pl
 
 		pluginRequest.Config = configJson
 	}
-
 
 	return pluginRequest, nil
 }

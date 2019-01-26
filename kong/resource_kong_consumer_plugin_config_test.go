@@ -34,6 +34,7 @@ func TestAccKongConsumerPluginConfig(t *testing.T) {
 		},
 	})
 }
+
 //
 //func TestAccKongConsumerPluginConfigKV(t *testing.T) {
 //

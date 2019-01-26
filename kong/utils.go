@@ -1,6 +1,6 @@
 package kong
 
-var computedPluginProperties = []string{"created_at", "id", "consumer_id"}
+var computedPluginProperties = []string{"created_at", "id", "consumer", "service", "route"}
 
 func contains(s []string, e string) bool {
 	for _, a := range s {
