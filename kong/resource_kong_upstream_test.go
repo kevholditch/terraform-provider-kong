@@ -34,6 +34,7 @@ func TestAccKongUpstream(t *testing.T) {
 		},
 	})
 }
+
 func TestAccKongUpstreamImport(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{

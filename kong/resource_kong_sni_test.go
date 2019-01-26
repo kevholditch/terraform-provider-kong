@@ -16,14 +16,14 @@ func TestAccKongSni(t *testing.T) {
 		CheckDestroy: testAccCheckKongSniDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testCreateSniConfig,
+				Config: fmt.Sprintf(testCreateSniConfig, testCert1, testKey1, testCert2, testKey2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKongSniExists("kong_sni.sni"),
 					resource.TestCheckResourceAttr("kong_sni.sni", "name", "www.example.com"),
 				),
 			},
 			{
-				Config: testUpdateSniConfig,
+				Config: fmt.Sprintf(testUpdateSniConfig, testCert1, testKey1, testCert2, testKey2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKongSniExists("kong_sni.sni"),
 					resource.TestCheckResourceAttr("kong_sni.sni", "name", "www.example.com"),
@@ -40,7 +40,7 @@ func TestAccKongSniImport(t *testing.T) {
 		CheckDestroy: testAccCheckKongSniDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testCreateSniConfig,
+				Config: fmt.Sprintf(testCreateSniConfig, testCert1, testKey1, testCert2, testKey2),
 			},
 
 			resource.TestStep{
@@ -104,13 +104,21 @@ func testAccCheckKongSniExists(resourceKey string) resource.TestCheckFunc {
 
 const testCreateSniConfig = `
 resource "kong_certificate" "certificate1" {
-	certificate  = "public key --- 123 ----"
-	private_key = "private key --- 456 ----"
+	certificate  = <<EOF
+%s
+EOF
+	private_key =  <<EOF
+%s
+EOF
 }
 
 resource "kong_certificate" "certificate2" {
-	certificate  = "public key --- 789 ----"
-	private_key = "private key --- 321 ----"
+	certificate  = <<EOF
+%s
+EOF
+	private_key =  <<EOF
+%s
+EOF
 }
 
 resource "kong_sni" "sni" {
@@ -121,13 +129,21 @@ resource "kong_sni" "sni" {
 `
 const testUpdateSniConfig = `
 resource "kong_certificate" "certificate1" {
-	certificate  = "public key --- 123 ----"
-	private_key = "private key --- 456 ----"
+	certificate  = <<EOF
+%s
+EOF
+	private_key =  <<EOF
+%s
+EOF
 }
 
 resource "kong_certificate" "certificate2" {
-	certificate  = "public key --- 789 ----"
-	private_key = "private key --- 321 ----"
+	certificate  = <<EOF
+%s
+EOF
+	private_key =  <<EOF
+%s
+EOF
 }
 
 resource "kong_sni" "sni" {
