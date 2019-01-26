@@ -19,6 +19,7 @@ type ServiceRequest struct {
 	ConnectTimeout *int    `json:"connect_timeout,omitempty"`
 	WriteTimeout   *int    `json:"write_timeout,omitempty"`
 	ReadTimeout    *int    `json:"read_timeout,omitempty"`
+	Url            *string `json:"url,omitempty"`
 }
 
 type Service struct {
@@ -34,6 +35,7 @@ type Service struct {
 	ConnectTimeout *int    `json:"connect_timeout"`
 	WriteTimeout   *int    `json:"write_timeout"`
 	ReadTimeout    *int    `json:"read_timeout"`
+	Url            *string `json:"url"`
 }
 
 type Services struct {
@@ -48,7 +50,7 @@ type ServiceQueryString struct {
 
 const ServicesPath = "/services/"
 
-func (serviceClient *ServiceClient) AddService(serviceRequest *ServiceRequest) (*Service, error) {
+func (serviceClient *ServiceClient) Create(serviceRequest *ServiceRequest) (*Service, error) {
 
 	if serviceRequest.Port == nil {
 		serviceRequest.Port = Int(80)

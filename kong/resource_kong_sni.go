@@ -58,7 +58,7 @@ func resourceKongSniRead(d *schema.ResourceData, meta interface{}) error {
 		d.SetId("")
 	} else {
 		d.Set("name", sni.Name)
-		d.Set("certificate_id", sni.SslCertificateId)
+		d.Set("certificate_id", sni.CertificateId)
 	}
 
 	return nil
@@ -80,7 +80,7 @@ func createKongSniRequestFromResourceData(d *schema.ResourceData) *gokong.SnisRe
 	sniRequest := &gokong.SnisRequest{}
 
 	sniRequest.Name = readStringFromResource(d, "name")
-	sniRequest.SslCertificateId = readStringFromResource(d, "certificate_id")
+	sniRequest.CertificateId = readIdPtrFromResource(d, "certificate_id")
 
 	return sniRequest
 }

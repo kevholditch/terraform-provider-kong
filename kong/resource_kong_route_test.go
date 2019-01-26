@@ -73,7 +73,7 @@ func testAccCheckKongRouteDestroy(state *terraform.State) error {
 		return fmt.Errorf("expecting only 1 route resource found %v", len(routes))
 	}
 
-	response, err := client.Routes().GetRoute(routes[0].Primary.ID)
+	response, err := client.Routes().GetById(routes[0].Primary.ID)
 
 	if err != nil {
 		return fmt.Errorf("error calling get route by id: %v", err)
@@ -99,7 +99,7 @@ func testAccCheckKongRouteExists(resourceKey string) resource.TestCheckFunc {
 			return fmt.Errorf("no ID is set")
 		}
 
-		route, err := testAccProvider.Meta().(*gokong.KongAdminClient).Routes().GetRoute(rs.Primary.ID)
+		route, err := testAccProvider.Meta().(*gokong.KongAdminClient).Routes().GetById(rs.Primary.ID)
 
 		if err != nil {
 			return err

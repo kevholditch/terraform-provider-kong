@@ -5,13 +5,14 @@ Terraform Provider Kong
 The Kong Terraform Provider tested against real Kong!
 
 
-Notice
+IMPORTANT
 ------
-**CURRENTLY NOT COMPATIBLE WITH KONG 1.0.0  - Im working on support for it**
+This provider now supports kong `v1.0.0` and onwards (from `v2.0.0` onwards of provider)  Since the release of Kong `v1.0.0` has many breaking changes (e.g. removing APIs) this provider is
+no longer compatible with version of kong pre v1.0.0.  If you want to use the provider with versions of kong pre `v1.0.0` then please checkout branch `kong-pre-1.0.0` or
+use a version of the provider `v1.9.1` or less.
 
-I have recently updated the provider to use `v1.0.0` of [gokong](http://github.com/kevholditch/gokong) this pulls in the changes to use pointers to all api fields.  If you update to the latest provider
-be aware of this change.  Terraform may want to update some api resources as this fixes a bug where if you set a string from a value to `""` it will now be treated as empty string and not ignored.  If you
-have set any of your api fields to empty string this will now be picked up.
+Due to compatibility issues I have had to remove some of the properties on the resources.  Most notability for a plugin you can only configure it using the `config_json` property
+the `config` property has been removed.  This is due to some internal changes that have been made to kong in `v1.0.0`.
 
 Requirements
 ------------
@@ -71,7 +72,7 @@ resource "kong_service" "service" {
 
 }
 ```
-The service resource maps directly onto the json for the service endpoint in Kong.  For more information on the parameters [see the Kong Service create documentation](https://getkong.org/docs/0.13.x/admin-api/#service-object).
+The service resource maps directly onto the json for the service endpoint in Kong.  For more information on the parameters [see the Kong Service create documentation](https://getkong.org/docs/1.0.x/admin-api/#service-object).
 
 To import a service:
 ```
@@ -91,87 +92,96 @@ resource "kong_route" "route" {
 }
 
 ```
-The route resource maps directly onto the json for the route endpoint in Kong.  For more information on the parameters [see the Kong Route create documentation](https://getkong.org/docs/0.13.x/admin-api/#route-object).
+The route resource maps directly onto the json for the route endpoint in Kong.  For more information on the parameters [see the Kong Route create documentation](https://getkong.org/docs/1.0.x/admin-api/#route-object).
 
 To import a route:
 ```
 terraform import kong_route.<route_identifier> <route_id>
 ```
 
-## Apis
-```hcl
-resource "kong_api" "api" {
-    name 	             = "TestApi"
-    hosts                    = [ "example.com" ]
-    uris 	             = [ "/example" ]
-    methods                  = [ "GET", "POST" ]
-    upstream_url             = "http://localhost:4140"
-    strip_uri                = false
-    preserve_host            = false
-    retries                  = 3
-    upstream_connect_timeout = 60000
-    upstream_send_timeout    = 30000
-    upstream_read_timeout    = 10000
-    https_only               = false
-    http_if_terminated       = false
-}
-```
-The api resource maps directly onto the json for the API endpoint in Kong.  For more information on the parameters [see the Kong Api create documentation](https://getkong.org/docs/0.13.x/admin-api/#api-object).
-
-To import an API:
-```
-terraform import kong_api.<api_identifier> <api_id>
-```
 
 ## Plugins
 ```hcl
-resource "kong_plugin" "response_rate_limiting" {
-    name   = "response-ratelimiting"
-    config = {
-        limits.sms.minute = 10
-    }
+resource "kong_plugin" "rate_limit" {
+	name        = "rate-limiting"
+	config_json = <<EOT
+	{
+		"second": 5,
+		"hour" : 1000
+	}
+EOT
+```
+
+The `config_json` is passed through to the plugin to configure it as is.  Note that the old `config` property has been removed due to incompatibility issues with kong v1.0.0.
+Having the `config_json` property gives you ultimate flexibility to configure the plugin.
+
+To apply a plugin to a consumer use the `consumer_id` property, for example:
+```hcl
+resource "kong_consumer" "plugin_consumer" {
+	username  = "PluginUser"
+	custom_id = "567"
+}
+
+resource "kong_plugin" "rate_limit" {
+	name        = "rate-limiting"
+	consumer_id = "${kong_consumer.plugin_consumer.id}"
+	config_json = <<EOT
+	{
+		"second": 5,
+		"hour" : 1000
+	}
+EOT
 }
 ```
 
-The plugin resource maps directly onto the json for the API endpoint in Kong.  For more information on the parameters [see the Kong Api create documentation](https://getkong.org/docs/0.13.x/admin-api/#plugin-object).
+To apply a plugin to a service use the `service_id` property, for example:
+
+```hcl
+resource "kong_service" "service" {
+	name     = "test"
+	protocol = "http"
+	host     = "test.org"
+}
+
+resource "kong_plugin" "rate_limit" {
+	name        = "rate-limiting"
+	service_id = "${kong_service.service.id}"
+	config_json = <<EOT
+	{
+		"second": 10,
+		"hour" : 2000
+	}
+EOT
+}
+```
+
+To apply a plugin to a route use the `route_id` property, for example:
+
+```hcl
+resource "kong_service" "service" {
+	name     = "test"
+	protocol = "http"
+	host     = "test.org"
+}
+
+resource "kong_plugin" "rate_limit" {
+	name        = "rate-limiting"
+	service_id = "${kong_service.service.id}"
+	config_json = <<EOT
+	{
+		"second": 11,
+		"hour" : 4000
+	}
+EOT
+}
+```
+
+
+The plugin resource maps directly onto the json for the API endpoint in Kong.  For more information on the parameters [see the Kong Api create documentation](https://getkong.org/docs/1.0.x/admin-api/#plugin-object).
 
 To import a plugin:
 ```
 terraform import kong_plugin.<plugin_identifier> <plugin_id>
-```
-
-Here is a more complex example for creating a plugin for a consumer and an API:
-
-```hcl
-resource "kong_api" "api" {
-    name 	             = "TestApi"
-    hosts                    = [ "example.com" ]
-    uris 	             = [ "/example" ]
-    methods                  = [ "GET", "POST" ]
-    upstream_url             = "http://localhost:4140"
-    strip_uri                = false
-    preserve_host            = false
-    retries                  = 3
-    upstream_connect_timeout = 60000
-    upstream_send_timeout    = 30000
-    upstream_read_timeout    = 10000
-    https_only               = false
-    http_if_terminated       = false
-}
-
-resource "kong_consumer" "plugin_consumer" {
-    username  = "PluginUser"
-    custom_id = "111"
-}
-
-resource "kong_plugin" "rate_limit" {
-    name        = "response-ratelimiting"
-    api_id 	= "${kong_api.api.id}"
-    consumer_id = "${kong_consumer.plugin_consumer.id}"
-    config      = {
-        limits.sms.minute = 77
-    }
-}
 ```
 
 ### Configure plugins for a consumer
@@ -224,7 +234,7 @@ resource "kong_consumer" "consumer" {
 }
 ```
 
-The consumer resource maps directly onto the json for creating an Consumer in Kong.  For more information on the parameters [see the Kong Consumer create documentation](https://getkong.org/docs/0.13.x/admin-api/#consumer-object).
+The consumer resource maps directly onto the json for creating an Consumer in Kong.  For more information on the parameters [see the Kong Consumer create documentation](https://getkong.org/docs/1.0.x/admin-api/#consumer-object).
 
 To import a consumer:
 ```
@@ -242,7 +252,7 @@ resource "kong_certificate" "certificate" {
 `certificate` should be the public key of your certificate it is mapped to the `Cert` parameter on the Kong API.
 `private_key` should be the private key of your certificate it is mapped to the `Key` parameter on the Kong API.
 
-For more information on creating certificates in Kong [see their documentation](https://getkong.org/docs/0.13.x/admin-api/#certificate-object)
+For more information on creating certificates in Kong [see their documentation](https://getkong.org/docs/1.0.x/admin-api/#certificate-object)
 
 To import a certificate:
 ```
@@ -264,7 +274,7 @@ resource "kong_sni" "sni" {
 `name` is your domain you want to assign to the certificate
 `certificate_id` is the id of a certificate
 
-For more information on creating SNIs in Kong [see their documentaton](https://getkong.org/docs/0.13.x/admin-api/#sni-objects)
+For more information on creating SNIs in Kong [see their documentaton](https://getkong.org/docs/1.0.x/admin-api/#sni-objects)
 
 To import a SNI:
 ```
@@ -278,108 +288,6 @@ resource "kong_upstream" "upstream" {
     slots 		= 10
 }
 ```
-
-
-# Data Sources
-## APIs
-To look up an existing api you can do so by using a filter:
-```hcl
-data "kong_api" "api_data_source" {
-    filter = {
-        id = "de539d26-97d2-4d5b-aaf9-628e51087d9c"
-	name = "TestDataSourceApi"
-	upstream_url = "http://localhost:4140"
-    }
-}
-```
-Each of the filter parameters are optional and they are combined for an AND search against all APIs.   The following output parameters are
-returned:
-
-  * `id` - the id of the API
-  * `name` - the name of the API
-  * `hosts` - a list of the hosts configured on the API
-  * `uris` - a list of the uri prefixes for the API
-  * `methods` - a list of the allowed methods on the API
-  * `upstream_url` - the upstream url for the API
-  * `strip_uri` - whether the API strips the matching prefix from the uri
-  * `preserve_host` - whether the API forwards the host header onto the upstream service
-  * `retries` - number of retries the API executes upon failure to the upstream service
-  * `upstream_connect_timeout` - the timeout in milliseconds for establishing a connection to your upstream service
-  * `upstream_send_timeout` - the timeout in milliseconds between two successive write operations for transmitting a request to your upstream service
-  * `upstream_read_timeout` - the timeout in milliseconds between two successive read operations for transmitting a request to your upstream service
-  * `https_only` - whether the API is served through HTTPS
-  * `http_if_terminated` - whether the API considers the  X-Forwarded-Proto header when enforcing HTTPS only traffic
-
-## Certificates
-To look up an existing certificate:
-```hcl
-data "kong_certificate" "certificate_data_source" {
-    filter = {
-        id = "471c625a-4eba-4b78-985f-86cf54a2dc12"
-    }
-}
-```
-You can only find existing certificates by their id in Kong.  The following output parameters are returned:
-
-  * `id` - the Kong id for the certificate
-  * `certificate` - the public key of the certificate
-  * `private_key` - the private key of the certificate
-
-## Consumers
-To look up an existing consumer:
-```hcl
-data "kong_consumer" "consumer_data_source" {
-    filter = {
-        id 	  = "8086a91b-cb5a-4e60-90b0-ca6650e82464"
-	username  = "User777"
-	custom_id = "123456"
-    }
-}
-```
-Each of the filter parameters are optional and they are combined for an AND search against all consumers.   The following output parameters are
-returned:
-
-  * `id` - the Kong id of the found consumer
-  * `username` - the username of the found consumer
-  * `custom_id` - the custom id of the found consumer
-
-## Plugins
-To look up an existing plugin:
-```hcl
-data "kong_plugin" "plugin_data_source" {
-    filter = {
-        id          = "f0e656af-ad53-4622-ac73-ffd46ae05289"
-	name        = "response-ratelimiting"
-	api_id      = "51694bcd-3c72-43b3-b414-a09bbf4e3c30"
-	consumer_id = "88154fd2-7a0e-41b1-97ba-4a59ebe2cc39"
-    }
-}
-```
-Each of the filter parameters are optional and they are combined for an AND search against all plugins.  The following output parameters are returned:
-
-  * `id` - the Kong id of the found plugin
-  * `name` - the name of the found plugin
-  * `api_id` - the API id the found plugin is associated with (might be empty if not associated with an API)
-  * `consumer_id` - the consumer id the found plugin is associated with (might be empty if not associated with a consumer)
-  * `enabled` - whether the plugin is enabled
-
-## Upstreams
-To lookup an existing upstream:
-```hcl
-data "kong_upstream" "upstream_data_source" {
-    filter = {
-        id   = "893a49a8-090f-421e-afce-ba70b02ce958"
-	name = "TestUpstream"
-    }
-}
-```
-Each of the filter parameters are optional and they are combined for an AND search against all upstreams.  The following output parameters are returned:
-
-  * `id` - the Kong id of the found upstream
-  * `name` - the name of the found upstream
-  * `slots` - the number of slots on the found upstream
-  * `order_list` - a list containing the slot order on the found upstream
-
 
 # Contributing
 I would love to get contributions to the project so please feel free to submit a PR.  To setup your dev station you need go and docker installed.

@@ -6,15 +6,14 @@ import (
 	"log"
 	"net/http"
 
-	"gopkg.in/ory-am/dockertest.v3"
+	dockertest "gopkg.in/ory-am/dockertest.v3"
 )
 
 type kongContainer struct {
-	Name           string
-	pool           *dockertest.Pool
-	resource       *dockertest.Resource
-	HostAddress    string
-	HostApiAddress string
+	Name        string
+	pool        *dockertest.Pool
+	resource    *dockertest.Resource
+	HostAddress string
 }
 
 func NewKongContainer(pool *dockertest.Pool, postgres *postgresContainer, kongVersion string) *kongContainer {
@@ -32,7 +31,7 @@ func NewKongContainer(pool *dockertest.Pool, postgres *postgresContainer, kongVe
 		Tag:        kongVersion,
 		Env:        envVars,
 		Links:      []string{postgres.Name},
-		Cmd:        []string{"kong", "migrations", "up"},
+		Cmd:        []string{"kong", "migrations", "bootstrap"},
 	}
 
 	migrations, err := pool.RunWithOptions(options)
@@ -69,11 +68,10 @@ func NewKongContainer(pool *dockertest.Pool, postgres *postgresContainer, kongVe
 	kongContainerName := getContainerName(resource)
 
 	kongAddress := fmt.Sprintf("http://localhost:%v", resource.GetPort("8001/tcp"))
-	kongApiAddress := fmt.Sprintf("http://localhost:%v", resource.GetPort("8000/tcp"))
 
 	if err := pool.Retry(func() error {
 		var err error
-		curlEndpoint := fmt.Sprintf("%s/apis", kongAddress)
+		curlEndpoint := fmt.Sprintf("%s/status", kongAddress)
 		if err != nil {
 			return err
 		}
@@ -95,11 +93,10 @@ func NewKongContainer(pool *dockertest.Pool, postgres *postgresContainer, kongVe
 	}
 
 	return &kongContainer{
-		Name:           kongContainerName,
-		pool:           pool,
-		resource:       resource,
-		HostAddress:    kongAddress,
-		HostApiAddress: kongApiAddress,
+		Name:        kongContainerName,
+		pool:        pool,
+		resource:    resource,
+		HostAddress: kongAddress,
 	}
 }
 

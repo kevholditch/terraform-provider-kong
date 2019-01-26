@@ -32,24 +32,15 @@ func resourceKongConsumerPluginConfig() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"config": &schema.Schema{
-				Type:          schema.TypeMap,
-				ForceNew:      true,
-				Optional:      true,
-				Elem:          schema.TypeString,
-				Default:       nil,
-				ConflictsWith: []string{"config_json"},
-			},
 			// Suppress diff when config is empty so we can sync with upstream always
 			// The ForceNew property is what makes this work.
 			"config_json": &schema.Schema{
-				Type:          schema.TypeString,
-				ForceNew:      true,
-				Optional:      true,
-				StateFunc:     normalizeDataJSON,
-				ValidateFunc:  validateDataJSON,
-				ConflictsWith: []string{"config"},
-				Description:   "JSON format of plugin config",
+				Type:         schema.TypeString,
+				ForceNew:     true,
+				Optional:     true,
+				StateFunc:    normalizeDataJSON,
+				ValidateFunc: validateDataJSON,
+				Description:  "JSON format of plugin config",
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 					return new == ""
 				},

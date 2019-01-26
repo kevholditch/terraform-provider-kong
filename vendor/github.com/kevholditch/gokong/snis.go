@@ -10,13 +10,13 @@ type SnisClient struct {
 }
 
 type SnisRequest struct {
-	Name             string `json:"name,omitempty"`
-	SslCertificateId string `json:"ssl_certificate_id,omitempty"`
+	Name          string `json:"name,omitempty"`
+	CertificateId *Id    `json:"certificate,omitempty"`
 }
 
 type Sni struct {
-	Name             string `json:"name,omitempty"`
-	SslCertificateId string `json:"ssl_certificate_id,omitempty"`
+	Name          string `json:"name,omitempty"`
+	CertificateId *Id    `json:"certificate,omitempty"`
 }
 
 type Snis struct {
@@ -43,7 +43,7 @@ func (snisClient *SnisClient) Create(snisRequest *SnisRequest) (*Sni, error) {
 		return nil, fmt.Errorf("could not parse sni creation response, error: %v", err)
 	}
 
-	if sni.SslCertificateId == "" {
+	if sni.CertificateId == nil {
 		return nil, fmt.Errorf("could not create sni, error: %v", body)
 	}
 
@@ -125,7 +125,7 @@ func (snisClient *SnisClient) UpdateByName(name string, snisRequest *SnisRequest
 		return nil, fmt.Errorf("could not parse sni update response, error: %v", err)
 	}
 
-	if updatedSni.SslCertificateId == "" {
+	if updatedSni.CertificateId == nil {
 		return nil, fmt.Errorf("could not update sni, error: %v", body)
 	}
 

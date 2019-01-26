@@ -25,11 +25,6 @@ func resourceKongPlugin() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"api_id": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: false,
-			},
 			"consumer_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
@@ -45,22 +40,19 @@ func resourceKongPlugin() *schema.Resource {
 				Optional: true,
 				ForceNew: false,
 			},
-			"config": &schema.Schema{
-				Type:          schema.TypeMap,
-				Optional:      true,
-				Elem:          schema.TypeString,
-				ConflictsWith: []string{"config_json"},
-			},
 			"config_json": &schema.Schema{
-				Type:          schema.TypeString,
-				Optional:      true,
-				StateFunc:     normalizeDataJSON,
-				ValidateFunc:  validateDataJSON,
-				Description:   "plugin configuration in JSON format, configuration must be a valid JSON object.",
-				ConflictsWith: []string{"config"},
+				Type:         schema.TypeString,
+				Optional:     true,
+				StateFunc:    normalizeDataJSON,
+				ValidateFunc: validateDataJSON,
+				Description:  "plugin configuration in JSON format, configuration must be a valid JSON object.",
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 					return new == ""
 				},
+			},
+			"computed_config": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
@@ -113,7 +105,6 @@ func resourceKongPluginRead(d *schema.ResourceData, meta interface{}) error {
 		d.SetId("")
 	} else {
 		d.Set("name", plugin.Name)
-		d.Set("api_id", plugin.ApiId)
 		d.Set("service_id", plugin.ServiceId)
 		d.Set("route_id", plugin.RouteId)
 		d.Set("consumer_id", plugin.ConsumerId)
@@ -122,7 +113,7 @@ func resourceKongPluginRead(d *schema.ResourceData, meta interface{}) error {
 		// terraform state. We do not track `config` as it will be a source of a perpetual diff.
 		// https://www.terraform.io/docs/extend/best-practices/detecting-drift.html#capture-all-state-in-read
 		upstreamJson := pluginConfigJsonToString(plugin.Config)
-		d.Set("config_json", upstreamJson)
+		d.Set("computed_config", upstreamJson)
 	}
 
 	return nil
@@ -144,23 +135,19 @@ func createKongPluginRequestFromResourceData(d *schema.ResourceData) (*gokong.Pl
 	pluginRequest := &gokong.PluginRequest{}
 
 	pluginRequest.Name = readStringFromResource(d, "name")
-	pluginRequest.ApiId = readStringFromResource(d, "api_id")
-	pluginRequest.ConsumerId = readStringFromResource(d, "consumer_id")
-	pluginRequest.ServiceId = readStringFromResource(d, "service_id")
-	pluginRequest.RouteId = readStringFromResource(d, "route_id")
-	pluginRequest.Config = readMapFromResource(d, "config")
+	pluginRequest.ConsumerId = readIdPtrFromResource(d, "consumer_id")
+	pluginRequest.ServiceId = readIdPtrFromResource(d, "service_id")
+	pluginRequest.RouteId = readIdPtrFromResource(d, "route_id")
 
-	if pluginRequest.Config == nil {
-		if data, ok := d.GetOk("config_json"); ok {
-			var configJson map[string]interface{}
+	if data, ok := d.GetOk("config_json"); ok {
+		var configJson map[string]interface{}
 
-			err := json.Unmarshal([]byte(data.(string)), &configJson)
-			if err != nil {
-				return pluginRequest, fmt.Errorf("failed to unmarshal config_json, err: %v", err)
-			}
-
-			pluginRequest.Config = configJson
+		err := json.Unmarshal([]byte(data.(string)), &configJson)
+		if err != nil {
+			return pluginRequest, fmt.Errorf("failed to unmarshal config_json, err: %v", err)
 		}
+
+		pluginRequest.Config = configJson
 	}
 
 	return pluginRequest, nil

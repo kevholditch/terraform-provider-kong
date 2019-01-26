@@ -11,7 +11,7 @@ import (
 	"github.com/kevholditch/gokong/containers"
 )
 
-const defaultKongVersion = "0.13"
+const defaultKongVersion = "1.0.0"
 
 var testAccProviders map[string]terraform.ResourceProvider
 var testAccProvider *schema.Provider

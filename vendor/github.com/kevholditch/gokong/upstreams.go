@@ -70,17 +70,7 @@ type Upstream struct {
 
 type Upstreams struct {
 	Results []*Upstream `json:"data,omitempty"`
-	Total   int         `json:"total,omitempty"`
 	Next    string      `json:"next,omitempty"`
-	Offset  string      `json:"offset,omitempty"`
-}
-
-type UpstreamFilter struct {
-	Id     string `url:"id,omitempty"`
-	Name   string `url:"name,omitempty"`
-	Slots  int    `url:"slots,omitempty"`
-	Size   int    `url:"size,omitempty"`
-	Offset int    `url:"offset,omitempty"`
 }
 
 const UpstreamsPath = "/upstreams/"
@@ -156,18 +146,8 @@ func (upstreamClient *UpstreamClient) DeleteById(id string) error {
 }
 
 func (upstreamClient *UpstreamClient) List() (*Upstreams, error) {
-	return upstreamClient.ListFiltered(nil)
-}
 
-func (upstreamClient *UpstreamClient) ListFiltered(filter *UpstreamFilter) (*Upstreams, error) {
-
-	address, err := addQueryString(upstreamClient.config.HostAddress+UpstreamsPath, filter)
-
-	if err != nil {
-		return nil, fmt.Errorf("could not build query string for upstreams filter, error: %v", err)
-	}
-
-	r, body, errs := newGet(upstreamClient.config, address).End()
+	r, body, errs := newGet(upstreamClient.config, upstreamClient.config.HostAddress+UpstreamsPath).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not get upstreams, error: %v", errs)
 	}
@@ -177,7 +157,7 @@ func (upstreamClient *UpstreamClient) ListFiltered(filter *UpstreamFilter) (*Ups
 	}
 
 	upstreams := &Upstreams{}
-	err = json.Unmarshal([]byte(body), upstreams)
+	err := json.Unmarshal([]byte(body), upstreams)
 	if err != nil {
 		return nil, fmt.Errorf("could not parse upstreams list response, error: %v", err)
 	}
