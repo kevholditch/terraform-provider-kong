@@ -19,48 +19,21 @@ func TestAccKongConsumerPluginConfig(t *testing.T) {
 				Config: testCreateConsumerPluginConfig,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKongConsumerPluginConfigExists("kong_consumer_plugin_config.consumer_jwt_config"),
-					//resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "plugin_name", "jwt"),
-					//resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "config_json", `{"algorithm":"HS256","key":"my_key","secret":"my_secret"}`),
+					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "plugin_name", "jwt"),
+					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "config_json", `{"algorithm":"HS256","key":"my_key","secret":"my_secret"}`),
 				),
 			},
 			{
 				Config: testUpdateConsumerPluginConfig,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKongConsumerPluginConfigExists("kong_consumer_plugin_config.consumer_jwt_config"),
-					//resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "plugin_name", "jwt"),
-					//resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "config_json", `{"algorithm":"HS256","key":"updated_key","secret":"updated_secret"}`),
+					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "plugin_name", "jwt"),
+					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "config_json", `{"algorithm":"HS256","key":"updated_key","secret":"updated_secret"}`),
 				),
 			},
 		},
 	})
 }
-
-//
-//func TestAccKongConsumerPluginConfigKV(t *testing.T) {
-//
-//	resource.Test(t, resource.TestCase{
-//		Providers:    testAccProviders,
-//		CheckDestroy: testAccCheckKongConsumerPluginConfig,
-//		Steps: []resource.TestStep{
-//			{
-//				Config: testCreateConsumerPluginConfigKV,
-//				Check: resource.ComposeTestCheckFunc(
-//					testAccCheckKongConsumerPluginConfigExists("kong_consumer_plugin_config.consumer_acl_config"),
-//					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_acl_config", "plugin_name", "acls"),
-//					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_acl_config", "config.group", "nginx"),
-//				),
-//			},
-//			{
-//				Config: testUpdateConsumerPluginConfigKV,
-//				Check: resource.ComposeTestCheckFunc(
-//					testAccCheckKongConsumerPluginConfigExists("kong_consumer_plugin_config.consumer_acl_config"),
-//					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_acl_config", "plugin_name", "acls"),
-//					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_acl_config", "config.group", "apache"),
-//				),
-//			},
-//		},
-//	})
-//}
 
 func TestAccKongConsumerPluginConfigImport(t *testing.T) {
 
@@ -69,13 +42,13 @@ func TestAccKongConsumerPluginConfigImport(t *testing.T) {
 		CheckDestroy: testAccCheckKongConsumerPluginConfig,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testImportConsumerPluginConfigKV,
+				Config: testCreateConsumerPluginConfig,
 			},
 
 			resource.TestStep{
-				ResourceName:      "kong_consumer_plugin_config.consumer_acl_config",
+				ResourceName:      "kong_consumer_plugin_config.consumer_jwt_config",
 				ImportState:       true,
-				ImportStateVerify: false,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -153,9 +126,11 @@ resource "kong_consumer" "my_consumer" {
 
 resource "kong_plugin" "jwt_plugin" {
 	name        = "jwt"
-	config 		= {
-		claims_to_verify = ["exp"]
+	config_json = <<EOT
+	{
+		"claims_to_verify": ["exp"]
 	}
+EOT
 }
 
 resource "kong_consumer_plugin_config" "consumer_jwt_config" {
@@ -179,9 +154,11 @@ resource "kong_consumer" "my_consumer" {
 
 resource "kong_plugin" "jwt_plugin" {
 	name        = "jwt"
-	config 		= {
-		claims_to_verify = ["exp"]
+	config_json = <<EOT
+	{
+		"claims_to_verify": ["exp"]
 	}
+EOT
 }
 
 resource "kong_consumer_plugin_config" "consumer_jwt_config" {
