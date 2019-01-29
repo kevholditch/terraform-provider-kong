@@ -21,7 +21,7 @@ func TestAccKongService(t *testing.T) {
 					resource.TestCheckResourceAttr("kong_service.service", "name", "test"),
 					resource.TestCheckResourceAttr("kong_service.service", "protocol", "http"),
 					resource.TestCheckResourceAttr("kong_service.service", "host", "test.org"),
-					resource.TestCheckResourceAttr("kong_service.service", "port", "8080"),
+					resource.TestCheckResourceAttr("kong_service.service", "port", "80"),
 					resource.TestCheckResourceAttr("kong_service.service", "path", "/mypath"),
 					resource.TestCheckResourceAttr("kong_service.service", "retries", "5"),
 					resource.TestCheckResourceAttr("kong_service.service", "connect_timeout", "1000"),
@@ -121,7 +121,6 @@ resource "kong_service" "service" {
 	name     		= "test"
 	protocol 		= "http"
 	host     		= "test.org"
-	port     		= 8080
 	path     		= "/mypath"
 	retries  		= 5
 	connect_timeout = 1000
