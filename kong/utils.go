@@ -1,5 +1,7 @@
 package kong
 
+import "regexp"
+
 var computedPluginProperties = []string{"created_at", "id", "consumer", "service", "route"}
 
 func contains(s []string, e string) bool {
@@ -10,4 +12,8 @@ func contains(s []string, e string) bool {
 	}
 
 	return false
+}
+
+func getRegex(r *regexp.Regexp, err error) *regexp.Regexp {
+	return r
 }

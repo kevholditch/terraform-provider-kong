@@ -2,6 +2,7 @@ package kong
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/resource"
@@ -20,7 +21,9 @@ func TestAccKongConsumerPluginConfig(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKongConsumerPluginConfigExists("kong_consumer_plugin_config.consumer_jwt_config"),
 					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "plugin_name", "jwt"),
-					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "config_json", `{"algorithm":"HS256","key":"my_key","secret":"my_secret"}`),
+					resource.TestMatchResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "config_json", getRegex(regexp.Compile(`"algorithm":"HS256"`))),
+					resource.TestMatchResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "config_json", getRegex(regexp.Compile(`"key":"my_key"`))),
+					resource.TestMatchResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "config_json", getRegex(regexp.Compile(`"secret":"my_secret"`))),
 				),
 			},
 			{
@@ -28,7 +31,9 @@ func TestAccKongConsumerPluginConfig(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKongConsumerPluginConfigExists("kong_consumer_plugin_config.consumer_jwt_config"),
 					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "plugin_name", "jwt"),
-					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "config_json", `{"algorithm":"HS256","key":"updated_key","secret":"updated_secret"}`),
+					resource.TestMatchResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "config_json", getRegex(regexp.Compile(`"algorithm":"HS256"`))),
+					resource.TestMatchResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "config_json", getRegex(regexp.Compile(`"key":"updated_key"`))),
+					resource.TestMatchResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "config_json", getRegex(regexp.Compile(`"secret":"updated_secret"`))),
 				),
 			},
 		},
