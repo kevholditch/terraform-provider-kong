@@ -69,7 +69,6 @@ resource "kong_service" "service" {
 	connect_timeout = 1000
 	write_timeout 	= 2000
 	read_timeout  	= 3000
-
 }
 ```
 The service resource maps directly onto the json for the service endpoint in Kong.  For more information on the parameters [see the Kong Service create documentation](https://getkong.org/docs/1.0.x/admin-api/#service-object).
@@ -82,13 +81,14 @@ terraform import kong_service.<service_identifier> <service_id>
 ## Routes
 ```hcl
 resource "kong_route" "route" {
-	protocols 	= [ "http", "https" ]
-	methods 	= [ "GET", "POST" ]
-	hosts 		= [ "example2.com" ]
-	paths 		= [ "/test" ]
-	strip_path 	= false
+	protocols 	    = [ "http", "https" ]
+	methods 	    = [ "GET", "POST" ]
+	hosts 		    = [ "example2.com" ]
+	paths 		    = [ "/test" ]
+	strip_path 	    = false
 	preserve_host 	= true
-	service_id 	= "${kong_service.service.id}"
+	regex_priority 	= 1
+	service_id 	    = "${kong_service.service.id}"
 }
 
 ```
