@@ -2,6 +2,7 @@ package kong
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/resource"
@@ -20,7 +21,9 @@ func TestAccKongConsumerPluginConfig(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKongConsumerPluginConfigExists("kong_consumer_plugin_config.consumer_jwt_config"),
 					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "plugin_name", "jwt"),
-					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "config_json", `{"algorithm":"HS256","key":"my_key","secret":"my_secret"}`),
+					resource.TestMatchResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "config_json", getRegex(regexp.Compile(`"algorithm":"HS256"`))),
+					resource.TestMatchResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "config_json", getRegex(regexp.Compile(`"key":"my_key"`))),
+					resource.TestMatchResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "config_json", getRegex(regexp.Compile(`"secret":"my_secret"`))),
 				),
 			},
 			{
@@ -28,7 +31,9 @@ func TestAccKongConsumerPluginConfig(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKongConsumerPluginConfigExists("kong_consumer_plugin_config.consumer_jwt_config"),
 					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "plugin_name", "jwt"),
-					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "config_json", `{"algorithm":"HS256","key":"updated_key","secret":"updated_secret"}`),
+					resource.TestMatchResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "config_json", getRegex(regexp.Compile(`"algorithm":"HS256"`))),
+					resource.TestMatchResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "config_json", getRegex(regexp.Compile(`"key":"updated_key"`))),
+					resource.TestMatchResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "config_json", getRegex(regexp.Compile(`"secret":"updated_secret"`))),
 				),
 			},
 		},
@@ -41,14 +46,14 @@ func TestAccKongConsumerPluginConfigImport(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckKongConsumerPluginConfig,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testCreateConsumerPluginConfig,
 			},
-
-			resource.TestStep{
-				ResourceName:      "kong_consumer_plugin_config.consumer_jwt_config",
-				ImportState:       true,
-				ImportStateVerify: true,
+			{
+				ResourceName:            "kong_consumer_plugin_config.consumer_jwt_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"config_json"},
 			},
 		},
 	})
@@ -171,122 +176,5 @@ resource "kong_consumer_plugin_config" "consumer_jwt_config" {
 			"secret": "updated_secret"
 		}
 EOT
-}
-`
-
-const testCreateConsumerPluginConfigKV = `
-resource "kong_api" "api" {
-	name 	= "TestApi"
-  	hosts   = [ "example.com" ]
-	uris 	= [ "/example" ]
-	methods = [ "GET", "POST" ]
-	upstream_url = "http://localhost:4140"
-	strip_uri = false
-	preserve_host = false
-	retries = 3
-	upstream_connect_timeout = 60000
-	upstream_send_timeout = 30000
-	upstream_read_timeout = 10000
-	https_only = false
-	http_if_terminated = false
-}
-
-resource "kong_consumer" "my_consumer" {
-	username  = "User1"
-	custom_id = "123"
-}
-
-resource "kong_plugin" "acl_plugin" {
-	name        = "acl"
-	api_id      = "${kong_api.api.id}"
-	config      = {
-		whitelist = "nginx"
-	}
-}
-
-resource "kong_consumer_plugin_config" "consumer_acl_config" {
-	consumer_id = "${kong_consumer.my_consumer.id}"
-	plugin_name = "acls"
-	config = {
-		group = "nginx"
-	}
-}
-`
-
-const testUpdateConsumerPluginConfigKV = `
-resource "kong_api" "api" {
-	name 	= "TestApi"
-  	hosts   = [ "example.com" ]
-	uris 	= [ "/example" ]
-	methods = [ "GET", "POST" ]
-	upstream_url = "http://localhost:4140"
-	strip_uri = false
-	preserve_host = false
-	retries = 3
-	upstream_connect_timeout = 60000
-	upstream_send_timeout = 30000
-	upstream_read_timeout = 10000
-	https_only = false
-	http_if_terminated = false
-}
-
-resource "kong_consumer" "my_consumer" {
-	username  = "User1"
-	custom_id = "123"
-}
-
-resource "kong_plugin" "acl_plugin" {
-	name        = "acl"
-	api_id      = "${kong_api.api.id}"
-	config = {
-		whitelist = "apache"
-	}
-}
-
-resource "kong_consumer_plugin_config" "consumer_acl_config" {
-	consumer_id = "${kong_consumer.my_consumer.id}"
-	plugin_name = "acls"
-	config      = {
-		group = "apache"
-	}
-}
-`
-
-const testImportConsumerPluginConfigKV = `
-resource "kong_api" "api" {
-	name 	= "TestApi"
-  	hosts   = [ "example.com" ]
-	uris 	= [ "/example" ]
-	methods = [ "GET", "POST" ]
-	upstream_url = "http://localhost:4140"
-	strip_uri = false
-	preserve_host = false
-	retries = 3
-	upstream_connect_timeout = 60000
-	upstream_send_timeout = 30000
-	upstream_read_timeout = 10000
-	https_only = false
-	http_if_terminated = false
-}
-
-resource "kong_consumer" "my_consumer" {
-	username  = "User1"
-	custom_id = "123"
-}
-
-resource "kong_plugin" "acl_plugin" {
-	name        = "acl"
-	api_id      = "${kong_api.api.id}"
-	config = {
-		whitelist = "apache"
-	}
-}
-
-resource "kong_consumer_plugin_config" "consumer_acl_config" {
-	consumer_id = "${kong_consumer.my_consumer.id}"
-	plugin_name = "acls"
-	config      = {
-		group = "apache"
-	}
 }
 `

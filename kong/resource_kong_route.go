@@ -53,6 +53,11 @@ func resourceKongRoute() *schema.Resource {
 				Optional: true,
 				ForceNew: false,
 			},
+			"regex_priority": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: false,
+			},
 			"service_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
@@ -125,9 +130,14 @@ func resourceKongRouteRead(d *schema.ResourceData, meta interface{}) error {
 			d.Set("preserve_host", route.PreserveHost)
 		}
 
+		if route.RegexPriority != nil {
+			d.Set("regex_priority", route.RegexPriority)
+		}
+
 		if route.Service != nil {
 			d.Set("service_id", route.Service)
 		}
+
 	}
 
 	return nil
@@ -147,12 +157,13 @@ func resourceKongRouteDelete(d *schema.ResourceData, meta interface{}) error {
 func createKongRouteRequestFromResourceData(d *schema.ResourceData) *gokong.RouteRequest {
 	resource := readIdPtrFromResource(d, "service_id")
 	return &gokong.RouteRequest{
-		Protocols:    readStringArrayPtrFromResource(d, "protocols"),
-		Methods:      readStringArrayPtrFromResource(d, "methods"),
-		Hosts:        readStringArrayPtrFromResource(d, "hosts"),
-		Paths:        readStringArrayPtrFromResource(d, "paths"),
-		StripPath:    readBoolPtrFromResource(d, "strip_path"),
-		PreserveHost: readBoolPtrFromResource(d, "preserve_host"),
-		Service:      resource,
+		Protocols:     readStringArrayPtrFromResource(d, "protocols"),
+		Methods:       readStringArrayPtrFromResource(d, "methods"),
+		Hosts:         readStringArrayPtrFromResource(d, "hosts"),
+		Paths:         readStringArrayPtrFromResource(d, "paths"),
+		StripPath:     readBoolPtrFromResource(d, "strip_path"),
+		PreserveHost:  readBoolPtrFromResource(d, "preserve_host"),
+		RegexPriority: readIntPtrFromResource(d, "regex_priority"),
+		Service:       resource,
 	}
 }
