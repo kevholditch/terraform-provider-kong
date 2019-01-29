@@ -50,9 +50,10 @@ func TestAccKongConsumerPluginConfigImport(t *testing.T) {
 				Config: testCreateConsumerPluginConfig,
 			},
 			{
-				ResourceName:      "kong_consumer_plugin_config.consumer_jwt_config",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "kong_consumer_plugin_config.consumer_jwt_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"config_json"},
 			},
 		},
 	})
