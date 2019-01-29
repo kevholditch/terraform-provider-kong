@@ -24,6 +24,7 @@ func TestAccKongRoute(t *testing.T) {
 					resource.TestCheckResourceAttr("kong_route.route", "paths.0", "/"),
 					resource.TestCheckResourceAttr("kong_route.route", "strip_path", "true"),
 					resource.TestCheckResourceAttr("kong_route.route", "preserve_host", "false"),
+					resource.TestCheckResourceAttr("kong_route.route", "regex_priority", "1"),
 				),
 			},
 			{
@@ -38,6 +39,7 @@ func TestAccKongRoute(t *testing.T) {
 					resource.TestCheckResourceAttr("kong_route.route", "paths.0", "/test"),
 					resource.TestCheckResourceAttr("kong_route.route", "strip_path", "false"),
 					resource.TestCheckResourceAttr("kong_route.route", "preserve_host", "true"),
+					resource.TestCheckResourceAttr("kong_route.route", "regex_priority", "2"),
 				),
 			},
 		},
@@ -127,6 +129,7 @@ resource "kong_route" "route" {
 	paths 			= [ "/" ]
 	strip_path 		= true
 	preserve_host 	= false
+	regex_priority  = 1
 	service_id  	= "${kong_service.service.id}"
 }
 `
@@ -144,6 +147,7 @@ resource "kong_route" "route" {
 	paths 			= [ "/test" ]
 	strip_path 		= false
 	preserve_host 	= true
+	regex_priority  = 2
 	service_id 		= "${kong_service.service.id}"
 }
 `
