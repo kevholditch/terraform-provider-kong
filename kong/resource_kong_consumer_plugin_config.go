@@ -1,7 +1,6 @@
 package kong
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -44,6 +43,10 @@ func resourceKongConsumerPluginConfig() *schema.Resource {
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 					return new == ""
 				},
+			},
+			"computed_config": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
@@ -104,37 +107,12 @@ func splitIdIntoFields(id string) (*idFields, error) {
 	}, nil
 }
 
-//Create either a key=value based list of parameters or json
-func generatePluginConfig(configMap map[string]interface{}, configJSON string) (string, error) {
-	if configMap != nil && configJSON != "" {
-		return "", fmt.Errorf("Cannot declare both config and config_json")
-	}
-	if configMap != nil {
-		var buffer bytes.Buffer
-		mapSize := len(configMap)
-		position := 1
-		for key, value := range configMap {
-			buffer.WriteString(key)
-			buffer.WriteString("=")
-			buffer.WriteString(value.(string))
-			if mapSize > 1 && position != mapSize {
-				buffer.WriteString("&")
-			}
-			position = position + 1
-		}
-		return buffer.String(), nil
-	}
-	return configJSON, nil
-}
-
 func resourceKongConsumerPluginConfigCreate(d *schema.ResourceData, meta interface{}) error {
 
 	consumerId := readStringFromResource(d, "consumer_id")
 	pluginName := readStringFromResource(d, "plugin_name")
-	config, err := generatePluginConfig(readMapFromResource(d, "config"), readStringFromResource(d, "config_json"))
-	if err != nil {
-		return fmt.Errorf("error configuring plugin: %v", err)
-	}
+	config := readStringFromResource(d, "config_json")
+
 	consumerPluginConfig, err := meta.(*gokong.KongAdminClient).Consumers().CreatePluginConfig(consumerId, pluginName, config)
 	if err != nil {
 		return fmt.Errorf("failed to create kong consumer plugin config, error: %v", err)
@@ -178,7 +156,7 @@ func resourceKongConsumerPluginConfigRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("could not read in consumer plugin config body: %s error: %v", d.Id(), err)
 	}
 
-	d.Set("config_json", upstreamJson)
+	d.Set("computed_config", upstreamJson)
 
 	return nil
 }
