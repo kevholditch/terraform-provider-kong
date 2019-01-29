@@ -37,7 +37,7 @@ func resourceKongService() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: false,
-				Default: 80,
+				Default:  80,
 			},
 			"path": &schema.Schema{
 				Type:     schema.TypeString,
