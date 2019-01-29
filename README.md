@@ -7,8 +7,8 @@ The Kong Terraform Provider tested against real Kong!
 
 IMPORTANT
 ------
-This provider now supports kong `v1.0.0` and onwards (from `v2.0.0` onwards of provider)  Since the release of Kong `v1.0.0` has many breaking changes (e.g. removing APIs) this provider is
-no longer compatible with version of kong pre v1.0.0.  If you want to use the provider with versions of kong pre `v1.0.0` then please checkout branch `kong-pre-1.0.0` or
+This provider now supports kong `v1.0.0` and onwards **ONLY** (from `v2.0.0` onwards of provider).  Since the release of Kong `v1.0.0` has many breaking changes (e.g. removing APIs) this provider is
+no longer compatible with version of kong pre `v1.0.0`.  If you want to use the provider with versions of kong pre `v1.0.0` then please checkout branch `kong-pre-1.0.0` or
 use a version of the provider `v1.9.1` or less.
 
 Due to compatibility issues I have had to remove some of the properties on the resources.  Most notability for a plugin you can only configure it using the `config_json` property
