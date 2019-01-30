@@ -223,9 +223,6 @@ resource "kong_consumer_plugin_config" "consumer_acl_config" {
 All parameters are the same as above except the `config` parameter.
 `config` is a map of key/value pairs you wish to pass as the configuration.
 
-#### NOTE:  You can only have either config or config_json configured, not both.
-
-
 ## Consumers
 ```hcl
 resource "kong_consumer" "consumer" {
