@@ -24,6 +24,14 @@ func IdToString(v *Id) string {
 	return string(*v)
 }
 
+func IpPortSliceSlice(src []IpPort) []*IpPort {
+	dst := make([]*IpPort, len(src))
+	for i := 0; i < len(src); i++ {
+		dst[i] = &(src[i])
+	}
+	return dst
+}
+
 func StringSlice(src []string) []*string {
 	dst := make([]*string, len(src))
 	for i := 0; i < len(src); i++ {

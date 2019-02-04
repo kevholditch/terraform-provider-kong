@@ -94,6 +94,31 @@ resource "kong_route" "route" {
 ```
 The route resource maps directly onto the json for the route endpoint in Kong.  For more information on the parameters [see the Kong Route create documentation](https://getkong.org/docs/1.0.x/admin-api/#route-object).
 
+To create a tcp/tls route you set `sources` and `destinations` by repeating the corresponding element (`source` or `destination`) for each
+ source or destination you want, for example:
+
+```hcl
+
+resource "kong_route" "route" {
+	protocols 		= [ "tcp" ]
+	strip_path 		= true
+	preserve_host 	= false
+	source = {
+		ip   = "192.168.1.1"
+		port = 80 
+	}
+	source = {
+		ip   = "192.168.1.2"
+	}
+	destination = {
+		ip 	 = "172.10.1.1"
+		port = 81
+	}
+	snis			= ["foo.com"]
+	service_id  	= "${kong_service.service.id}"
+}
+```
+
 To import a route:
 ```
 terraform import kong_route.<route_identifier> <route_id>

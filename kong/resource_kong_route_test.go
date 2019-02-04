@@ -46,6 +46,39 @@ func TestAccKongRoute(t *testing.T) {
 	})
 }
 
+func TestAccKongRouteWithSourcesAndDestinations(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongRouteDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testCreateRouteWithSourcesAndDestinationsConfig,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKongRouteExists("kong_route.route"),
+					resource.TestCheckResourceAttr("kong_route.route", "protocols.0", "tcp"),
+					resource.TestCheckResourceAttr("kong_route.route", "strip_path", "true"),
+					resource.TestCheckResourceAttr("kong_route.route", "preserve_host", "false"),
+					resource.TestCheckResourceAttr("kong_route.route", "source.#", "2"),
+					resource.TestCheckResourceAttr("kong_route.route", "destination.#", "1"),
+					resource.TestCheckResourceAttr("kong_route.route", "snis.0", "foo.com"),
+				),
+			},
+			{
+				Config: testUpdateRouteWithSourcesAndDestinationsConfig,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKongRouteExists("kong_route.route"),
+					resource.TestCheckResourceAttr("kong_route.route", "protocols.0", "tcp"),
+					resource.TestCheckResourceAttr("kong_route.route", "strip_path", "true"),
+					resource.TestCheckResourceAttr("kong_route.route", "preserve_host", "false"),
+					resource.TestCheckResourceAttr("kong_route.route", "source.#", "1"),
+					resource.TestCheckResourceAttr("kong_route.route", "destination.#", "2"),
+					resource.TestCheckResourceAttr("kong_route.route", "snis.0", "bar.com"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccKongRouteImport(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
@@ -149,6 +182,61 @@ resource "kong_route" "route" {
 	preserve_host 	= true
 	regex_priority  = 2
 	service_id 		= "${kong_service.service.id}"
+}
+`
+
+const testCreateRouteWithSourcesAndDestinationsConfig = `
+resource "kong_service" "service" {
+	name     = "test"
+	protocol = "http"
+	host     = "test.org"
+}
+
+resource "kong_route" "route" {
+	protocols 		= [ "tcp" ]
+	strip_path 		= true
+	preserve_host 	= false
+	source = {
+		ip   = "192.168.1.1"
+		port = 80 
+	}
+	source = {
+		ip   = "192.168.1.2"
+	}
+	destination = {
+		ip 	 = "172.10.1.1"
+		port = 81
+	}
+	snis			= ["foo.com"]
+	service_id  	= "${kong_service.service.id}"
+}
+`
+
+const testUpdateRouteWithSourcesAndDestinationsConfig = `
+resource "kong_service" "service" {
+	name     = "test"
+	protocol = "http"
+	host     = "test.org"
+}
+
+resource "kong_route" "route" {
+	protocols 		= [ "tcp" ]
+	strip_path 		= true
+	preserve_host 	= false
+	source = {
+		ip   = "192.168.1.1"
+		port = 80 
+	}
+	destination = {
+		ip 	 = "172.10.1.1"
+		port = 81
+	}
+	destination = {
+		ip 	 = "172.10.1.2"
+		port = 82
+	}
+	snis			= ["bar.com"]
+	service_id  	= "${kong_service.service.id}"
 }
 `
 const testImportRouteConfig = `
