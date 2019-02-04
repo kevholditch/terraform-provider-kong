@@ -21,6 +21,28 @@ func readStringArrayPtrFromResource(d *schema.ResourceData, key string) []*strin
 	return nil
 }
 
+func readIpPortArrayFromResource(d *schema.ResourceData, key string) []*gokong.IpPort {
+	if attr, ok := d.GetOk(key); ok {
+		set := attr.(*schema.Set)
+		results := make([]*gokong.IpPort, 0)
+		for _, item := range set.List() {
+			m := item.(map[string]interface{})
+			ipPort := &gokong.IpPort{}
+			if port, ok := m["port"].(int); ok && port != 0 {
+				ipPort.Port = &port
+			}
+			if ip, ok := m["ip"].(string); ok && ip != "" {
+				ipPort.Ip = &ip
+			}
+			results = append(results, ipPort)
+		}
+
+		return results
+	}
+
+	return nil
+}
+
 func readStringFromResource(d *schema.ResourceData, key string) string {
 	if value, ok := d.GetOk(key); ok {
 		return value.(string)

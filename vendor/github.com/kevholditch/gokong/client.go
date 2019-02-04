@@ -137,3 +137,9 @@ func (kongAdminClient *KongAdminClient) Services() *ServiceClient {
 		config: kongAdminClient.config,
 	}
 }
+
+func (kongAdminClient *KongAdminClient) Targets() *TargetClient {
+	return &TargetClient{
+		config: kongAdminClient.config,
+	}
+}

@@ -19,8 +19,8 @@ type RouteRequest struct {
 	StripPath     *bool     `json:"strip_path"`
 	PreserveHost  *bool     `json:"preserve_host"`
 	Snis          []*string `json:"snis"`
-	Sources       []*string `json:"sources"`
-	Destinations  []*string `json:"destinations"`
+	Sources       []*IpPort `json:"sources"`
+	Destinations  []*IpPort `json:"destinations"`
 	Service       *Id       `json:"service"`
 }
 
@@ -37,9 +37,14 @@ type Route struct {
 	StripPath     *bool     `json:"strip_path"`
 	PreserveHost  *bool     `json:"preserve_host"`
 	Snis          []*string `json:"snis"`
-	Sources       []*string `json:"sources"`
-	Destinations  []*string `json:"destinations"`
+	Sources       []*IpPort `json:"sources"`
+	Destinations  []*IpPort `json:"destinations"`
 	Service       *Id       `json:"service"`
+}
+
+type IpPort struct {
+	Ip   *string `json:"ip"`
+	Port *int    `json:"port"`
 }
 
 type Routes struct {
