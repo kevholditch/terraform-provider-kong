@@ -310,6 +310,13 @@ resource "kong_upstream" "upstream" {
     slots 		= 10
 }
 ```
+`name` is a hostname like name that can be referenced in an upstream_url field of a service.
+`slots` is the number of slots in the load balancer algorithm (10-65536, defaults to 1000).
+
+To import an upstream:
+```
+terraform import kong_upstream.<upstream_identifier> <upstream_id>
+```
 
 # Contributing
 I would love to get contributions to the project so please feel free to submit a PR.  To setup your dev station you need go and docker installed.
