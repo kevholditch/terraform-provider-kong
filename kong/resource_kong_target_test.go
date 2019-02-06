@@ -172,31 +172,31 @@ func testAccCheckKongTargetDoesNotExist(targetResourceKey string, upstreamResour
 
 const testCreateTargetConfig = `
 resource "kong_upstream" "upstream" {
-	name  		= "MyUpstream"
-	slots 		= 10
+	name				= "MyUpstream"
+	slots				= 10
 }
 
 resource "kong_target" "target" {
-	target 		  = "mytarget:4000"
-	weight 		  = 100
-  upstream_id = "${kong_upstream.upstream.id}"
+	target			= "mytarget:4000"
+	weight			= 100
+	upstream_id	= "${kong_upstream.upstream.id}"
 }
 `
 const testUpdateTargetConfig = `
 resource "kong_upstream" "upstream" {
-	name  		= "MyUpstream"
-	slots 		= 10
+	name				= "MyUpstream"
+	slots 			= 10
 }
 
 resource "kong_target" "target" {
-  target 	  	= "mytarget:4000"
-	weight 	   	= 200
-  upstream_id = "${kong_upstream.upstream.id}"
+	target			= "mytarget:4000"
+	weight			= 200
+	upstream_id	= "${kong_upstream.upstream.id}"
 }
 `
 const testDeleteTargetConfig = `
 resource "kong_upstream" "upstream" {
-	name  		= "MyUpstream"
-	slots 		= 10
+	name				= "MyUpstream"
+	slots				= 10
 }
 `
