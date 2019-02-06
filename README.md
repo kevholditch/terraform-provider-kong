@@ -460,6 +460,28 @@ Each of the filter parameters are optional and they are combined for an AND sear
   * `healthchecks.passive.unhealthy.http_statuses` is an array of HTTP statuses which represent unhealthiness when produced by proxied traffic, as observed by passive health checks. Defaults to `[429, 500, 503]`.
   * `order_list` - a list containing the slot order on the found upstream
 
+To import an upstream:
+```
+terraform import kong_upstream.<upstream_identifier> <upstream_id>
+```
+
+## Targets
+```hcl
+resource "kong_target" "target" {
+    target  		= "sample_target:80"
+    weight 	  	= 10
+    upstream_id = "${kong_upstream.upstream.id}"
+}
+```
+`target` is the target address (IP or hostname) and port. If omitted the port defaults to 8000.
+`weight` is the weight this target gets within the upstream load balancer (0-1000, defaults to 100).
+`upstream_id` is the id of the upstream to apply this target to.
+
+
+To import a target use a combination of the upstream id and the target id as follows:
+```
+terraform import kong_target.<target_identifier> <upstream_id>/<target_id>
+```
 
 # Contributing
 I would love to get contributions to the project so please feel free to submit a PR.  To setup your dev station you need go and docker installed.
@@ -473,4 +495,3 @@ goimports needs running on the following files:
 Then all you need to do is run `make goimports` this will reformat all of the code (I know awesome)!!
 
 Please write tests for your new feature/bug fix, PRs will only be accepted with covering tests and where all tests pass.  If you want to start work on a feature feel free to open a PR early so we can discuss it or if you need help.
-

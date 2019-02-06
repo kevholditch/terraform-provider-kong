@@ -139,6 +139,12 @@ func (kongAdminClient *KongAdminClient) Routes() *RouteClient {
 	}
 }
 
+func (kongAdminClient *KongAdminClient) Targets() *TargetClient {
+	return &TargetClient{
+		config: kongAdminClient.config,
+	}
+}
+
 func (kongAdminClient *KongAdminClient) Services() *ServiceClient {
 	return &ServiceClient{
 		config: kongAdminClient.config,
