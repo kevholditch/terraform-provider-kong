@@ -311,7 +311,7 @@ resource "kong_upstream" "upstream" {
 }
 ```
 `name` is a hostname like name that can be referenced in the upstream_url field of a service.
-`slots` is the number of slots in the load balancer algorithm (10-65536, defaults to 1000).
+`slots` is the number of slots in the load balancer algorithm (10-65536, defaults to 10000).
 
 To import an upstream:
 ```
