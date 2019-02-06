@@ -105,7 +105,7 @@ resource "kong_route" "route" {
 	preserve_host 	= false
 	source = {
 		ip   = "192.168.1.1"
-		port = 80 
+		port = 80
 	}
 	source = {
 		ip   = "192.168.1.2"
@@ -310,6 +310,31 @@ resource "kong_upstream" "upstream" {
     slots 		= 10
 }
 ```
+`name` is a hostname like name that can be referenced in the upstream_url field of a service.
+`slots` is the number of slots in the load balancer algorithm (10-65536, defaults to 10000).
+
+To import an upstream:
+```
+terraform import kong_upstream.<upstream_identifier> <upstream_id>
+```
+
+## Targets
+```hcl
+resource "kong_target" "target" {
+    target  		= "sample_target:80"
+    weight 	  	= 10
+    upstream_id = "${kong_upstream.upstream.id}"
+}
+```
+`target` is the target address (IP or hostname) and port. If omitted the port defaults to 8000.
+`weight` is the weight this target gets within the upstream load balancer (0-1000, defaults to 100).
+`upstream_id` is the id of the upstream to apply this target to.
+
+
+To import a target use a combination of the upstream id and the target id as follows:
+```
+terraform import kong_target.<target_identifier> <upstream_id>/<target_id>
+```
 
 # Contributing
 I would love to get contributions to the project so please feel free to submit a PR.  To setup your dev station you need go and docker installed.
@@ -323,4 +348,3 @@ goimports needs running on the following files:
 Then all you need to do is run `make goimports` this will reformat all of the code (I know awesome)!!
 
 Please write tests for your new feature/bug fix, PRs will only be accepted with covering tests and where all tests pass.  If you want to start work on a feature feel free to open a PR early so we can discuss it or if you need help.
-
