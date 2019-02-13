@@ -81,6 +81,7 @@ terraform import kong_service.<service_identifier> <service_id>
 ## Routes
 ```hcl
 resource "kong_route" "route" {
+    name            = "MyRoute"
 	protocols 	    = [ "http", "https" ]
 	methods 	    = [ "GET", "POST" ]
 	hosts 		    = [ "example2.com" ]

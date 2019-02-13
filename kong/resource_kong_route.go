@@ -18,6 +18,11 @@ func resourceKongRoute() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			"name": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+			},
 			"protocols": &schema.Schema{
 				Type:     schema.TypeList,
 				Required: true,
@@ -146,6 +151,9 @@ func resourceKongRouteRead(d *schema.ResourceData, meta interface{}) error {
 	if route == nil {
 		d.SetId("")
 	} else {
+		if route.Name != nil {
+			d.Set("name", route.Name)
+		}
 		if route.Protocols != nil {
 			d.Set("protocols", gokong.StringValueSlice(route.Protocols))
 		}
@@ -208,6 +216,7 @@ func resourceKongRouteDelete(d *schema.ResourceData, meta interface{}) error {
 
 func createKongRouteRequestFromResourceData(d *schema.ResourceData) *gokong.RouteRequest {
 	return &gokong.RouteRequest{
+		Name:          readStringPtrFromResource(d, "name"),
 		Protocols:     readStringArrayPtrFromResource(d, "protocols"),
 		Methods:       readStringArrayPtrFromResource(d, "methods"),
 		Hosts:         readStringArrayPtrFromResource(d, "hosts"),

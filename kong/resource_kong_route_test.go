@@ -18,6 +18,7 @@ func TestAccKongRoute(t *testing.T) {
 				Config: testCreateRouteConfig,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKongRouteExists("kong_route.route"),
+					resource.TestCheckResourceAttr("kong_route.route", "name", "foo"),
 					resource.TestCheckResourceAttr("kong_route.route", "protocols.0", "http"),
 					resource.TestCheckResourceAttr("kong_route.route", "methods.0", "GET"),
 					resource.TestCheckResourceAttr("kong_route.route", "hosts.0", "example.com"),
@@ -31,6 +32,7 @@ func TestAccKongRoute(t *testing.T) {
 				Config: testUpdateRouteConfig,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKongRouteExists("kong_route.route"),
+					resource.TestCheckResourceAttr("kong_route.route", "name", "bar"),
 					resource.TestCheckResourceAttr("kong_route.route", "protocols.0", "http"),
 					resource.TestCheckResourceAttr("kong_route.route", "protocols.1", "https"),
 					resource.TestCheckResourceAttr("kong_route.route", "methods.0", "GET"),
@@ -156,6 +158,7 @@ resource "kong_service" "service" {
 }
 
 resource "kong_route" "route" {
+	name            = "foo"
 	protocols 		= [ "http" ]
 	methods 		= [ "GET" ]
 	hosts 			=	[ "example.com" ]
@@ -174,6 +177,7 @@ resource "kong_service" "service" {
 }
 
 resource "kong_route" "route" {
+	name            = "bar"
 	protocols 		= [ "http", "https" ]
 	methods 		= [ "GET", "POST" ]
 	hosts 			= [ "example2.com" ]
