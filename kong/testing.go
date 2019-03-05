@@ -17,3 +17,7 @@ func getResourcesByType(resourceType string, state *terraform.State) []*terrafor
 
 	return result
 }
+
+func String(v string) *string {
+	return &v
+}

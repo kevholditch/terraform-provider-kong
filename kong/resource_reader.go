@@ -43,6 +43,14 @@ func readIpPortArrayFromResource(d *schema.ResourceData, key string) []*gokong.I
 	return nil
 }
 
+func readArrayFromResource(d *schema.ResourceData, key string) []interface{} {
+	if attr, ok := d.GetOk(key); ok {
+		return attr.([]interface{})
+	}
+
+	return nil
+}
+
 func readStringFromResource(d *schema.ResourceData, key string) string {
 	if value, ok := d.GetOk(key); ok {
 		return value.(string)
