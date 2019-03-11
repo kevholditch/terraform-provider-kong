@@ -16,6 +16,8 @@ type UpstreamRequest struct {
 	HashFallback       string               `json:"hash_fallback,omitempty"`
 	HashOnHeader       string               `json:"hash_on_header,omitempty"`
 	HashFallbackHeader string               `json:"hash_fallback_header,omitempty"`
+	HashOnCookie       string               `json:"hash_on_cookie,omitempty"`
+	HashOnCookiePath   string               `json:"hash_on_cookie_path,omitempty"`
 	HealthChecks       *UpstreamHealthCheck `json:"healthchecks,omitempty"`
 }
 
@@ -25,11 +27,14 @@ type UpstreamHealthCheck struct {
 }
 
 type UpstreamHealthCheckActive struct {
-	Concurrency int              `json:"concurrency,omitempty"`
-	Healthy     *ActiveHealthy   `json:"healthy,omitempty"`
-	HttpPath    string           `json:"http_path,omitempty"`
-	Timeout     int              `json:"timeout,omitempty"`
-	Unhealthy   *ActiveUnhealthy `json:"unhealthy,omitempty"`
+	Type                   string           `json:"type,omitempty"`
+	Concurrency            int              `json:"concurrency,omitempty"`
+	Healthy                *ActiveHealthy   `json:"healthy,omitempty"`
+	HttpPath               string           `json:"http_path,omitempty"`
+	HttpsVerifyCertificate bool             `json:"https_verify_certificate"`
+	HttpsSni               *string          `json:"https_sni,omitempty"`
+	Timeout                int              `json:"timeout,omitempty"`
+	Unhealthy              *ActiveUnhealthy `json:"unhealthy,omitempty"`
 }
 
 type ActiveHealthy struct {
@@ -47,6 +52,7 @@ type ActiveUnhealthy struct {
 }
 
 type UpstreamHealthCheckPassive struct {
+	Type      string            `json:"type,omitempty"`
 	Healthy   *PassiveHealthy   `json:"healthy,omitempty"`
 	Unhealthy *PassiveUnhealthy `json:"unhealthy,omitempty"`
 }
