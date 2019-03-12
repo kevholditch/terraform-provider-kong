@@ -74,7 +74,7 @@ func TestAccKongTargetCreateAndRefreshFromNonExistentUpstream(t *testing.T) {
 					resource.TestCheckResourceAttr("kong_target.target", "weight", "100"),
 					deleteUpstream("kong_upstream.upstream"),
 				),
-        ExpectNonEmptyPlan: true,
+				ExpectNonEmptyPlan: true,
 			},
 		},
 	})
