@@ -274,10 +274,69 @@ terraform import kong_sni.<sni_identifier> <sni_id>
 ## Upstreams
 ```hcl
 resource "kong_upstream" "upstream" {
-    name  		= "sample_upstream"
-    slots 		= 10
+    name                 = "sample_upstream"
+    slots                = 10
+    hash_on              = "header"
+    hash_fallback        = "consumer"
+    hash_on_header       = "HeaderName"
+    hash_fallback_header = "FallbackHeaderName"
+    healthchecks         = {
+        active = {
+            http_path                = "/status"
+            timeout                  = 10
+            concurrency              = 20
+            healthy = {
+                successes = 1
+                interval  = 5
+                http_statuses = [200, 201]
+            }
+            unhealthy = {
+                timeouts      = 7
+                interval      = 3
+                tcp_failures  = 1
+                http_failures = 2
+                http_statuses = [500, 501]
+            }
+        }
+        passive = {
+            healthy = {
+                successes = 1
+                http_statuses = [200, 201, 202]
+            }
+            unhealthy = {
+                timeouts      = 3
+                tcp_failures  = 5
+                http_failures = 6
+                http_statuses = [500, 501, 502]
+            }
+        }
+    }
 }
 ```
+
+  * `name` is a hostname like name that can be referenced in the upstream_url field of a service.
+  * `slots` is the number of slots in the load balancer algorithm (10-65536, defaults to 10000).
+  * `hash_on` is a hashing input type: `none `(resulting in a weighted-round-robin scheme with no hashing), `consumer`, `ip`, `header`, or `cookie`. Defaults to `none`.
+  * `hash_fallback` is a hashing input type if the primary `hash_on` does not return a hash (eg. header is missing, or no consumer identified). One of: `none`, `consumer`, `ip`, `header`, or `cookie`. Not available if `hash_on` is set to `cookie`. Defaults to `none`.
+  * `hash_on_header` is a header name to take the value from as hash input. Only required when `hash_on` is set to `header`. Default `nil`.
+  * `hash_fallback_header` is a header name to take the value from as hash input. Only required when `hash_fallback` is set to `header`. Default `nil`.
+  * `healthchecks.active.timeout` is a socket timeout for active health checks (in seconds). Defaults to `1`.
+  * `healthchecks.active.concurrency` is a number of targets to check concurrently in active health checks. Defaults to `10`.
+  * `healthchecks.active.http_path` is a path to use in GET HTTP request to run as a probe on active health checks. Defaults to `/`.
+  * `healthchecks.active.healthy.interval` is an interval between active health checks for healthy targets (in seconds). A value of zero indicates that active probes for healthy targets should not be performed. Defaults to `0`.
+  * `healthchecks.active.healthy.successes` is a number of successes in active probes (as defined by `healthchecks.active.healthy.http_statuses`) to consider a target healthy. Defaults to `0`.
+  * `healthchecks.active.healthy.http_statuses` is an array of HTTP statuses to consider a success, indicating healthiness, when returned by a probe in active health checks. Defaults to `[200, 302]`.
+  * `healthchecks.active.unhealthy.interval` is an interval between active health checks for unhealthy targets (in seconds). A value of zero indicates that active probes for unhealthy targets should not be performed. Defaults to `0`.
+  * `healthchecks.active.unhealthy.tcp_failures` is a number of TCP failures in active probes to consider a target unhealthy. Defaults to `0`.
+  * `healthchecks.active.unhealthy.http_failures` is a number of HTTP failures in active probes (as defined by `healthchecks.active.unhealthy.http_statuses`) to consider a target unhealthy. Defaults to `0`.
+  * `healthchecks.active.unhealthy.timeouts` is a number of timeouts in active probes to consider a target unhealthy. Defaults to `0`.
+  * `healthchecks.active.unhealthy.http_statuses` is an array of HTTP statuses to consider a failure, indicating unhealthiness, when returned by a probe in active health checks. Defaults to `[429, 404, 500, 501, 502, 503, 504, 505]`.
+  * `healthchecks.passive.healthy.successes` is a Number of successes in proxied traffic (as defined by `healthchecks.passive.healthy.http_statuses`) to consider a target healthy, as observed by passive health checks. Defaults to `0`.
+  * `healthchecks.passive.healthy.http_statuses` is an array of HTTP statuses which represent healthiness when produced by proxied traffic, as observed by passive health checks. Defaults to `[200, 201, 202, 203, 204, 205, 206, 207, 208, 226, 300, 301, 302, 303, 304, 305, 306, 307, 308]`.
+  * `healthchecks.passive.unhealthy.tcp_failures` is a number of TCP failures in proxied traffic to consider a target unhealthy, as observed by passive health checks. Defaults to `0`.
+  * `healthchecks.passive.unhealthy.http_failures` is a number of HTTP failures in proxied traffic (as defined by `healthchecks.passive.unhealthy.http_statuses`) to consider a target unhealthy, as observed by passive health checks. Defaults to `0`.
+  * `healthchecks.passive.unhealthy.timeouts` is a number of timeouts in proxied traffic to consider a target unhealthy, as observed by passive health checks. Defaults to `0`.
+  * `healthchecks.passive.unhealthy.http_statuses` is an array of HTTP statuses which represent unhealthiness when produced by proxied traffic, as observed by passive health checks. Defaults to `[429, 500, 503]`.
 
 
 # Data Sources
@@ -376,10 +435,53 @@ data "kong_upstream" "upstream_data_source" {
 Each of the filter parameters are optional and they are combined for an AND search against all upstreams.  The following output parameters are returned:
 
   * `id` - the Kong id of the found upstream
-  * `name` - the name of the found upstream
-  * `slots` - the number of slots on the found upstream
+  * `name` is a hostname like name that can be referenced in the upstream_url field of a service.
+  * `slots` is the number of slots in the load balancer algorithm (10-65536, defaults to 10000).
+  * `hash_on` is a hashing input type: `none `(resulting in a weighted-round-robin scheme with no hashing), `consumer`, `ip`, `header`, or `cookie`. Defaults to `none`.
+  * `hash_fallback` is a hashing input type if the primary `hash_on` does not return a hash (eg. header is missing, or no consumer identified). One of: `none`, `consumer`, `ip`, `header`, or `cookie`. Not available if `hash_on` is set to `cookie`. Defaults to `none`.
+  * `hash_on_header` is a header name to take the value from as hash input. Only required when `hash_on` is set to `header`. Default `nil`.
+  * `hash_fallback_header` is a header name to take the value from as hash input. Only required when `hash_fallback` is set to `header`. Default `nil`.
+  * `healthchecks.active.timeout` is a socket timeout for active health checks (in seconds). Defaults to `1`.
+  * `healthchecks.active.concurrency` is a number of targets to check concurrently in active health checks. Defaults to `10`.
+  * `healthchecks.active.http_path` is a path to use in GET HTTP request to run as a probe on active health checks. Defaults to `/`.
+  * `healthchecks.active.healthy.interval` is an interval between active health checks for healthy targets (in seconds). A value of zero indicates that active probes for healthy targets should not be performed. Defaults to `0`.
+  * `healthchecks.active.healthy.successes` is a number of successes in active probes (as defined by `healthchecks.active.healthy.http_statuses`) to consider a target healthy. Defaults to `0`.
+  * `healthchecks.active.healthy.http_statuses` is an array of HTTP statuses to consider a success, indicating healthiness, when returned by a probe in active health checks. Defaults to `[200, 302]`.
+  * `healthchecks.active.unhealthy.interval` is an interval between active health checks for unhealthy targets (in seconds). A value of zero indicates that active probes for unhealthy targets should not be performed. Defaults to `0`.
+  * `healthchecks.active.unhealthy.tcp_failures` is a number of TCP failures in active probes to consider a target unhealthy. Defaults to `0`.
+  * `healthchecks.active.unhealthy.http_failures` is a number of HTTP failures in active probes (as defined by `healthchecks.active.unhealthy.http_statuses`) to consider a target unhealthy. Defaults to `0`.
+  * `healthchecks.active.unhealthy.timeouts` is a number of timeouts in active probes to consider a target unhealthy. Defaults to `0`.
+  * `healthchecks.active.unhealthy.http_statuses` is an array of HTTP statuses to consider a failure, indicating unhealthiness, when returned by a probe in active health checks. Defaults to `[429, 404, 500, 501, 502, 503, 504, 505]`.
+  * `healthchecks.passive.healthy.successes` is a Number of successes in proxied traffic (as defined by `healthchecks.passive.healthy.http_statuses`) to consider a target healthy, as observed by passive health checks. Defaults to `0`.
+  * `healthchecks.passive.healthy.http_statuses` is an array of HTTP statuses which represent healthiness when produced by proxied traffic, as observed by passive health checks. Defaults to `[200, 201, 202, 203, 204, 205, 206, 207, 208, 226, 300, 301, 302, 303, 304, 305, 306, 307, 308]`.
+  * `healthchecks.passive.unhealthy.tcp_failures` is a number of TCP failures in proxied traffic to consider a target unhealthy, as observed by passive health checks. Defaults to `0`.
+  * `healthchecks.passive.unhealthy.http_failures` is a number of HTTP failures in proxied traffic (as defined by `healthchecks.passive.unhealthy.http_statuses`) to consider a target unhealthy, as observed by passive health checks. Defaults to `0`.
+  * `healthchecks.passive.unhealthy.timeouts` is a number of timeouts in proxied traffic to consider a target unhealthy, as observed by passive health checks. Defaults to `0`.
+  * `healthchecks.passive.unhealthy.http_statuses` is an array of HTTP statuses which represent unhealthiness when produced by proxied traffic, as observed by passive health checks. Defaults to `[429, 500, 503]`.
   * `order_list` - a list containing the slot order on the found upstream
 
+To import an upstream:
+```
+terraform import kong_upstream.<upstream_identifier> <upstream_id>
+```
+
+## Targets
+```hcl
+resource "kong_target" "target" {
+    target  		= "sample_target:80"
+    weight 	  	= 10
+    upstream_id = "${kong_upstream.upstream.id}"
+}
+```
+`target` is the target address (IP or hostname) and port. If omitted the port defaults to 8000.
+`weight` is the weight this target gets within the upstream load balancer (0-1000, defaults to 100).
+`upstream_id` is the id of the upstream to apply this target to.
+
+
+To import a target use a combination of the upstream id and the target id as follows:
+```
+terraform import kong_target.<target_identifier> <upstream_id>/<target_id>
+```
 
 # Contributing
 I would love to get contributions to the project so please feel free to submit a PR.  To setup your dev station you need go and docker installed.
@@ -393,4 +495,3 @@ goimports needs running on the following files:
 Then all you need to do is run `make goimports` this will reformat all of the code (I know awesome)!!
 
 Please write tests for your new feature/bug fix, PRs will only be accepted with covering tests and where all tests pass.  If you want to start work on a feature feel free to open a PR early so we can discuss it or if you need help.
-
