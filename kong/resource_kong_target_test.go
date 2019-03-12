@@ -60,6 +60,26 @@ func TestAccKongTargetDelete(t *testing.T) {
 	})
 }
 
+func TestAccKongTargetCreateAndRefreshFromNonExistentUpstream(t *testing.T) {
+
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongTargetDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testCreateTargetConfig,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKongTargetExists("kong_target.target"),
+					resource.TestCheckResourceAttr("kong_target.target", "target", "mytarget:4000"),
+					resource.TestCheckResourceAttr("kong_target.target", "weight", "100"),
+					deleteUpstream("kong_upstream.upstream"),
+				),
+        ExpectNonEmptyPlan: true,
+			},
+		},
+	})
+}
+
 func TestAccKongTargetImport(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
@@ -160,10 +180,32 @@ func testAccCheckKongTargetDoesNotExist(targetResourceKey string, upstreamResour
 			return fmt.Errorf("no upstream ID is set")
 		}
 
-		targets, _ := testAccProvider.Meta().(*gokong.KongAdminClient).Targets().GetTargetsFromUpstreamId(rs.Primary.ID)
+		targets, err := testAccProvider.Meta().(*gokong.KongAdminClient).Targets().GetTargetsFromUpstreamId(rs.Primary.ID)
 
 		if len(targets) > 0 {
 			return fmt.Errorf("expecting zero target resources found %v", len(targets))
+		}
+
+		if err != nil {
+			return fmt.Errorf("Error thrown when trying to read target: %v", err)
+		}
+
+		return nil
+	}
+}
+
+func deleteUpstream(upstreamResourceKey string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[upstreamResourceKey]
+
+		if !ok {
+			return fmt.Errorf("not found: %s", upstreamResourceKey)
+		}
+
+		err := testAccProvider.Meta().(*gokong.KongAdminClient).Upstreams().DeleteById(rs.Primary.ID)
+
+		if err != nil {
+			return fmt.Errorf("could not delete kong upstream: %v", err)
 		}
 
 		return nil

@@ -55,6 +55,14 @@ func resourceKongTargetCreate(d *schema.ResourceData, meta interface{}) error {
 func resourceKongTargetRead(d *schema.ResourceData, meta interface{}) error {
 
 	var ids = strings.Split(d.Id(), "/")
+
+	// First check if the upstream exists. If it does not then the target no longer exists either.
+	upstream, _ := meta.(*gokong.KongAdminClient).Upstreams().GetById(ids[0])
+	if upstream == nil {
+		d.SetId("")
+		return nil
+	}
+
 	targets, err := meta.(*gokong.KongAdminClient).Targets().GetTargetsFromUpstreamId(ids[0])
 
 	if err != nil {
