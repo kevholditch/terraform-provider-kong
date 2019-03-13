@@ -55,6 +55,13 @@ func resourceKongTargetCreate(d *schema.ResourceData, meta interface{}) error {
 func resourceKongTargetRead(d *schema.ResourceData, meta interface{}) error {
 
 	var ids = strings.Split(d.Id(), "/")
+
+	// First check if the upstream exists. If it does not then the target no longer exists either.
+	if upstream, _ := meta.(*gokong.KongAdminClient).Upstreams().GetById(ids[0]); upstream == nil {
+		d.SetId("")
+		return nil
+	}
+
 	targets, err := meta.(*gokong.KongAdminClient).Targets().GetTargetsFromUpstreamId(ids[0])
 
 	if err != nil {
@@ -79,9 +86,7 @@ func resourceKongTargetRead(d *schema.ResourceData, meta interface{}) error {
 func resourceKongTargetDelete(d *schema.ResourceData, meta interface{}) error {
 
 	var ids = strings.Split(d.Id(), "/")
-	err := meta.(*gokong.KongAdminClient).Targets().DeleteFromUpstreamById(ids[0], ids[1])
-
-	if err != nil {
+	if err := meta.(*gokong.KongAdminClient).Targets().DeleteFromUpstreamById(ids[0], ids[1]); err != nil {
 		return fmt.Errorf("could not delete kong target: %v", err)
 	}
 
