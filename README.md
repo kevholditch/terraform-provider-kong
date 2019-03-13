@@ -314,7 +314,7 @@ resource "kong_upstream" "upstream" {
 }
 ```
 
-  * `name` is a hostname like name that can be referenced in the upstream_url field of a service.
+  * `name` is a hostname, which must be equal to the host of a Service.
   * `slots` is the number of slots in the load balancer algorithm (10-65536, defaults to 10000).
   * `hash_on` is a hashing input type: `none `(resulting in a weighted-round-robin scheme with no hashing), `consumer`, `ip`, `header`, or `cookie`. Defaults to `none`.
   * `hash_fallback` is a hashing input type if the primary `hash_on` does not return a hash (eg. header is missing, or no consumer identified). One of: `none`, `consumer`, `ip`, `header`, or `cookie`. Not available if `hash_on` is set to `cookie`. Defaults to `none`.
