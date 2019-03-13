@@ -187,7 +187,7 @@ func testAccCheckKongTargetDoesNotExist(targetResourceKey string, upstreamResour
 		}
 
 		if err != nil {
-			return fmt.Errorf("Error thrown when trying to read target: %v", err)
+			return fmt.Errorf("error thrown when trying to read target: %v", err)
 		}
 
 		return nil
@@ -202,9 +202,7 @@ func deleteUpstream(upstreamResourceKey string) resource.TestCheckFunc {
 			return fmt.Errorf("not found: %s", upstreamResourceKey)
 		}
 
-		err := testAccProvider.Meta().(*gokong.KongAdminClient).Upstreams().DeleteById(rs.Primary.ID)
-
-		if err != nil {
+		if err := testAccProvider.Meta().(*gokong.KongAdminClient).Upstreams().DeleteById(rs.Primary.ID); err != nil {
 			return fmt.Errorf("could not delete kong upstream: %v", err)
 		}
 
