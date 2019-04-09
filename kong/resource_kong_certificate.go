@@ -22,7 +22,7 @@ func resourceKongCertificate() *schema.Resource {
 				Type:      schema.TypeString,
 				Required:  true,
 				ForceNew:  false,
-				Sensitive: true,
+				Sensitive: false,
 			},
 			"private_key": &schema.Schema{
 				Type:      schema.TypeString,
