@@ -40,6 +40,12 @@ func resourceKongPlugin() *schema.Resource {
 				Optional: true,
 				ForceNew: false,
 			},
+			"enabled": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: false,
+				Default:  true,
+			},
 			"config_json": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
