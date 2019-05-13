@@ -16,6 +16,7 @@ type PluginRequest struct {
 	RouteId    *Id                    `json:"route,omitempty"`
 	RunOn      string                 `json:"run_on,omitempty"`
 	Config     map[string]interface{} `json:"config,omitempty"`
+	Enabled    *bool                  `json:"enabled,omitempty"`
 }
 
 type Plugin struct {

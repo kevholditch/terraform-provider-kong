@@ -144,6 +144,7 @@ func createKongPluginRequestFromResourceData(d *schema.ResourceData) (*gokong.Pl
 	pluginRequest.ConsumerId = readIdPtrFromResource(d, "consumer_id")
 	pluginRequest.ServiceId = readIdPtrFromResource(d, "service_id")
 	pluginRequest.RouteId = readIdPtrFromResource(d, "route_id")
+	pluginRequest.Enabled = readBoolPtrFromResource(d, "enabled")
 
 	if data, ok := d.GetOk("config_json"); ok {
 		var configJson map[string]interface{}
