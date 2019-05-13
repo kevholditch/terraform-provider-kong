@@ -114,6 +114,7 @@ func resourceKongPluginRead(d *schema.ResourceData, meta interface{}) error {
 		d.Set("service_id", plugin.ServiceId)
 		d.Set("route_id", plugin.RouteId)
 		d.Set("consumer_id", plugin.ConsumerId)
+		d.Set("enabled", plugin.Enabled)
 
 		// We sync this property from upstream as a method to allow you to import a resource with the config tracked in
 		// terraform state. We do not track `config` as it will be a source of a perpetual diff.
