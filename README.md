@@ -129,7 +129,7 @@ terraform import kong_route.<route_identifier> <route_id>
 ## Plugins
 ```hcl
 resource "kong_plugin" "rate_limit" {
-	name        = "rate-limiting"
+	name        = "rate-limiting"	
 	config_json = <<EOT
 	{
 		"second": 5,
@@ -192,6 +192,7 @@ resource "kong_service" "service" {
 
 resource "kong_plugin" "rate_limit" {
 	name        = "rate-limiting"
+	enabled     = true
 	service_id = "${kong_service.service.id}"
 	config_json = <<EOT
 	{
