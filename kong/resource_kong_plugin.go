@@ -40,6 +40,12 @@ func resourceKongPlugin() *schema.Resource {
 				Optional: true,
 				ForceNew: false,
 			},
+			"enabled": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: false,
+				Default:  true,
+			},
 			"config_json": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -108,6 +114,7 @@ func resourceKongPluginRead(d *schema.ResourceData, meta interface{}) error {
 		d.Set("service_id", plugin.ServiceId)
 		d.Set("route_id", plugin.RouteId)
 		d.Set("consumer_id", plugin.ConsumerId)
+		d.Set("enabled", plugin.Enabled)
 
 		// We sync this property from upstream as a method to allow you to import a resource with the config tracked in
 		// terraform state. We do not track `config` as it will be a source of a perpetual diff.
@@ -138,6 +145,7 @@ func createKongPluginRequestFromResourceData(d *schema.ResourceData) (*gokong.Pl
 	pluginRequest.ConsumerId = readIdPtrFromResource(d, "consumer_id")
 	pluginRequest.ServiceId = readIdPtrFromResource(d, "service_id")
 	pluginRequest.RouteId = readIdPtrFromResource(d, "route_id")
+	pluginRequest.Enabled = readBoolPtrFromResource(d, "enabled")
 
 	if data, ok := d.GetOk("config_json"); ok {
 		var configJson map[string]interface{}

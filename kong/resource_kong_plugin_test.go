@@ -20,6 +20,7 @@ func TestAccKongGlobalPlugin(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKongPluginExists("kong_plugin.hmac_auth"),
 					resource.TestCheckResourceAttr("kong_plugin.hmac_auth", "name", "hmac-auth"),
+					resource.TestCheckResourceAttr("kong_plugin.hmac_auth", "enabled", "true"),
 				),
 			},
 			{
@@ -27,6 +28,25 @@ func TestAccKongGlobalPlugin(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKongPluginExists("kong_plugin.hmac_auth"),
 					resource.TestCheckResourceAttr("kong_plugin.hmac_auth", "name", "hmac-auth"),
+					resource.TestCheckResourceAttr("kong_plugin.hmac_auth", "enabled", "true"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccKongGlobalPluginDisabled(t *testing.T) {
+
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongPluginDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testCreateGlobalPluginConfigDisabled,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKongPluginExists("kong_plugin.hmac_auth"),
+					resource.TestCheckResourceAttr("kong_plugin.hmac_auth", "name", "hmac-auth"),
+					resource.TestCheckResourceAttr("kong_plugin.hmac_auth", "enabled", "false"),
 				),
 			},
 		},
@@ -46,6 +66,7 @@ func TestAccKongPluginForASpecificConsumer(t *testing.T) {
 					testAccCheckKongConsumerExists("kong_consumer.plugin_consumer"),
 					testAccCheckForChildIdCorrect("kong_consumer.plugin_consumer", "kong_plugin.rate_limit", "consumer_id"),
 					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "name", "rate-limiting"),
+					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "enabled", "true"),
 				),
 			},
 			{
@@ -55,6 +76,7 @@ func TestAccKongPluginForASpecificConsumer(t *testing.T) {
 					testAccCheckKongConsumerExists("kong_consumer.plugin_consumer"),
 					testAccCheckForChildIdCorrect("kong_consumer.plugin_consumer", "kong_plugin.rate_limit", "consumer_id"),
 					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "name", "rate-limiting"),
+					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "enabled", "true"),
 				),
 			},
 		},
@@ -226,6 +248,7 @@ func testAccCheckKongPluginExists(resourceKey string) resource.TestCheckFunc {
 const testCreateGlobalPluginConfig = `
 resource "kong_plugin" "hmac_auth" {
 	name  = "hmac-auth"
+	enabled = "true"
 	config_json = <<EOT
 	{
     	"algorithms": [
@@ -242,6 +265,28 @@ resource "kong_plugin" "hmac_auth" {
 EOT
 }
 `
+
+const testCreateGlobalPluginConfigDisabled = `
+resource "kong_plugin" "hmac_auth" {
+	name  = "hmac-auth"
+	enabled = "false"
+	config_json = <<EOT
+	{
+    	"algorithms": [
+    	    "hmac-sha1",
+    	    "hmac-sha256",
+    	    "hmac-sha384",
+    	    "hmac-sha512"
+    	],
+    	"clock_skew": 300,
+    	"enforce_headers": [],
+    	"hide_credentials": true,
+    	"validate_request_body": false
+	}
+EOT
+}
+`
+
 const testUpdateGlobalPluginConfig = `
 resource "kong_plugin" "hmac_auth" {
 	name  = "hmac-auth"
