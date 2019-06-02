@@ -135,6 +135,12 @@ func resourceKongConsumerPluginConfigRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
+	// First check if the consumer exists. If it does not then the consumer plugin no longer exists either.
+	if consumer, _ := meta.(*gokong.KongAdminClient).Consumers().GetById(idFields.consumerId); consumer == nil {
+		d.SetId("")
+		return nil
+	}
+
 	consumerPluginConfig, err := meta.(*gokong.KongAdminClient).Consumers().GetPluginConfig(idFields.consumerId, idFields.pluginName, idFields.id)
 
 	if err != nil {
