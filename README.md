@@ -217,12 +217,12 @@ To configure a plugin for a consumer this terraform provider provides a generic 
 
 ```hcl
 resource "kong_consumer_plugin_config" "consumer_jwt_config" {
-    consumer_id = "876bf719-8f18-4ce5-cc9f-5b5af6c36007"
-    plugin_name = "jwt"
-    config_json = <<EOT
-    {
-	    "key": "my_key",
-	    "secret": "my_secret"
+	consumer_id = "876bf719-8f18-4ce5-cc9f-5b5af6c36007"
+	plugin_name = "jwt"
+	config_json = <<EOT
+	{
+		"key": "my_key",
+		"secret": "my_secret"
 	}
 EOT
 }
@@ -239,11 +239,11 @@ Here is another example using the [acl](https://getkong.org/plugins/acl/) plugin
 
 ```hcl
 resource "kong_consumer_plugin_config" "consumer_acl_config" {
-    consumer_id = "876bf719-8f18-4ce5-cc9f-5b5af6c36007"
-    plugin_name = "acls"
+	consumer_id = "876bf719-8f18-4ce5-cc9f-5b5af6c36007"
+	plugin_name = "acls"
 	config_json = <<EOT
 	{
-        "group": "your_acl_group"
+		"group": "your_acl_group"
 	}
 EOT
 }
