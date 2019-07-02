@@ -59,14 +59,37 @@ func TestAccKongConsumerPluginConfigImport(t *testing.T) {
 	})
 }
 
+func TestAccCheckKongConsumerPluginCreateAndRefreshFromNonExistentConsumer(t *testing.T) {
+
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongConsumerPluginConfig,
+		Steps: []resource.TestStep{
+			{
+				Config: testCreateConsumerPluginConfig,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKongConsumerPluginConfigExists("kong_consumer_plugin_config.consumer_jwt_config"),
+					resource.TestCheckResourceAttr("kong_consumer_plugin_config.consumer_jwt_config", "plugin_name", "jwt"),
+					deleteConsumer("kong_consumer.my_consumer"),
+				),
+				ExpectNonEmptyPlan: true,
+			},
+		},
+	})
+}
+
 func testAccCheckKongConsumerPluginConfig(state *terraform.State) error {
 
 	client := testAccProvider.Meta().(*gokong.KongAdminClient)
 
 	consumerPluginConfigs := getResourcesByType("kong_consumer_plugin_config", state)
 
-	if len(consumerPluginConfigs) != 1 {
-		return fmt.Errorf("expecting only 1 consumer plugin config resource found %v", len(consumerPluginConfigs))
+	if len(consumerPluginConfigs) > 1 {
+		return fmt.Errorf("expecting max 1 consumer plugin config resource. found %v", len(consumerPluginConfigs))
+	}
+
+	if len(consumerPluginConfigs) == 0 {
+		return nil
 	}
 
 	idFields, err := splitIdIntoFields(consumerPluginConfigs[0].Primary.ID)
@@ -117,6 +140,22 @@ func testAccCheckKongConsumerPluginConfigExists(resourceKey string) resource.Tes
 
 		if consumerPluginConfig == nil {
 			return fmt.Errorf("consumer plugin config with id %v not found", rs.Primary.ID)
+		}
+
+		return nil
+	}
+}
+
+func deleteConsumer(resourceKey string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceKey]
+
+		if !ok {
+			return fmt.Errorf("not found: %s", resourceKey)
+		}
+
+		if err := testAccProvider.Meta().(*gokong.KongAdminClient).Consumers().DeleteById(rs.Primary.ID); err != nil {
+			return fmt.Errorf("could not delete kong consumer: %v", err)
 		}
 
 		return nil
