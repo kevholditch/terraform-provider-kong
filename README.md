@@ -239,7 +239,7 @@ Here is another example using the [acl](https://getkong.org/plugins/acl/) plugin
 
 ```hcl
 resource "kong_consumer_plugin_config" "consumer_acl_config" {
-	consumer_id = "876bf719-8f18-4ce5-cc9f-5b5af6c36007"
+consumer_id = "876bf719-8f18-4ce5-cc9f-5b5af6c36007"
 	plugin_name = "acls"
 	config_json = <<EOT
 	{
