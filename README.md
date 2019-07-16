@@ -281,17 +281,17 @@ resource "kong_upstream" "upstream" {
     hash_fallback        = "consumer"
     hash_on_header       = "HeaderName"
     hash_fallback_header = "FallbackHeaderName"
-    healthchecks         = {
-        active = {
+    healthchecks {
+        active {
             http_path                = "/status"
             timeout                  = 10
             concurrency              = 20
-            healthy = {
+            healthy {
                 successes = 1
                 interval  = 5
                 http_statuses = [200, 201]
             }
-            unhealthy = {
+            unhealthy {
                 timeouts      = 7
                 interval      = 3
                 tcp_failures  = 1
@@ -299,12 +299,12 @@ resource "kong_upstream" "upstream" {
                 http_statuses = [500, 501]
             }
         }
-        passive = {
-            healthy = {
+        passive {
+            healthy {
                 successes = 1
                 http_statuses = [200, 201, 202]
             }
-            unhealthy = {
+            unhealthy {
                 timeouts      = 3
                 tcp_failures  = 5
                 http_failures = 6
