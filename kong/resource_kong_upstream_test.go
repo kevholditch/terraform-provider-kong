@@ -1055,20 +1055,20 @@ resource "kong_upstream" "upstream" {
 	hash_fallback_header = "FallbackHeaderName"
 	hash_on_cookie       = "CookieName"
 	hash_on_cookie_path  = "/path"
-	healthchecks         = {
-		active = {
+	healthchecks {
+		active {
 			type                     = "https"
 			http_path                = "/status"
 			timeout                  = 10
 			concurrency              = 20
 			https_verify_certificate = false
 			https_sni                = "some.domain.com"
-			healthy = {
+			healthy {
 				successes = 1
 				interval  = 5
 				http_statuses = [200, 201]
 			}
-			unhealthy = {
+			unhealthy {
 				timeouts      = 7
 				interval      = 3
 				tcp_failures  = 1
@@ -1076,13 +1076,13 @@ resource "kong_upstream" "upstream" {
 				http_statuses = [500, 501]
 			}
 		}
-		passive = {
+		passive {
 			type    = "https"
-			healthy = {
+			healthy {
 				successes = 1
 				http_statuses = [200, 201, 202]
 			}
-			unhealthy = {
+			unhealthy {
 				timeouts      = 3
 				tcp_failures  = 5
 				http_failures = 6

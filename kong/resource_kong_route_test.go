@@ -200,14 +200,14 @@ resource "kong_route" "route" {
 	protocols 		= [ "tcp" ]
 	strip_path 		= true
 	preserve_host 	= false
-	source = {
+	source {
 		ip   = "192.168.1.1"
 		port = 80 
 	}
-	source = {
+	source {
 		ip   = "192.168.1.2"
 	}
-	destination = {
+	destination {
 		ip 	 = "172.10.1.1"
 		port = 81
 	}
@@ -227,15 +227,15 @@ resource "kong_route" "route" {
 	protocols 		= [ "tcp" ]
 	strip_path 		= true
 	preserve_host 	= false
-	source = {
+	source {
 		ip   = "192.168.1.1"
 		port = 80 
 	}
-	destination = {
+	destination {
 		ip 	 = "172.10.1.1"
 		port = 81
 	}
-	destination = {
+	destination {
 		ip 	 = "172.10.1.2"
 		port = 82
 	}
