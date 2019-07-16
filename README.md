@@ -4,6 +4,8 @@ Terraform Provider Kong
 =======================
 The Kong Terraform Provider tested against real Kong!
 
+**`v5.0.0` of the provider supports Terraform `0.12`**
+
 
 IMPORTANT
 ------
