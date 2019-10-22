@@ -6,7 +6,6 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/kevholditch/gokong"
 )
 
 func TestAccKongCertificate(t *testing.T) {
@@ -56,7 +55,7 @@ func TestAccKongCertificateImport(t *testing.T) {
 
 func testAccCheckKongCertificateDestroy(state *terraform.State) error {
 
-	client := testAccProvider.Meta().(*gokong.KongAdminClient)
+	client := testAccProvider.Meta().(*config).adminClient
 
 	certificates := getResourcesByType("kong_certificate", state)
 
@@ -90,7 +89,7 @@ func testAccCheckKongCertificateExists(resourceKey string) resource.TestCheckFun
 			return fmt.Errorf("no ID is set")
 		}
 
-		api, err := testAccProvider.Meta().(*gokong.KongAdminClient).Certificates().GetById(rs.Primary.ID)
+		api, err := testAccProvider.Meta().(*config).adminClient.Certificates().GetById(rs.Primary.ID)
 
 		if err != nil {
 			return err

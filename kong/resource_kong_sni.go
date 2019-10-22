@@ -35,7 +35,7 @@ func resourceKongSniCreate(d *schema.ResourceData, meta interface{}) error {
 
 	sniRequest := createKongSniRequestFromResourceData(d)
 
-	sni, err := meta.(*gokong.KongAdminClient).Snis().Create(sniRequest)
+	sni, err := meta.(*config).adminClient.Snis().Create(sniRequest)
 
 	if err != nil {
 		return fmt.Errorf("failed to create kong sni: %v error: %v", sniRequest, err)
@@ -48,7 +48,7 @@ func resourceKongSniCreate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceKongSniRead(d *schema.ResourceData, meta interface{}) error {
 
-	sni, err := meta.(*gokong.KongAdminClient).Snis().GetByName(d.Id())
+	sni, err := meta.(*config).adminClient.Snis().GetByName(d.Id())
 
 	if err != nil {
 		return fmt.Errorf("could not find kong sni: %v", err)
@@ -66,7 +66,7 @@ func resourceKongSniRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceKongSniDelete(d *schema.ResourceData, meta interface{}) error {
 
-	err := meta.(*gokong.KongAdminClient).Snis().DeleteByName(d.Id())
+	err := meta.(*config).adminClient.Snis().DeleteByName(d.Id())
 
 	if err != nil {
 		return fmt.Errorf("could not delete kong sni: %v", err)

@@ -254,7 +254,7 @@ func resourceKongUpstreamCreate(d *schema.ResourceData, meta interface{}) error 
 
 	upstreamRequest := createKongUpstreamRequestFromResourceData(d)
 
-	upstream, err := meta.(*gokong.KongAdminClient).Upstreams().Create(upstreamRequest)
+	upstream, err := meta.(*config).adminClient.Upstreams().Create(upstreamRequest)
 
 	if err != nil {
 		return fmt.Errorf("failed to create kong upstream: %v error: %v", upstreamRequest, err)
@@ -270,7 +270,7 @@ func resourceKongUpstreamUpdate(d *schema.ResourceData, meta interface{}) error 
 
 	upstreamRequest := createKongUpstreamRequestFromResourceData(d)
 
-	_, err := meta.(*gokong.KongAdminClient).Upstreams().UpdateById(d.Id(), upstreamRequest)
+	_, err := meta.(*config).adminClient.Upstreams().UpdateById(d.Id(), upstreamRequest)
 
 	if err != nil {
 		return fmt.Errorf("error updating kong upstream: %s", err)
@@ -281,7 +281,7 @@ func resourceKongUpstreamUpdate(d *schema.ResourceData, meta interface{}) error 
 
 func resourceKongUpstreamRead(d *schema.ResourceData, meta interface{}) error {
 
-	upstream, err := meta.(*gokong.KongAdminClient).Upstreams().GetById(d.Id())
+	upstream, err := meta.(*config).adminClient.Upstreams().GetById(d.Id())
 
 	if err != nil {
 		return fmt.Errorf("could not find kong upstream: %v", err)
@@ -308,7 +308,7 @@ func resourceKongUpstreamRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceKongUpstreamDelete(d *schema.ResourceData, meta interface{}) error {
 
-	err := meta.(*gokong.KongAdminClient).Upstreams().DeleteById(d.Id())
+	err := meta.(*config).adminClient.Upstreams().DeleteById(d.Id())
 
 	if err != nil {
 		return fmt.Errorf("could not delete kong upstream: %v", err)

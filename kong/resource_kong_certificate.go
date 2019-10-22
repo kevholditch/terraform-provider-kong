@@ -38,7 +38,7 @@ func resourceKongCertificateCreate(d *schema.ResourceData, meta interface{}) err
 
 	certificateRequest := createKongCertificateRequestFromResourceData(d)
 
-	certificate, err := meta.(*gokong.KongAdminClient).Certificates().Create(certificateRequest)
+	certificate, err := meta.(*config).adminClient.Certificates().Create(certificateRequest)
 
 	if err != nil {
 		return fmt.Errorf("failed to create kong certificate: %v error: %v", certificateRequest, err)
@@ -54,7 +54,7 @@ func resourceKongCertificateUpdate(d *schema.ResourceData, meta interface{}) err
 
 	certificateRequest := createKongCertificateRequestFromResourceData(d)
 
-	_, err := meta.(*gokong.KongAdminClient).Certificates().UpdateById(d.Id(), certificateRequest)
+	_, err := meta.(*config).adminClient.Certificates().UpdateById(d.Id(), certificateRequest)
 
 	if err != nil {
 		return fmt.Errorf("error updating kong certificate: %s", err)
@@ -65,7 +65,7 @@ func resourceKongCertificateUpdate(d *schema.ResourceData, meta interface{}) err
 
 func resourceKongCertificateRead(d *schema.ResourceData, meta interface{}) error {
 
-	certificate, err := meta.(*gokong.KongAdminClient).Certificates().GetById(d.Id())
+	certificate, err := meta.(*config).adminClient.Certificates().GetById(d.Id())
 
 	if err != nil {
 		return fmt.Errorf("could not find kong certificate: %v", err)
@@ -88,7 +88,7 @@ func resourceKongCertificateRead(d *schema.ResourceData, meta interface{}) error
 
 func resourceKongCertificateDelete(d *schema.ResourceData, meta interface{}) error {
 
-	err := meta.(*gokong.KongAdminClient).Certificates().DeleteById(d.Id())
+	err := meta.(*config).adminClient.Certificates().DeleteById(d.Id())
 
 	if err != nil {
 		return fmt.Errorf("could not delete kong certificate: %v", err)

@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/kevholditch/gokong"
 )
 
 func resourceKongConsumerPluginConfig() *schema.Resource {
@@ -111,9 +110,9 @@ func resourceKongConsumerPluginConfigCreate(d *schema.ResourceData, meta interfa
 
 	consumerId := readStringFromResource(d, "consumer_id")
 	pluginName := readStringFromResource(d, "plugin_name")
-	config := readStringFromResource(d, "config_json")
+	configJson := readStringFromResource(d, "config_json")
 
-	consumerPluginConfig, err := meta.(*gokong.KongAdminClient).Consumers().CreatePluginConfig(consumerId, pluginName, config)
+	consumerPluginConfig, err := meta.(*config).adminClient.Consumers().CreatePluginConfig(consumerId, pluginName, configJson)
 	if err != nil {
 		return fmt.Errorf("failed to create kong consumer plugin config, error: %v", err)
 	}
@@ -136,12 +135,12 @@ func resourceKongConsumerPluginConfigRead(d *schema.ResourceData, meta interface
 	}
 
 	// First check if the consumer exists. If it does not then the consumer plugin no longer exists either.
-	if consumer, _ := meta.(*gokong.KongAdminClient).Consumers().GetById(idFields.consumerId); consumer == nil {
+	if consumer, _ := meta.(*config).adminClient.Consumers().GetById(idFields.consumerId); consumer == nil {
 		d.SetId("")
 		return nil
 	}
 
-	consumerPluginConfig, err := meta.(*gokong.KongAdminClient).Consumers().GetPluginConfig(idFields.consumerId, idFields.pluginName, idFields.id)
+	consumerPluginConfig, err := meta.(*config).adminClient.Consumers().GetPluginConfig(idFields.consumerId, idFields.pluginName, idFields.id)
 
 	if err != nil {
 		return fmt.Errorf("could not find kong consumer plugin config with id: %s error: %v", d.Id(), err)
@@ -175,7 +174,7 @@ func resourceKongConsumerPluginConfigDelete(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	err = meta.(*gokong.KongAdminClient).Consumers().DeletePluginConfig(idFields.consumerId, idFields.pluginName, idFields.id)
+	err = meta.(*config).adminClient.Consumers().DeletePluginConfig(idFields.consumerId, idFields.pluginName, idFields.id)
 
 	if err != nil {
 		return fmt.Errorf("could not delete kong consumer plugin config: %v", err)
