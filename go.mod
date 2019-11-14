@@ -9,7 +9,7 @@ require (
 	github.com/fsouza/go-dockerclient v0.0.0-20160427172547-1d4f4ae73768 // indirect
 	github.com/go-sql-driver/mysql v1.4.1 // indirect
 	github.com/hashicorp/terraform v0.12.1
-	github.com/kevholditch/gokong v4.1.0+incompatible
+	github.com/kevholditch/gokong v6.0.0+incompatible
 	github.com/moul/http2curl v1.0.0 // indirect
 	github.com/parnurzeal/gorequest v0.2.15 // indirect
 	github.com/phayes/freeport v0.0.0-20180830031419-95f893ade6f2 // indirect

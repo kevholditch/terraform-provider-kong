@@ -188,8 +188,8 @@ github.com/jtolds/gls v4.2.1+incompatible h1:fSuqC+Gmlu6l/ZYAoZzx2pyucC8Xza35fpR
 github.com/jtolds/gls v4.2.1+incompatible/go.mod h1:QJZ7F/aHp+rZTRtaJ1ow/lLfFfVYBRgL+9YlvaHOwJU=
 github.com/kardianos/osext v0.0.0-20170510131534-ae77be60afb1/go.mod h1:1NbS8ALrpOvjt0rHPNLyCIeMtbizbir8U//inJ+zuB8=
 github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0/go.mod h1:1NbS8ALrpOvjt0rHPNLyCIeMtbizbir8U//inJ+zuB8=
-github.com/kevholditch/gokong v4.1.0+incompatible h1:UZxqQfOHc5XMZJdE6dV4jA/MYZHMeGsKICWvDhAF3aA=
-github.com/kevholditch/gokong v4.1.0+incompatible/go.mod h1:IhM+qpLRw9cvTLM/SNPRHxsattruMFsdi4HP4zowngo=
+github.com/kevholditch/gokong v6.0.0+incompatible h1:cgCjtf4MPlFQ+N2uN2bCChz8LQycVI60palMqyjLcKw=
+github.com/kevholditch/gokong v6.0.0+incompatible/go.mod h1:IhM+qpLRw9cvTLM/SNPRHxsattruMFsdi4HP4zowngo=
 github.com/keybase/go-crypto v0.0.0-20161004153544-93f5b35093ba/go.mod h1:ghbZscTyKdM07+Fw3KSi0hcJm+AlEUWj8QLlPtijN/M=
 github.com/kisielk/gotool v1.0.0/go.mod h1:XhKaO+MFFWcvkIS/tQcRk01m1F5IRFswLeQ+oQHNcck=
 github.com/konsorten/go-windows-terminal-sequences v0.0.0-20180402223658-b729f2633dfe/go.mod h1:T0+1ngSBFLxvqU3pZ+m/2kptfBszLMUkC4ZK/EgS/cQ=
