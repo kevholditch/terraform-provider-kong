@@ -57,7 +57,7 @@ func TestAccKongRouteWithSourcesAndDestinations(t *testing.T) {
 				Config: testCreateRouteWithSourcesAndDestinationsConfig,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKongRouteExists("kong_route.route"),
-					resource.TestCheckResourceAttr("kong_route.route", "protocols.0", "tcp"),
+					resource.TestCheckResourceAttr("kong_route.route", "protocols.0", "tls"),
 					resource.TestCheckResourceAttr("kong_route.route", "strip_path", "true"),
 					resource.TestCheckResourceAttr("kong_route.route", "preserve_host", "false"),
 					resource.TestCheckResourceAttr("kong_route.route", "source.#", "2"),
@@ -69,7 +69,7 @@ func TestAccKongRouteWithSourcesAndDestinations(t *testing.T) {
 				Config: testUpdateRouteWithSourcesAndDestinationsConfig,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKongRouteExists("kong_route.route"),
-					resource.TestCheckResourceAttr("kong_route.route", "protocols.0", "tcp"),
+					resource.TestCheckResourceAttr("kong_route.route", "protocols.0", "tls"),
 					resource.TestCheckResourceAttr("kong_route.route", "strip_path", "true"),
 					resource.TestCheckResourceAttr("kong_route.route", "preserve_host", "false"),
 					resource.TestCheckResourceAttr("kong_route.route", "source.#", "1"),
@@ -197,7 +197,7 @@ resource "kong_service" "service" {
 }
 
 resource "kong_route" "route" {
-	protocols 		= [ "tcp" ]
+	protocols 		= [ "tls" ]
 	strip_path 		= true
 	preserve_host 	= false
 	source {
@@ -224,7 +224,7 @@ resource "kong_service" "service" {
 }
 
 resource "kong_route" "route" {
-	protocols 		= [ "tcp" ]
+	protocols 		= [ "tls" ]
 	strip_path 		= true
 	preserve_host 	= false
 	source {
