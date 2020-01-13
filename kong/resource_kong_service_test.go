@@ -45,6 +45,27 @@ func TestAccKongService(t *testing.T) {
 			},
 		},
 	})
+
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongServiceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testCreateServiceConfigZero,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKongServiceExists("kong_service.service"),
+					resource.TestCheckResourceAttr("kong_service.service", "retries", "0"),
+				),
+			},
+			{
+				Config: testUpdateServiceConfigZero,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKongServiceExists("kong_service.service"),
+					resource.TestCheckResourceAttr("kong_service.service", "retries", "0"),
+				),
+			},
+		},
+	})
 }
 
 func TestAccKongServiceImport(t *testing.T) {
@@ -139,6 +160,31 @@ resource "kong_service" "service" {
 	connect_timeout = 6000
 	write_timeout 	= 5000
 	read_timeout  	= 4000
+}
+`
+const testCreateServiceConfigZero = `
+resource "kong_service" "service" {
+	name     		= "test"
+	protocol 		= "http"
+	host     		= "test.org"
+	path     		= "/mypath"
+	retries  		= 0
+	connect_timeout = 1000
+	write_timeout 	= 2000
+	read_timeout  	= 3000
+}
+`
+const testUpdateServiceConfigZero = `
+resource "kong_service" "service" {
+	name     		= "test2"
+	protocol 		= "https"
+	host     		= "test2.org"
+	port     		= 8081
+	path     		= "/"
+	connect_timeout = 6000
+	write_timeout 	= 5000
+	read_timeout  	= 4000
+	retries         = 0
 }
 `
 const testImportServiceConfig = `

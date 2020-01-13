@@ -67,7 +67,7 @@ func readIdPtrFromResource(d *schema.ResourceData, key string) *gokong.Id {
 }
 
 func readStringPtrFromResource(d *schema.ResourceData, key string) *string {
-	if value, ok := d.GetOk(key); ok {
+	if value, ok := d.GetOkExists(key); ok {
 		return gokong.String(value.(string))
 	}
 	return nil
@@ -85,8 +85,7 @@ func readIntFromResource(d *schema.ResourceData, key string) int {
 }
 
 func readIntPtrFromResource(d *schema.ResourceData, key string) *int {
-	value, ok := d.GetOk(key)
-	if ok {
+	if value, ok := d.GetOkExists(key); ok {
 		return gokong.Int(value.(int))
 	}
 	return nil
