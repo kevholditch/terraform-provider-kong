@@ -6,7 +6,6 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/kevholditch/gokong"
 )
 
 func TestAccKongGlobalPlugin(t *testing.T) {
@@ -147,11 +146,10 @@ func TestAccKongPluginImportConfigJson(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckKongPluginDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testCreateGlobalPluginConfig,
 			},
-
-			resource.TestStep{
+			{
 				ResourceName:      "kong_plugin.hmac_auth",
 				ImportState:       true,
 				ImportStateVerify: false,
@@ -162,7 +160,7 @@ func TestAccKongPluginImportConfigJson(t *testing.T) {
 
 func testAccCheckKongPluginDestroy(state *terraform.State) error {
 
-	client := testAccProvider.Meta().(*gokong.KongAdminClient)
+	client := testAccProvider.Meta().(*config).adminClient
 
 	plugins := getResourcesByType("kong_plugin", state)
 
@@ -231,7 +229,7 @@ func testAccCheckKongPluginExists(resourceKey string) resource.TestCheckFunc {
 			return fmt.Errorf("no ID is set")
 		}
 
-		api, err := testAccProvider.Meta().(*gokong.KongAdminClient).Plugins().GetById(rs.Primary.ID)
+		api, err := testAccProvider.Meta().(*config).adminClient.Plugins().GetById(rs.Primary.ID)
 
 		if err != nil {
 			return err

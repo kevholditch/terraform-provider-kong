@@ -56,6 +56,12 @@ func resourceKongPlugin() *schema.Resource {
 					return new == ""
 				},
 			},
+			"strict_match": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: false,
+				Default:  false,
+			},
 			"computed_config": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -71,7 +77,7 @@ func resourceKongPluginCreate(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	plugin, err := meta.(*gokong.KongAdminClient).Plugins().Create(pluginRequest)
+	plugin, err := meta.(*config).adminClient.Plugins().Create(pluginRequest)
 
 	if err != nil {
 		return fmt.Errorf("failed to create kong plugin: %v error: %v", pluginRequest, err)
@@ -90,7 +96,7 @@ func resourceKongPluginUpdate(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	_, err = meta.(*gokong.KongAdminClient).Plugins().UpdateById(d.Id(), pluginRequest)
+	_, err = meta.(*config).adminClient.Plugins().UpdateById(d.Id(), pluginRequest)
 
 	if err != nil {
 		return fmt.Errorf("error updating kong plugin: %s", err)
@@ -101,7 +107,7 @@ func resourceKongPluginUpdate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceKongPluginRead(d *schema.ResourceData, meta interface{}) error {
 
-	plugin, err := meta.(*gokong.KongAdminClient).Plugins().GetById(d.Id())
+	plugin, err := meta.(*config).adminClient.Plugins().GetById(d.Id())
 
 	if err != nil {
 		return fmt.Errorf("could not find kong plugin: %v", err)
@@ -120,7 +126,18 @@ func resourceKongPluginRead(d *schema.ResourceData, meta interface{}) error {
 		// terraform state. We do not track `config` as it will be a source of a perpetual diff.
 		// https://www.terraform.io/docs/extend/best-practices/detecting-drift.html#capture-all-state-in-read
 		upstreamJson := pluginConfigJsonToString(plugin.Config)
-		d.Set("computed_config", upstreamJson)
+		setConfig := func(strict bool) {
+			if strict {
+				d.Set("config_json", upstreamJson)
+			} else {
+				d.Set("computed_config", upstreamJson)
+			}
+		}
+		if value, ok := d.GetOk("strict_match"); ok {
+			setConfig(value.(bool))
+		} else {
+			setConfig(meta.(*config).strictPlugins)
+		}
 	}
 
 	return nil
@@ -128,7 +145,7 @@ func resourceKongPluginRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceKongPluginDelete(d *schema.ResourceData, meta interface{}) error {
 
-	err := meta.(*gokong.KongAdminClient).Plugins().DeleteById(d.Id())
+	err := meta.(*config).adminClient.Plugins().DeleteById(d.Id())
 
 	if err != nil {
 		return fmt.Errorf("could not delete kong plugin: %v", err)

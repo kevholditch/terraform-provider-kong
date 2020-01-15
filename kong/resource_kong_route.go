@@ -116,7 +116,7 @@ func resourceKongRouteCreate(d *schema.ResourceData, meta interface{}) error {
 
 	routeRequest := createKongRouteRequestFromResourceData(d)
 
-	route, err := meta.(*gokong.KongAdminClient).Routes().Create(routeRequest)
+	route, err := meta.(*config).adminClient.Routes().Create(routeRequest)
 	if err != nil {
 		return fmt.Errorf("failed to create kong route: %v error: %v", routeRequest, err)
 	}
@@ -131,7 +131,7 @@ func resourceKongRouteUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	routeRequest := createKongRouteRequestFromResourceData(d)
 
-	_, err := meta.(*gokong.KongAdminClient).Routes().UpdateById(d.Id(), routeRequest)
+	_, err := meta.(*config).adminClient.Routes().UpdateById(d.Id(), routeRequest)
 
 	if err != nil {
 		return fmt.Errorf("error updating kong route: %s", err)
@@ -142,7 +142,7 @@ func resourceKongRouteUpdate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceKongRouteRead(d *schema.ResourceData, meta interface{}) error {
 
-	route, err := meta.(*gokong.KongAdminClient).Routes().GetById(d.Id())
+	route, err := meta.(*config).adminClient.Routes().GetById(d.Id())
 
 	if err != nil {
 		return fmt.Errorf("could not find kong route: %v", err)
@@ -205,7 +205,7 @@ func resourceKongRouteRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceKongRouteDelete(d *schema.ResourceData, meta interface{}) error {
 
-	err := meta.(*gokong.KongAdminClient).Routes().DeleteById(d.Id())
+	err := meta.(*config).adminClient.Routes().DeleteById(d.Id())
 
 	if err != nil {
 		return fmt.Errorf("could not delete kong route: %v", err)

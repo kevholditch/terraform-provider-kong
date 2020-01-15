@@ -7,7 +7,6 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/kevholditch/gokong"
 )
 
 func TestAccKongConsumerPluginConfig(t *testing.T) {
@@ -80,7 +79,7 @@ func TestAccCheckKongConsumerPluginCreateAndRefreshFromNonExistentConsumer(t *te
 
 func testAccCheckKongConsumerPluginConfig(state *terraform.State) error {
 
-	client := testAccProvider.Meta().(*gokong.KongAdminClient)
+	client := testAccProvider.Meta().(*config).adminClient
 
 	consumerPluginConfigs := getResourcesByType("kong_consumer_plugin_config", state)
 
@@ -124,7 +123,7 @@ func testAccCheckKongConsumerPluginConfigExists(resourceKey string) resource.Tes
 			return fmt.Errorf("no ID is set")
 		}
 
-		client := testAccProvider.Meta().(*gokong.KongAdminClient)
+		client := testAccProvider.Meta().(*config).adminClient
 
 		idFields, err := splitIdIntoFields(rs.Primary.ID)
 
@@ -154,7 +153,7 @@ func deleteConsumer(resourceKey string) resource.TestCheckFunc {
 			return fmt.Errorf("not found: %s", resourceKey)
 		}
 
-		if err := testAccProvider.Meta().(*gokong.KongAdminClient).Consumers().DeleteById(rs.Primary.ID); err != nil {
+		if err := testAccProvider.Meta().(*config).adminClient.Consumers().DeleteById(rs.Primary.ID); err != nil {
 			return fmt.Errorf("could not delete kong consumer: %v", err)
 		}
 

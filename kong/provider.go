@@ -8,6 +8,12 @@ import (
 	"github.com/kevholditch/gokong"
 )
 
+type config struct {
+	adminClient           *gokong.KongAdminClient
+	strictPlugins         bool
+	strictConsumerPlugins bool
+}
+
 func Provider() terraform.ResourceProvider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
@@ -46,6 +52,13 @@ func Provider() terraform.ResourceProvider {
 				Optional:    true,
 				DefaultFunc: envDefaultFuncWithDefault("KONG_ADMIN_TOKEN", ""),
 				Description: "API key for the kong api (Enterprise Edition)",
+			},
+			"strict_plugins_match": &schema.Schema{
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    false,
+				DefaultFunc: envDefaultFuncWithDefault("STRICT_PLUGINS_MATCH", "false"),
+				Description: "Should plugins `config_json` field strictly match plugin configuration",
 			},
 		},
 
@@ -88,7 +101,7 @@ func envDefaultFuncWithDefault(key string, defaultValue string) schema.SchemaDef
 
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 
-	config := &gokong.Config{
+	kongConfig := &gokong.Config{
 		HostAddress:        d.Get("kong_admin_uri").(string),
 		Username:           d.Get("kong_admin_username").(string),
 		Password:           d.Get("kong_admin_password").(string),
@@ -97,5 +110,10 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		AdminToken:         d.Get("kong_admin_token").(string),
 	}
 
-	return gokong.NewClient(config), nil
+	config := &config{
+		adminClient:   gokong.NewClient(kongConfig),
+		strictPlugins: d.Get("strict_plugins_match").(bool),
+	}
+
+	return config, nil
 }

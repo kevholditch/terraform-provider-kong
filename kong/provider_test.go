@@ -5,6 +5,7 @@ import (
 	"os"
 	"testing"
 
+	terraformconfig "github.com/hashicorp/terraform/config"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/kevholditch/gokong"
@@ -31,6 +32,36 @@ func TestProvider(t *testing.T) {
 
 func TestProvider_impl(t *testing.T) {
 	var _ terraform.ResourceProvider = Provider()
+}
+
+func TestProvider_configure(t *testing.T) {
+	c, err := terraformconfig.NewRawConfig(map[string]interface{}{})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rc := terraform.NewResourceConfig(c)
+	p := Provider()
+	err = p.Configure(rc)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestProvider_configure_strict(t *testing.T) {
+	c, err := terraformconfig.NewRawConfig(map[string]interface{}{
+		"strict_plugins_match": "true",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rc := terraform.NewResourceConfig(c)
+	p := Provider()
+	err = p.Configure(rc)
+	if err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestMain(m *testing.M) {
