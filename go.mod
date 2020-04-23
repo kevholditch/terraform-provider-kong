@@ -8,7 +8,8 @@ require (
 	github.com/elazarl/goproxy v0.0.0-20190421051319-9d40249d3c2f // indirect
 	github.com/elazarl/goproxy/ext v0.0.0-20190421051319-9d40249d3c2f // indirect
 	github.com/gotestyourself/gotestyourself v2.2.0+incompatible // indirect
-	github.com/hashicorp/terraform v0.12.1
+	github.com/hashicorp/terraform-plugin-sdk v1.7.0
 	github.com/kevholditch/gokong v0.0.0-20191114132141-305470f01f9a
+	github.com/smartystreets/goconvey v1.6.4 // indirect
 	gotest.tools v2.2.0+incompatible // indirect
 )

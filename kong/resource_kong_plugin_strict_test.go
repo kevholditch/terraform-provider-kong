@@ -3,7 +3,7 @@ package kong
 import (
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccKongGlobalPluginStrict(t *testing.T) {

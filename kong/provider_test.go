@@ -5,17 +5,18 @@ import (
 	"os"
 	"testing"
 
-	terraformconfig "github.com/hashicorp/terraform/config"
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/kevholditch/gokong"
 	"github.com/kevholditch/gokong/containers"
 )
 
 const defaultKongVersion = "1.0.2"
 
-var testAccProviders map[string]terraform.ResourceProvider
-var testAccProvider *schema.Provider
+var (
+	testAccProviders map[string]terraform.ResourceProvider
+	testAccProvider  *schema.Provider
+)
 
 func init() {
 	testAccProvider = Provider().(*schema.Provider)
@@ -35,30 +36,22 @@ func TestProvider_impl(t *testing.T) {
 }
 
 func TestProvider_configure(t *testing.T) {
-	c, err := terraformconfig.NewRawConfig(map[string]interface{}{})
-	if err != nil {
-		t.Fatal(err)
-	}
 
-	rc := terraform.NewResourceConfig(c)
+	rc := terraform.NewResourceConfigRaw(map[string]interface{}{})
 	p := Provider()
-	err = p.Configure(rc)
+	err := p.Configure(rc)
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestProvider_configure_strict(t *testing.T) {
-	c, err := terraformconfig.NewRawConfig(map[string]interface{}{
+
+	rc := terraform.NewResourceConfigRaw(map[string]interface{}{
 		"strict_plugins_match": "true",
 	})
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	rc := terraform.NewResourceConfig(c)
 	p := Provider()
-	err = p.Configure(rc)
+	err := p.Configure(rc)
 	if err != nil {
 		t.Fatal(err)
 	}
