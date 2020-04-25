@@ -1,10 +1,11 @@
 package kong
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/kevholditch/gokong"
+	"github.com/hbagdi/go-kong/kong"
 )
 
 func resourceKongUpstream() *schema.Resource {
@@ -254,13 +255,14 @@ func resourceKongUpstreamCreate(d *schema.ResourceData, meta interface{}) error 
 
 	upstreamRequest := createKongUpstreamRequestFromResourceData(d)
 
-	upstream, err := meta.(*config).adminClient.Upstreams().Create(upstreamRequest)
+	client := meta.(*config).adminClient.Upstreams
+	upstream, err := client.Create(context.Background(), upstreamRequest)
 
 	if err != nil {
 		return fmt.Errorf("failed to create kong upstream: %v error: %v", upstreamRequest, err)
 	}
 
-	d.SetId(upstream.Id)
+	d.SetId(*upstream.ID)
 
 	return resourceKongUpstreamRead(d, meta)
 }
@@ -270,7 +272,8 @@ func resourceKongUpstreamUpdate(d *schema.ResourceData, meta interface{}) error 
 
 	upstreamRequest := createKongUpstreamRequestFromResourceData(d)
 
-	_, err := meta.(*config).adminClient.Upstreams().UpdateById(d.Id(), upstreamRequest)
+	client := meta.(*config).adminClient.Upstreams
+	_, err := client.Update(context.Background(), upstreamRequest)
 
 	if err != nil {
 		return fmt.Errorf("error updating kong upstream: %s", err)
@@ -281,7 +284,8 @@ func resourceKongUpstreamUpdate(d *schema.ResourceData, meta interface{}) error 
 
 func resourceKongUpstreamRead(d *schema.ResourceData, meta interface{}) error {
 
-	upstream, err := meta.(*config).adminClient.Upstreams().GetById(d.Id())
+	client := meta.(*config).adminClient.Upstreams
+	upstream, err := client.Get(context.Background(), kong.String(d.Id()))
 
 	if err != nil {
 		return fmt.Errorf("could not find kong upstream: %v", err)
@@ -298,7 +302,7 @@ func resourceKongUpstreamRead(d *schema.ResourceData, meta interface{}) error {
 		d.Set("hash_fallback_header", upstream.HashFallbackHeader)
 		d.Set("hash_on_cookie", upstream.HashOnCookie)
 		d.Set("hash_on_cookie_path", upstream.HashOnCookiePath)
-		if err := d.Set("healthchecks", flattenHealthCheck(upstream.HealthChecks)); err != nil {
+		if err := d.Set("healthchecks", flattenHealthCheck(upstream.Healthchecks)); err != nil {
 			return err
 		}
 	}
@@ -308,7 +312,8 @@ func resourceKongUpstreamRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceKongUpstreamDelete(d *schema.ResourceData, meta interface{}) error {
 
-	err := meta.(*config).adminClient.Upstreams().DeleteById(d.Id())
+	client := meta.(*config).adminClient.Upstreams
+	err := client.Delete(context.Background(), kong.String(d.Id()))
 
 	if err != nil {
 		return fmt.Errorf("could not delete kong upstream: %v", err)
@@ -317,31 +322,31 @@ func resourceKongUpstreamDelete(d *schema.ResourceData, meta interface{}) error 
 	return nil
 }
 
-func createKongUpstreamRequestFromResourceData(d *schema.ResourceData) *gokong.UpstreamRequest {
+func createKongUpstreamRequestFromResourceData(d *schema.ResourceData) *kong.Upstream {
 
-	upstreamRequest := &gokong.UpstreamRequest{}
+	upstreamRequest := &kong.Upstream{}
 
-	upstreamRequest.Name = readStringFromResource(d, "name")
-	upstreamRequest.Slots = readIntFromResource(d, "slots")
-	upstreamRequest.HashOn = readStringFromResource(d, "hash_on")
-	upstreamRequest.HashFallback = readStringFromResource(d, "hash_fallback")
-	upstreamRequest.HashOnHeader = readStringFromResource(d, "hash_on_header")
-	upstreamRequest.HashFallbackHeader = readStringFromResource(d, "hash_fallback_header")
-	upstreamRequest.HashOnCookie = readStringFromResource(d, "hash_on_cookie")
-	upstreamRequest.HashOnCookiePath = readStringFromResource(d, "hash_on_cookie_path")
+	upstreamRequest.Name = readStringPtrFromResource(d, "name")
+	upstreamRequest.Slots = readIntPtrFromResource(d, "slots")
+	upstreamRequest.HashOn = readStringPtrFromResource(d, "hash_on")
+	upstreamRequest.HashFallback = readStringPtrFromResource(d, "hash_fallback")
+	upstreamRequest.HashOnHeader = readStringPtrFromResource(d, "hash_on_header")
+	upstreamRequest.HashFallbackHeader = readStringPtrFromResource(d, "hash_fallback_header")
+	upstreamRequest.HashOnCookie = readStringPtrFromResource(d, "hash_on_cookie")
+	upstreamRequest.HashOnCookiePath = readStringPtrFromResource(d, "hash_on_cookie_path")
 
 	if healthChecksArray := readArrayFromResource(d, "healthchecks"); healthChecksArray != nil && len(healthChecksArray) > 0 {
 		healthChecksMap := healthChecksArray[0].(map[string]interface{})
-		upstreamRequest.HealthChecks = createKongHealthCheckFromMap(&healthChecksMap)
+		upstreamRequest.Healthchecks = createKongHealthCheckFromMap(&healthChecksMap)
 	}
 
 	return upstreamRequest
 }
 
-func createKongHealthCheckFromMap(data *map[string]interface{}) *gokong.UpstreamHealthCheck {
+func createKongHealthCheckFromMap(data *map[string]interface{}) *kong.Healthcheck {
 	if data != nil {
 		dataMap := *data
-		healthCheck := &gokong.UpstreamHealthCheck{}
+		healthCheck := &kong.Healthcheck{}
 
 		if dataMap["active"] != nil {
 			if activeArray := dataMap["active"].([]interface{}); activeArray != nil && len(activeArray) > 0 {
@@ -362,29 +367,29 @@ func createKongHealthCheckFromMap(data *map[string]interface{}) *gokong.Upstream
 	return nil
 }
 
-func createKongHealthCheckActiveFromMap(data *map[string]interface{}) *gokong.UpstreamHealthCheckActive {
+func createKongHealthCheckActiveFromMap(data *map[string]interface{}) *kong.ActiveHealthcheck {
 	if data != nil {
 		dataMap := *data
-		active := &gokong.UpstreamHealthCheckActive{}
+		active := &kong.ActiveHealthcheck{}
 
 		if dataMap["type"] != nil {
-			active.Type = dataMap["type"].(string)
+			active.Type = kong.String(dataMap["type"].(string))
 		}
 		if dataMap["timeout"] != nil {
-			active.Timeout = dataMap["timeout"].(int)
+			active.Timeout = kong.Int(dataMap["timeout"].(int))
 		}
 		if dataMap["concurrency"] != nil {
-			active.Concurrency = dataMap["concurrency"].(int)
+			active.Concurrency = kong.Int(dataMap["concurrency"].(int))
 		}
 		if dataMap["http_path"] != nil {
-			active.HttpPath = dataMap["http_path"].(string)
+			active.HTTPPath = kong.String(dataMap["http_path"].(string))
 		}
 		if dataMap["https_verify_certificate"] != nil {
-			active.HttpsVerifyCertificate = dataMap["https_verify_certificate"].(bool)
+			active.HTTPSVerifyCertificate = kong.Bool(dataMap["https_verify_certificate"].(bool))
 		}
 		if dataMap["https_sni"] != nil {
 			if len(dataMap["https_sni"].(string)) != 0 {
-				active.HttpsSni = String(dataMap["https_sni"].(string))
+				active.HTTPSSni = kong.String(dataMap["https_sni"].(string))
 			}
 		}
 
@@ -408,14 +413,14 @@ func createKongHealthCheckActiveFromMap(data *map[string]interface{}) *gokong.Up
 	return nil
 }
 
-func createKongHealthCheckPassiveFromMap(data *map[string]interface{}) *gokong.UpstreamHealthCheckPassive {
+func createKongHealthCheckPassiveFromMap(data *map[string]interface{}) *kong.PassiveHealthcheck {
 	if data != nil {
 		dataMap := *data
-		passive := &gokong.UpstreamHealthCheckPassive{}
+		passive := &kong.PassiveHealthcheck{}
 
-		if dataMap["type"] != nil {
-			passive.Type = dataMap["type"].(string)
-		}
+		// if dataMap["type"] != nil {
+		// 	passive.Type = dataMap["type"].(string)
+		// }
 
 		if dataMap["healthy"] != nil {
 			if healthyArray := dataMap["healthy"].([]interface{}); healthyArray != nil && len(healthyArray) > 0 {
@@ -437,19 +442,19 @@ func createKongHealthCheckPassiveFromMap(data *map[string]interface{}) *gokong.U
 	return nil
 }
 
-func createKongActiveHealthyFromMap(data *map[string]interface{}) *gokong.ActiveHealthy {
+func createKongActiveHealthyFromMap(data *map[string]interface{}) *kong.Healthy {
 	if data != nil {
 		dataMap := *data
-		healthy := &gokong.ActiveHealthy{}
+		healthy := &kong.Healthy{}
 
 		if dataMap["interval"] != nil {
-			healthy.Interval = dataMap["interval"].(int)
+			healthy.Interval = kong.Int(dataMap["interval"].(int))
 		}
 		if dataMap["http_statuses"] != nil {
-			healthy.HttpStatuses = readIntArrayFromInterface(dataMap["http_statuses"])
+			healthy.HTTPStatuses = readIntArrayFromInterface(dataMap["http_statuses"])
 		}
 		if dataMap["successes"] != nil {
-			healthy.Successes = dataMap["successes"].(int)
+			healthy.Successes = kong.Int(dataMap["successes"].(int))
 		}
 
 		return healthy
@@ -457,25 +462,25 @@ func createKongActiveHealthyFromMap(data *map[string]interface{}) *gokong.Active
 	return nil
 }
 
-func createKongActiveUnhealthyFromMap(data *map[string]interface{}) *gokong.ActiveUnhealthy {
+func createKongActiveUnhealthyFromMap(data *map[string]interface{}) *kong.Unhealthy {
 	if data != nil {
 		dataMap := *data
-		unhealthy := &gokong.ActiveUnhealthy{}
+		unhealthy := &kong.Unhealthy{}
 
 		if dataMap["interval"] != nil {
-			unhealthy.Interval = dataMap["interval"].(int)
+			unhealthy.Interval = kong.Int(dataMap["interval"].(int))
 		}
 		if dataMap["http_statuses"] != nil {
-			unhealthy.HttpStatuses = readIntArrayFromInterface(dataMap["http_statuses"])
+			unhealthy.HTTPStatuses = readIntArrayFromInterface(dataMap["http_statuses"])
 		}
 		if dataMap["tcp_failures"] != nil {
-			unhealthy.TcpFailures = dataMap["tcp_failures"].(int)
+			unhealthy.TCPFailures = kong.Int(dataMap["tcp_failures"].(int))
 		}
 		if dataMap["http_failures"] != nil {
-			unhealthy.HttpFailures = dataMap["http_failures"].(int)
+			unhealthy.HTTPFailures = kong.Int(dataMap["http_failures"].(int))
 		}
 		if dataMap["timeouts"] != nil {
-			unhealthy.Timeouts = dataMap["timeouts"].(int)
+			unhealthy.Timeouts = kong.Int(dataMap["timeouts"].(int))
 		}
 
 		return unhealthy
@@ -483,16 +488,16 @@ func createKongActiveUnhealthyFromMap(data *map[string]interface{}) *gokong.Acti
 	return nil
 }
 
-func createKongPassiveHealthyFromMap(data *map[string]interface{}) *gokong.PassiveHealthy {
+func createKongPassiveHealthyFromMap(data *map[string]interface{}) *kong.Healthy {
 	if data != nil {
 		dataMap := *data
-		healthy := &gokong.PassiveHealthy{}
+		healthy := &kong.Healthy{}
 
 		if dataMap["http_statuses"] != nil {
-			healthy.HttpStatuses = readIntArrayFromInterface(dataMap["http_statuses"])
+			healthy.HTTPStatuses = readIntArrayFromInterface(dataMap["http_statuses"])
 		}
 		if dataMap["successes"] != nil {
-			healthy.Successes = dataMap["successes"].(int)
+			healthy.Successes = kong.Int(dataMap["successes"].(int))
 		}
 
 		return healthy
@@ -500,22 +505,22 @@ func createKongPassiveHealthyFromMap(data *map[string]interface{}) *gokong.Passi
 	return nil
 }
 
-func createKongPassiveUnhealthyFromMap(data *map[string]interface{}) *gokong.PassiveUnhealthy {
+func createKongPassiveUnhealthyFromMap(data *map[string]interface{}) *kong.Unhealthy {
 	if data != nil {
 		dataMap := *data
-		unhealthy := &gokong.PassiveUnhealthy{}
+		unhealthy := &kong.Unhealthy{}
 
 		if dataMap["http_statuses"] != nil {
-			unhealthy.HttpStatuses = readIntArrayFromInterface(dataMap["http_statuses"])
+			unhealthy.HTTPStatuses = readIntArrayFromInterface(dataMap["http_statuses"])
 		}
 		if dataMap["tcp_failures"] != nil {
-			unhealthy.TcpFailures = dataMap["tcp_failures"].(int)
+			unhealthy.TCPFailures = kong.Int(dataMap["tcp_failures"].(int))
 		}
 		if dataMap["http_failures"] != nil {
-			unhealthy.HttpFailures = dataMap["http_failures"].(int)
+			unhealthy.HTTPFailures = kong.Int(dataMap["http_failures"].(int))
 		}
 		if dataMap["timeouts"] != nil {
-			unhealthy.Timeouts = dataMap["timeouts"].(int)
+			unhealthy.Timeouts = kong.Int(dataMap["timeouts"].(int))
 		}
 
 		return unhealthy
@@ -523,7 +528,7 @@ func createKongPassiveUnhealthyFromMap(data *map[string]interface{}) *gokong.Pas
 	return nil
 }
 
-func flattenHealthCheck(in *gokong.UpstreamHealthCheck) []interface{} {
+func flattenHealthCheck(in *kong.Healthcheck) []interface{} {
 	if in == nil {
 		return []interface{}{}
 	}
@@ -540,7 +545,7 @@ func flattenHealthCheck(in *gokong.UpstreamHealthCheck) []interface{} {
 	return []interface{}{m}
 }
 
-func flattenHealthCheckActive(in *gokong.UpstreamHealthCheckActive) []interface{} {
+func flattenHealthCheckActive(in *kong.ActiveHealthcheck) []interface{} {
 	if in == nil {
 		return []interface{}{}
 	}
@@ -549,11 +554,11 @@ func flattenHealthCheckActive(in *gokong.UpstreamHealthCheckActive) []interface{
 	m["type"] = in.Type
 	m["timeout"] = in.Timeout
 	m["concurrency"] = in.Concurrency
-	m["http_path"] = in.HttpPath
-	m["https_verify_certificate"] = in.HttpsVerifyCertificate
+	m["http_path"] = in.HTTPPath
+	m["https_verify_certificate"] = in.HTTPSVerifyCertificate
 
-	if in.HttpsSni != nil {
-		m["https_sni"] = *in.HttpsSni
+	if in.HTTPSSni != nil {
+		m["https_sni"] = *in.HTTPSSni
 	}
 	if in.Healthy != nil {
 		m["healthy"] = flattenActiveHealthy(in.Healthy)
@@ -565,14 +570,15 @@ func flattenHealthCheckActive(in *gokong.UpstreamHealthCheckActive) []interface{
 	return []interface{}{m}
 }
 
-func flattenHealthCheckPassive(in *gokong.UpstreamHealthCheckPassive) []interface{} {
+func flattenHealthCheckPassive(in *kong.PassiveHealthcheck) []interface{} {
 	if in == nil {
 		return []interface{}{}
 	}
 
 	m := make(map[string]interface{})
 
-	m["type"] = in.Type
+	// Requires the merge of https://github.com/hbagdi/go-kong/pull/22
+	// m["type"] = in.Type
 
 	if in.Healthy != nil {
 		m["healthy"] = flattenPassiveHealthy(in.Healthy)
@@ -584,55 +590,55 @@ func flattenHealthCheckPassive(in *gokong.UpstreamHealthCheckPassive) []interfac
 	return []interface{}{m}
 }
 
-func flattenActiveHealthy(in *gokong.ActiveHealthy) []map[string]interface{} {
+func flattenActiveHealthy(in *kong.Healthy) []map[string]interface{} {
 	if in == nil {
 		return []map[string]interface{}{}
 	}
 	m := make(map[string]interface{})
 
 	m["interval"] = in.Interval
-	m["http_statuses"] = in.HttpStatuses
+	m["http_statuses"] = in.HTTPStatuses
 	m["successes"] = in.Successes
 
 	return []map[string]interface{}{m}
 }
 
-func flattenActiveUnhealthy(in *gokong.ActiveUnhealthy) []map[string]interface{} {
+func flattenActiveUnhealthy(in *kong.Unhealthy) []map[string]interface{} {
 	if in == nil {
 		return []map[string]interface{}{}
 	}
 	m := make(map[string]interface{})
 
 	m["interval"] = in.Interval
-	m["http_statuses"] = in.HttpStatuses
-	m["tcp_failures"] = in.TcpFailures
-	m["http_failures"] = in.HttpFailures
+	m["http_statuses"] = in.HTTPStatuses
+	m["tcp_failures"] = in.TCPFailures
+	m["http_failures"] = in.HTTPFailures
 	m["timeouts"] = in.Timeouts
 
 	return []map[string]interface{}{m}
 }
 
-func flattenPassiveHealthy(in *gokong.PassiveHealthy) []map[string]interface{} {
+func flattenPassiveHealthy(in *kong.Healthy) []map[string]interface{} {
 	if in == nil {
 		return []map[string]interface{}{}
 	}
 	m := make(map[string]interface{})
 
-	m["http_statuses"] = in.HttpStatuses
+	m["http_statuses"] = in.HTTPStatuses
 	m["successes"] = in.Successes
 
 	return []map[string]interface{}{m}
 }
 
-func flattenPassiveUnhealthy(in *gokong.PassiveUnhealthy) []map[string]interface{} {
+func flattenPassiveUnhealthy(in *kong.Unhealthy) []map[string]interface{} {
 	if in == nil {
 		return []map[string]interface{}{}
 	}
 	m := make(map[string]interface{})
 
-	m["http_statuses"] = in.HttpStatuses
-	m["tcp_failures"] = in.TcpFailures
-	m["http_failures"] = in.HttpFailures
+	m["http_statuses"] = in.HTTPStatuses
+	m["tcp_failures"] = in.TCPFailures
+	m["http_failures"] = in.HTTPFailures
 	m["timeouts"] = in.Timeouts
 
 	return []map[string]interface{}{m}

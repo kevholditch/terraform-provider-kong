@@ -1,12 +1,14 @@
 package kong
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hbagdi/go-kong/kong"
 )
 
 func resourceKongConsumerPluginConfig() *schema.Resource {
@@ -52,7 +54,7 @@ func resourceKongConsumerPluginConfig() *schema.Resource {
 }
 
 type idFields struct {
-	consumerId string
+	consumerID string
 	pluginName string
 	id         string
 }
@@ -88,11 +90,11 @@ func normalizeDataJSON(configI interface{}) string {
 	return string(ret)
 }
 
-func buildId(consumerId, pluginName, configId string) string {
-	return consumerId + "|" + pluginName + "|" + configId
+func buildID(consumerID, pluginName, configID string) string {
+	return consumerID + "|" + pluginName + "|" + configID
 }
 
-func splitIdIntoFields(id string) (*idFields, error) {
+func splitIDIntoFields(id string) (*idFields, error) {
 	idSplit := strings.Split(id, "|")
 
 	if len(idSplit) != 3 {
@@ -100,7 +102,7 @@ func splitIdIntoFields(id string) (*idFields, error) {
 	}
 
 	return &idFields{
-		consumerId: idSplit[0],
+		consumerID: idSplit[0],
 		pluginName: idSplit[1],
 		id:         idSplit[2],
 	}, nil
@@ -108,11 +110,25 @@ func splitIdIntoFields(id string) (*idFields, error) {
 
 func resourceKongConsumerPluginConfigCreate(d *schema.ResourceData, meta interface{}) error {
 
-	consumerId := readStringFromResource(d, "consumer_id")
+	consumerID := readStringFromResource(d, "consumer_id")
 	pluginName := readStringFromResource(d, "plugin_name")
-	configJson := readStringFromResource(d, "config_json")
+	configJSON := readStringFromResource(d, "config_json")
 
-	consumerPluginConfig, err := meta.(*config).adminClient.Consumers().CreatePluginConfig(consumerId, pluginName, configJson)
+	client := meta.(*config).adminClient.Plugins
+
+	consumer := kong.Consumer{
+		ID: kong.String(consumerID),
+	}
+	config := kong.Configuration{}
+	err := json.Unmarshal([]byte(configJSON), &config)
+	plugin := &kong.Plugin{
+		Consumer: &consumer,
+		Name:     kong.String(pluginName),
+		Config:   config,
+	}
+
+	consumerPluginConfig, err := client.Create(context.Background(), plugin)
+
 	if err != nil {
 		return fmt.Errorf("failed to create kong consumer plugin config, error: %v", err)
 	}
@@ -120,7 +136,7 @@ func resourceKongConsumerPluginConfigCreate(d *schema.ResourceData, meta interfa
 	if consumerPluginConfig == nil {
 		d.SetId("")
 	} else {
-		d.SetId(buildId(consumerId, pluginName, consumerPluginConfig.Id))
+		d.SetId(buildID(consumerID, pluginName, *consumerPluginConfig.ID))
 	}
 
 	return resourceKongConsumerPluginConfigRead(d, meta)
@@ -128,53 +144,57 @@ func resourceKongConsumerPluginConfigCreate(d *schema.ResourceData, meta interfa
 
 func resourceKongConsumerPluginConfigRead(d *schema.ResourceData, meta interface{}) error {
 
-	idFields, err := splitIdIntoFields(d.Id())
+	idFields, err := splitIDIntoFields(d.Id())
 
 	if err != nil {
 		return err
 	}
 
 	// First check if the consumer exists. If it does not then the consumer plugin no longer exists either.
-	if consumer, _ := meta.(*config).adminClient.Consumers().GetById(idFields.consumerId); consumer == nil {
+	consumerClient := meta.(*config).adminClient.Consumers
+	if consumer, _ := consumerClient.Get(context.Background(), kong.String(idFields.consumerID)); consumer == nil {
 		d.SetId("")
 		return nil
 	}
 
-	consumerPluginConfig, err := meta.(*config).adminClient.Consumers().GetPluginConfig(idFields.consumerId, idFields.pluginName, idFields.id)
+	client := meta.(*config).adminClient.Plugins
 
+	plugin, err := client.Get(context.Background(), kong.String(idFields.id))
 	if err != nil {
 		return fmt.Errorf("could not find kong consumer plugin config with id: %s error: %v", d.Id(), err)
 	}
 
-	if consumerPluginConfig == nil {
+	if plugin.Config == nil {
 		return fmt.Errorf("could not configure plugin for kong consumer")
 	}
 
-	d.Set("consumer_id", idFields.consumerId)
+	d.Set("consumer_id", idFields.consumerID)
 	d.Set("plugin_name", idFields.pluginName)
 
 	// We sync this property from upstream as a method to allow you to import a resource with the config tracked in
 	// terraform state. We do not track `config` as it will be a source of a perpetual diff.
 	// https://www.terraform.io/docs/extend/best-practices/detecting-drift.html#capture-all-state-in-read
-	upstreamJson, err := consumerPluginConfigJsonToString(consumerPluginConfig.Body)
+	upstreamJSON, err := consumerPluginConfigJSONToString(plugin.Config)
 	if err != nil {
 		return fmt.Errorf("could not read in consumer plugin config body: %s error: %v", d.Id(), err)
 	}
 
-	d.Set("computed_config", upstreamJson)
+	d.Set("computed_config", upstreamJSON)
 
 	return nil
 }
 
 func resourceKongConsumerPluginConfigDelete(d *schema.ResourceData, meta interface{}) error {
 
-	idFields, err := splitIdIntoFields(d.Id())
+	idFields, err := splitIDIntoFields(d.Id())
 
 	if err != nil {
 		return err
 	}
 
-	err = meta.(*config).adminClient.Consumers().DeletePluginConfig(idFields.consumerId, idFields.pluginName, idFields.id)
+	client := meta.(*config).adminClient.Plugins
+
+	client.Delete(context.Background(), kong.String(idFields.id))
 
 	if err != nil {
 		return fmt.Errorf("could not delete kong consumer plugin config: %v", err)
@@ -183,21 +203,16 @@ func resourceKongConsumerPluginConfigDelete(d *schema.ResourceData, meta interfa
 	return nil
 }
 
-// Since this config is a schemaless "blob" we have to remove computed properties
-func consumerPluginConfigJsonToString(body string) (string, error) {
-	data := map[string]interface{}{}
+// consumerPluginConfigJsonToString removes computed properties
+func consumerPluginConfigJSONToString(config kong.Configuration) (string, error) {
 	marshalledData := map[string]interface{}{}
-	err := json.Unmarshal([]byte(body), &data)
-	if err != nil {
-		return "", err
-	}
 
-	for key, val := range data {
+	for key, val := range config {
 		if !contains(computedPluginProperties, key) {
 			marshalledData[key] = val
 		}
 	}
-	rawJson, _ := json.Marshal(marshalledData)
+	rawJSON, _ := json.Marshal(marshalledData)
 
-	return string(rawJson), nil
+	return string(rawJSON), nil
 }

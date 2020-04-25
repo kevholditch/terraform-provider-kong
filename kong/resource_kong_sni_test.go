@@ -1,11 +1,13 @@
 package kong
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hbagdi/go-kong/kong"
 )
 
 func TestAccKongSni(t *testing.T) {
@@ -53,7 +55,7 @@ func TestAccKongSniImport(t *testing.T) {
 
 func testAccCheckKongSniDestroy(state *terraform.State) error {
 
-	client := testAccProvider.Meta().(*config).adminClient
+	client := testAccProvider.Meta().(*config).adminClient.SNIs
 
 	snis := getResourcesByType("kong_sni", state)
 
@@ -61,7 +63,7 @@ func testAccCheckKongSniDestroy(state *terraform.State) error {
 		return fmt.Errorf("expecting only 1 sni resource found %v", len(snis))
 	}
 
-	response, err := client.Snis().GetByName(snis[0].Primary.ID)
+	response, err := client.Get(context.Background(), kong.String(snis[0].Primary.ID))
 
 	if err != nil {
 		return fmt.Errorf("error calling get sni by id: %v", err)
@@ -87,7 +89,8 @@ func testAccCheckKongSniExists(resourceKey string) resource.TestCheckFunc {
 			return fmt.Errorf("no ID is set")
 		}
 
-		api, err := testAccProvider.Meta().(*config).adminClient.Snis().GetByName(rs.Primary.ID)
+		client := testAccProvider.Meta().(*config).adminClient.SNIs
+		api, err := client.Get(context.Background(), kong.String(rs.Primary.ID))
 
 		if err != nil {
 			return err

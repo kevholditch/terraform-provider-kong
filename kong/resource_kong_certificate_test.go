@@ -1,11 +1,13 @@
 package kong
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hbagdi/go-kong/kong"
 )
 
 func TestAccKongCertificate(t *testing.T) {
@@ -63,7 +65,7 @@ func testAccCheckKongCertificateDestroy(state *terraform.State) error {
 		return fmt.Errorf("expecting only 1 certificate resource found %v", len(certificates))
 	}
 
-	response, err := client.Certificates().GetById(certificates[0].Primary.ID)
+	response, err := client.Certificates.Get(context.Background(), kong.String(certificates[0].Primary.ID))
 
 	if err != nil {
 		return fmt.Errorf("error calling get certificate by id: %v", err)
@@ -89,7 +91,9 @@ func testAccCheckKongCertificateExists(resourceKey string) resource.TestCheckFun
 			return fmt.Errorf("no ID is set")
 		}
 
-		api, err := testAccProvider.Meta().(*config).adminClient.Certificates().GetById(rs.Primary.ID)
+		client := testAccProvider.Meta().(*config).adminClient.Certificates
+
+		api, err := client.Get(context.Background(), kong.String(rs.Primary.ID))
 
 		if err != nil {
 			return err

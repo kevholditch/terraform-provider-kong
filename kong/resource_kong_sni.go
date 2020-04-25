@@ -1,10 +1,11 @@
 package kong
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/kevholditch/gokong"
+	"github.com/hbagdi/go-kong/kong"
 )
 
 func resourceKongSni() *schema.Resource {
@@ -35,20 +36,22 @@ func resourceKongSniCreate(d *schema.ResourceData, meta interface{}) error {
 
 	sniRequest := createKongSniRequestFromResourceData(d)
 
-	sni, err := meta.(*config).adminClient.Snis().Create(sniRequest)
+	client := meta.(*config).adminClient.SNIs
+	sni, err := client.Create(context.Background(), sniRequest)
 
 	if err != nil {
 		return fmt.Errorf("failed to create kong sni: %v error: %v", sniRequest, err)
 	}
 
-	d.SetId(sni.Name)
+	d.SetId(*sni.Name)
 
 	return resourceKongSniRead(d, meta)
 }
 
 func resourceKongSniRead(d *schema.ResourceData, meta interface{}) error {
 
-	sni, err := meta.(*config).adminClient.Snis().GetByName(d.Id())
+	client := meta.(*config).adminClient.SNIs
+	sni, err := client.Get(context.Background(), kong.String(d.Id()))
 
 	if err != nil {
 		return fmt.Errorf("could not find kong sni: %v", err)
@@ -58,7 +61,7 @@ func resourceKongSniRead(d *schema.ResourceData, meta interface{}) error {
 		d.SetId("")
 	} else {
 		d.Set("name", sni.Name)
-		d.Set("certificate_id", sni.CertificateId)
+		d.Set("certificate_id", sni.Certificate.ID)
 	}
 
 	return nil
@@ -66,7 +69,8 @@ func resourceKongSniRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceKongSniDelete(d *schema.ResourceData, meta interface{}) error {
 
-	err := meta.(*config).adminClient.Snis().DeleteByName(d.Id())
+	client := meta.(*config).adminClient.SNIs
+	err := client.Delete(context.Background(), kong.String(d.Id()))
 
 	if err != nil {
 		return fmt.Errorf("could not delete kong sni: %v", err)
@@ -75,12 +79,12 @@ func resourceKongSniDelete(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func createKongSniRequestFromResourceData(d *schema.ResourceData) *gokong.SnisRequest {
+func createKongSniRequestFromResourceData(d *schema.ResourceData) *kong.SNI {
 
-	sniRequest := &gokong.SnisRequest{}
+	sniRequest := &kong.SNI{}
 
-	sniRequest.Name = readStringFromResource(d, "name")
-	sniRequest.CertificateId = readIdPtrFromResource(d, "certificate_id")
+	sniRequest.Name = readStringPtrFromResource(d, "name")
+	sniRequest.Certificate.ID = readIdPtrFromResource(d, "certificate_id")
 
 	return sniRequest
 }

@@ -1,11 +1,13 @@
 package kong
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hbagdi/go-kong/kong"
 )
 
 func TestAccKongService(t *testing.T) {
@@ -88,7 +90,7 @@ func TestAccKongServiceImport(t *testing.T) {
 
 func testAccCheckKongServiceDestroy(state *terraform.State) error {
 
-	client := testAccProvider.Meta().(*config).adminClient
+	client := testAccProvider.Meta().(*config).adminClient.Services
 
 	services := getResourcesByType("kong_service", state)
 
@@ -96,7 +98,7 @@ func testAccCheckKongServiceDestroy(state *terraform.State) error {
 		return fmt.Errorf("expecting only 1 service resource found %v", len(services))
 	}
 
-	response, err := client.Services().GetServiceById(services[0].Primary.ID)
+	response, err := client.Get(context.Background(), kong.String(services[0].Primary.ID))
 
 	if err != nil {
 		return fmt.Errorf("error calling get service by id: %v", err)
@@ -122,7 +124,8 @@ func testAccCheckKongServiceExists(resourceKey string) resource.TestCheckFunc {
 			return fmt.Errorf("no ID is set")
 		}
 
-		service, err := testAccProvider.Meta().(*config).adminClient.Services().GetServiceById(rs.Primary.ID)
+		client := testAccProvider.Meta().(*config).adminClient.Services
+		service, err := client.Get(context.Background(), kong.String(rs.Primary.ID))
 
 		if err != nil {
 			return err

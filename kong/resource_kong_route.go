@@ -1,10 +1,11 @@
 package kong
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/kevholditch/gokong"
+	"github.com/hbagdi/go-kong/kong"
 )
 
 func resourceKongRoute() *schema.Resource {
@@ -116,12 +117,13 @@ func resourceKongRouteCreate(d *schema.ResourceData, meta interface{}) error {
 
 	routeRequest := createKongRouteRequestFromResourceData(d)
 
-	route, err := meta.(*config).adminClient.Routes().Create(routeRequest)
+	client := meta.(*config).adminClient.Routes
+	route, err := client.Create(context.Background(), routeRequest)
 	if err != nil {
 		return fmt.Errorf("failed to create kong route: %v error: %v", routeRequest, err)
 	}
 
-	d.SetId(*route.Id)
+	d.SetId(*route.ID)
 
 	return resourceKongRouteRead(d, meta)
 }
@@ -131,7 +133,9 @@ func resourceKongRouteUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	routeRequest := createKongRouteRequestFromResourceData(d)
 
-	_, err := meta.(*config).adminClient.Routes().UpdateById(d.Id(), routeRequest)
+	client := meta.(*config).adminClient.Routes
+
+	_, err := client.Update(context.Background(), routeRequest)
 
 	if err != nil {
 		return fmt.Errorf("error updating kong route: %s", err)
@@ -142,7 +146,8 @@ func resourceKongRouteUpdate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceKongRouteRead(d *schema.ResourceData, meta interface{}) error {
 
-	route, err := meta.(*config).adminClient.Routes().GetById(d.Id())
+	client := meta.(*config).adminClient.Routes
+	route, err := client.Get(context.Background(), kong.String(d.Id()))
 
 	if err != nil {
 		return fmt.Errorf("could not find kong route: %v", err)
@@ -155,19 +160,19 @@ func resourceKongRouteRead(d *schema.ResourceData, meta interface{}) error {
 			d.Set("name", route.Name)
 		}
 		if route.Protocols != nil {
-			d.Set("protocols", gokong.StringValueSlice(route.Protocols))
+			d.Set("protocols", StringValueSlice(route.Protocols))
 		}
 
 		if route.Methods != nil {
-			d.Set("methods", gokong.StringValueSlice(route.Methods))
+			d.Set("methods", StringValueSlice(route.Methods))
 		}
 
 		if route.Hosts != nil {
-			d.Set("hosts", gokong.StringValueSlice(route.Hosts))
+			d.Set("hosts", StringValueSlice(route.Hosts))
 		}
 
 		if route.Paths != nil {
-			d.Set("paths", gokong.StringValueSlice(route.Paths))
+			d.Set("paths", StringValueSlice(route.Paths))
 		}
 
 		if route.StripPath != nil {
@@ -190,8 +195,8 @@ func resourceKongRouteRead(d *schema.ResourceData, meta interface{}) error {
 			d.Set("regex_priority", route.RegexPriority)
 		}
 
-		if route.Snis != nil {
-			d.Set("snis", gokong.StringValueSlice(route.Snis))
+		if route.SNIs != nil {
+			d.Set("snis", StringValueSlice(route.SNIs))
 		}
 
 		if route.Service != nil {
@@ -205,7 +210,8 @@ func resourceKongRouteRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceKongRouteDelete(d *schema.ResourceData, meta interface{}) error {
 
-	err := meta.(*config).adminClient.Routes().DeleteById(d.Id())
+	client := meta.(*config).adminClient.Routes
+	err := client.Delete(context.Background(), kong.String(d.Id()))
 
 	if err != nil {
 		return fmt.Errorf("could not delete kong route: %v", err)
@@ -214,8 +220,11 @@ func resourceKongRouteDelete(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func createKongRouteRequestFromResourceData(d *schema.ResourceData) *gokong.RouteRequest {
-	return &gokong.RouteRequest{
+func createKongRouteRequestFromResourceData(d *schema.ResourceData) *kong.Route {
+	service := &kong.Service{
+		ID: readIdPtrFromResource(d, "service_id"),
+	}
+	return &kong.Route{
 		Name:          readStringPtrFromResource(d, "name"),
 		Protocols:     readStringArrayPtrFromResource(d, "protocols"),
 		Methods:       readStringArrayPtrFromResource(d, "methods"),
@@ -226,7 +235,7 @@ func createKongRouteRequestFromResourceData(d *schema.ResourceData) *gokong.Rout
 		Destinations:  readIpPortArrayFromResource(d, "destination"),
 		PreserveHost:  readBoolPtrFromResource(d, "preserve_host"),
 		RegexPriority: readIntPtrFromResource(d, "regex_priority"),
-		Snis:          readStringArrayPtrFromResource(d, "snis"),
-		Service:       readIdPtrFromResource(d, "service_id"),
+		SNIs:          readStringArrayPtrFromResource(d, "snis"),
+		Service:       service,
 	}
 }

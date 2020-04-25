@@ -5,11 +5,11 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-	"github.com/kevholditch/gokong"
+	"github.com/hbagdi/go-kong/kong"
 )
 
 type config struct {
-	adminClient           *gokong.KongAdminClient
+	adminClient           *kong.Client
 	strictPlugins         bool
 	strictConsumerPlugins bool
 }
@@ -52,6 +52,11 @@ func Provider() terraform.ResourceProvider {
 				Optional:    true,
 				DefaultFunc: envDefaultFuncWithDefault("KONG_ADMIN_TOKEN", ""),
 				Description: "API key for the kong api (Enterprise Edition)",
+			},
+			"kong_workspace": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Workspace context (Enterprise Edition)",
 			},
 			"strict_plugins_match": &schema.Schema{
 				Type:        schema.TypeBool,
@@ -101,17 +106,23 @@ func envDefaultFuncWithDefault(key string, defaultValue string) schema.SchemaDef
 
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 
-	kongConfig := &gokong.Config{
-		HostAddress:        d.Get("kong_admin_uri").(string),
+	kongConfig := &Config{
+		Address:            d.Get("kong_admin_uri").(string),
 		Username:           d.Get("kong_admin_username").(string),
 		Password:           d.Get("kong_admin_password").(string),
 		InsecureSkipVerify: d.Get("tls_skip_verify").(bool),
-		ApiKey:             d.Get("kong_api_key").(string),
+		APIKey:             d.Get("kong_api_key").(string),
 		AdminToken:         d.Get("kong_admin_token").(string),
+		Workspace:          d.Get("kong_workspace").(string),
+	}
+
+	client, err := GetKongClient(*kongConfig)
+	if err != nil {
+		return nil, err
 	}
 
 	config := &config{
-		adminClient:   gokong.NewClient(kongConfig),
+		adminClient:   client,
 		strictPlugins: d.Get("strict_plugins_match").(bool),
 	}
 

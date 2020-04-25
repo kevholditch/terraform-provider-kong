@@ -1,11 +1,13 @@
 package kong
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hbagdi/go-kong/kong"
 )
 
 func TestAccKongConsumer(t *testing.T) {
@@ -55,7 +57,7 @@ func TestAccKongConsumerImport(t *testing.T) {
 
 func testAccCheckKongConsumerDestroy(state *terraform.State) error {
 
-	client := testAccProvider.Meta().(*config).adminClient
+	client := testAccProvider.Meta().(*config).adminClient.Consumers
 
 	consumers := getResourcesByType("kong_consumer", state)
 
@@ -63,14 +65,14 @@ func testAccCheckKongConsumerDestroy(state *terraform.State) error {
 		return fmt.Errorf("expecting only 1 consumer resource found %v", len(consumers))
 	}
 
-	response, err := client.Consumers().GetById(consumers[0].Primary.ID)
+	consumer, err := client.Get(context.Background(), kong.String(consumers[0].Primary.ID))
 
 	if err != nil {
 		return fmt.Errorf("error calling get consumer by id: %v", err)
 	}
 
-	if response != nil {
-		return fmt.Errorf("consumer %s still exists, %+v", consumers[0].Primary.ID, response)
+	if consumer != nil {
+		return fmt.Errorf("consumer %s still exists, %+v", consumers[0].Primary.ID, consumer)
 	}
 
 	return nil
@@ -89,9 +91,9 @@ func testAccCheckKongConsumerExists(resourceKey string) resource.TestCheckFunc {
 			return fmt.Errorf("no ID is set")
 		}
 
-		client := testAccProvider.Meta().(*config).adminClient
+		client := testAccProvider.Meta().(*config).adminClient.Consumers
 
-		api, err := client.Consumers().GetById(rs.Primary.ID)
+		api, err := client.Get(context.Background(), kong.String(rs.Primary.ID))
 
 		if err != nil {
 			return err

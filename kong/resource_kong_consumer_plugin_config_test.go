@@ -1,12 +1,14 @@
 package kong
 
 import (
+	"context"
 	"fmt"
 	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hbagdi/go-kong/kong"
 )
 
 func TestAccKongConsumerPluginConfig(t *testing.T) {
@@ -79,7 +81,7 @@ func TestAccCheckKongConsumerPluginCreateAndRefreshFromNonExistentConsumer(t *te
 
 func testAccCheckKongConsumerPluginConfig(state *terraform.State) error {
 
-	client := testAccProvider.Meta().(*config).adminClient
+	client := testAccProvider.Meta().(*config).adminClient.Plugins
 
 	consumerPluginConfigs := getResourcesByType("kong_consumer_plugin_config", state)
 
@@ -91,20 +93,20 @@ func testAccCheckKongConsumerPluginConfig(state *terraform.State) error {
 		return nil
 	}
 
-	idFields, err := splitIdIntoFields(consumerPluginConfigs[0].Primary.ID)
+	idFields, err := splitIDIntoFields(consumerPluginConfigs[0].Primary.ID)
 
 	if err != nil {
 		return err
 	}
 
-	response, err := client.Consumers().GetPluginConfig(idFields.consumerId, idFields.pluginName, idFields.id)
+	plugin, err := client.Get(context.Background(), kong.String(idFields.id))
 
 	if err != nil {
 		return fmt.Errorf("error calling get consumer plugin config by id: %v", err)
 	}
 
-	if response != nil {
-		return fmt.Errorf("consumer plugin config %s still exists, %+v", consumerPluginConfigs[0].Primary.ID, response)
+	if plugin.Config != nil {
+		return fmt.Errorf("consumer plugin config %s still exists, %+v", consumerPluginConfigs[0].Primary.ID, plugin.Config)
 	}
 
 	return nil
@@ -123,21 +125,21 @@ func testAccCheckKongConsumerPluginConfigExists(resourceKey string) resource.Tes
 			return fmt.Errorf("no ID is set")
 		}
 
-		client := testAccProvider.Meta().(*config).adminClient
+		client := testAccProvider.Meta().(*config).adminClient.Plugins
 
-		idFields, err := splitIdIntoFields(rs.Primary.ID)
-
-		if err != nil {
-			return err
-		}
-
-		consumerPluginConfig, err := client.Consumers().GetPluginConfig(idFields.consumerId, idFields.pluginName, idFields.id)
+		idFields, err := splitIDIntoFields(rs.Primary.ID)
 
 		if err != nil {
 			return err
 		}
 
-		if consumerPluginConfig == nil {
+		plugin, err := client.Get(context.Background(), kong.String(idFields.id))
+
+		if err != nil {
+			return err
+		}
+
+		if plugin.Config == nil {
 			return fmt.Errorf("consumer plugin config with id %v not found", rs.Primary.ID)
 		}
 
@@ -153,7 +155,8 @@ func deleteConsumer(resourceKey string) resource.TestCheckFunc {
 			return fmt.Errorf("not found: %s", resourceKey)
 		}
 
-		if err := testAccProvider.Meta().(*config).adminClient.Consumers().DeleteById(rs.Primary.ID); err != nil {
+		client := testAccProvider.Meta().(*config).adminClient.Consumers
+		if err := client.Delete(context.Background(), kong.String(rs.Primary.ID)); err != nil {
 			return fmt.Errorf("could not delete kong consumer: %v", err)
 		}
 
