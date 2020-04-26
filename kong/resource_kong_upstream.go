@@ -287,7 +287,7 @@ func resourceKongUpstreamRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*config).adminClient.Upstreams
 	upstream, err := client.Get(context.Background(), kong.String(d.Id()))
 
-	if err != nil {
+	if !kong.IsNotFoundErr(err) && err != nil {
 		return fmt.Errorf("could not find kong upstream: %v", err)
 	}
 

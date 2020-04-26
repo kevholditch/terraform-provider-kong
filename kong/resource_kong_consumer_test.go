@@ -67,7 +67,7 @@ func testAccCheckKongConsumerDestroy(state *terraform.State) error {
 
 	consumer, err := client.Get(context.Background(), kong.String(consumers[0].Primary.ID))
 
-	if err != nil {
+	if !kong.IsNotFoundErr(err) && err != nil {
 		return fmt.Errorf("error calling get consumer by id: %v", err)
 	}
 

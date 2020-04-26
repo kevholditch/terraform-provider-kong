@@ -37,12 +37,14 @@ func resourceKongCertificate() *schema.Resource {
 
 func resourceKongCertificateCreate(d *schema.ResourceData, meta interface{}) error {
 
-	certificateRequest := createKongCertificateFromResourceData(d)
+	certificateRequest := &kong.Certificate{
+		Cert: kong.String(d.Get("certificate").(string)),
+		Key:  kong.String(d.Get("private_key").(string)),
+	}
 
 	client := meta.(*config).adminClient.Certificates
 
 	certificate, err := client.Create(context.Background(), certificateRequest)
-	// certificate, err := meta.(*config).adminClient.Certificates().Create(certificateRequest)
 
 	if err != nil {
 		return fmt.Errorf("failed to create kong certificate: %v error: %v", certificateRequest, err)
@@ -56,7 +58,11 @@ func resourceKongCertificateCreate(d *schema.ResourceData, meta interface{}) err
 func resourceKongCertificateUpdate(d *schema.ResourceData, meta interface{}) error {
 	d.Partial(false)
 
-	certificateRequest := createKongCertificateFromResourceData(d)
+	certificateRequest := &kong.Certificate{
+		ID:   kong.String(d.Id()),
+		Cert: kong.String(d.Get("certificate").(string)),
+		Key:  kong.String(d.Get("private_key").(string)),
+	}
 
 	client := meta.(*config).adminClient.Certificates
 
@@ -75,7 +81,7 @@ func resourceKongCertificateRead(d *schema.ResourceData, meta interface{}) error
 
 	certificate, err := client.Get(context.Background(), kong.String(d.Id()))
 
-	if err != nil {
+	if !kong.IsNotFoundErr(err) && err != nil {
 		return fmt.Errorf("could not find kong certificate: %v", err)
 	}
 
@@ -83,11 +89,11 @@ func resourceKongCertificateRead(d *schema.ResourceData, meta interface{}) error
 		d.SetId("")
 	} else {
 		if certificate.Cert != nil {
-			d.Set("certificate", certificate.Cert)
+			d.Set("certificate", &certificate.Cert)
 		}
 
 		if certificate.Key != nil {
-			d.Set("private_key", certificate.Key)
+			d.Set("private_key", &certificate.Key)
 		}
 	}
 
@@ -105,14 +111,4 @@ func resourceKongCertificateDelete(d *schema.ResourceData, meta interface{}) err
 	}
 
 	return nil
-}
-
-func createKongCertificateFromResourceData(d *schema.ResourceData) *kong.Certificate {
-
-	certificate := &kong.Certificate{}
-
-	certificate.Cert = readStringPtrFromResource(d, "certificate")
-	certificate.Key = readStringPtrFromResource(d, "private_key")
-
-	return certificate
 }

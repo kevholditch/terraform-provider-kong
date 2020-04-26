@@ -120,10 +120,17 @@ func resourceKongPluginRead(d *schema.ResourceData, meta interface{}) error {
 	if plugin == nil {
 		d.SetId("")
 	} else {
+		d.SetId(*plugin.ID)
 		d.Set("name", plugin.Name)
-		d.Set("service_id", plugin.Service.ID)
-		d.Set("route_id", plugin.Route.ID)
-		d.Set("consumer_id", plugin.Consumer.ID)
+		if plugin.Service != nil {
+			d.Set("service_id", plugin.Service.ID)
+		}
+		if plugin.Route != nil {
+			d.Set("route_id", plugin.Route.ID)
+		}
+		if plugin.Consumer != nil {
+			d.Set("consumer_id", plugin.Consumer.ID)
+		}
 		d.Set("enabled", plugin.Enabled)
 
 		// We sync this property from upstream as a method to allow you to import a resource with the config tracked in
@@ -162,11 +169,32 @@ func resourceKongPluginDelete(d *schema.ResourceData, meta interface{}) error {
 func createKongPluginRequestFromResourceData(d *schema.ResourceData) (*kong.Plugin, error) {
 
 	pluginRequest := &kong.Plugin{}
+	// Build Consumer Configuration
+	consumerID := readIdPtrFromResource(d, "consumer_id")
+	if consumerID != nil {
+		pluginRequest.Consumer = &kong.Consumer{
+			ID: consumerID,
+		}
+	}
+	// Build Service Configuration
+	serviceID := readIdPtrFromResource(d, "service_id")
+	if serviceID != nil {
+		pluginRequest.Service = &kong.Service{
+			ID: serviceID,
+		}
+	}
+	// Build Route Configuration
+	routeID := readIdPtrFromResource(d, "route_id")
+	if routeID != nil {
+		pluginRequest.Route = &kong.Route{
+			ID: routeID,
+		}
+	}
+	if d.Id() != "" {
+		pluginRequest.ID = kong.String(d.Id())
+	}
 
 	pluginRequest.Name = readStringPtrFromResource(d, "name")
-	pluginRequest.Consumer.ID = readIdPtrFromResource(d, "consumer_id")
-	pluginRequest.Service.ID = readIdPtrFromResource(d, "service_id")
-	pluginRequest.Route.ID = readIdPtrFromResource(d, "route_id")
 	pluginRequest.Enabled = readBoolPtrFromResource(d, "enabled")
 
 	if data, ok := d.GetOk("config_json"); ok {

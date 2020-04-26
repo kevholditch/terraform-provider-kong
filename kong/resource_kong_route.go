@@ -149,7 +149,7 @@ func resourceKongRouteRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*config).adminClient.Routes
 	route, err := client.Get(context.Background(), kong.String(d.Id()))
 
-	if err != nil {
+	if !kong.IsNotFoundErr(err) && err != nil {
 		return fmt.Errorf("could not find kong route: %v", err)
 	}
 
@@ -200,7 +200,7 @@ func resourceKongRouteRead(d *schema.ResourceData, meta interface{}) error {
 		}
 
 		if route.Service != nil {
-			d.Set("service_id", route.Service)
+			d.Set("service_id", route.Service.ID)
 		}
 
 	}
@@ -221,10 +221,8 @@ func resourceKongRouteDelete(d *schema.ResourceData, meta interface{}) error {
 }
 
 func createKongRouteRequestFromResourceData(d *schema.ResourceData) *kong.Route {
-	service := &kong.Service{
-		ID: readIdPtrFromResource(d, "service_id"),
-	}
-	return &kong.Route{
+
+	route := &kong.Route{
 		Name:          readStringPtrFromResource(d, "name"),
 		Protocols:     readStringArrayPtrFromResource(d, "protocols"),
 		Methods:       readStringArrayPtrFromResource(d, "methods"),
@@ -236,6 +234,12 @@ func createKongRouteRequestFromResourceData(d *schema.ResourceData) *kong.Route 
 		PreserveHost:  readBoolPtrFromResource(d, "preserve_host"),
 		RegexPriority: readIntPtrFromResource(d, "regex_priority"),
 		SNIs:          readStringArrayPtrFromResource(d, "snis"),
-		Service:       service,
+		Service: &kong.Service{
+			ID: readIdPtrFromResource(d, "service_id"),
+		},
 	}
+	if d.Id() != "" {
+		route.ID = kong.String(d.Id())
+	}
+	return route
 }

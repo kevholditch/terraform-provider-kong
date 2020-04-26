@@ -67,7 +67,7 @@ func testAccCheckKongCertificateDestroy(state *terraform.State) error {
 
 	response, err := client.Certificates.Get(context.Background(), kong.String(certificates[0].Primary.ID))
 
-	if err != nil {
+	if !kong.IsNotFoundErr(err) {
 		return fmt.Errorf("error calling get certificate by id: %v", err)
 	}
 

@@ -116,15 +116,14 @@ func resourceKongConsumerPluginConfigCreate(d *schema.ResourceData, meta interfa
 
 	client := meta.(*config).adminClient.Plugins
 
-	consumer := kong.Consumer{
-		ID: kong.String(consumerID),
-	}
 	config := kong.Configuration{}
 	err := json.Unmarshal([]byte(configJSON), &config)
 	plugin := &kong.Plugin{
-		Consumer: &consumer,
-		Name:     kong.String(pluginName),
-		Config:   config,
+		Consumer: &kong.Consumer{
+			ID: kong.String(consumerID),
+		},
+		Name:   kong.String(pluginName),
+		Config: config,
 	}
 
 	consumerPluginConfig, err := client.Create(context.Background(), plugin)

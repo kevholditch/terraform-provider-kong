@@ -168,7 +168,7 @@ func resourceKongServiceDelete(d *schema.ResourceData, meta interface{}) error {
 }
 
 func createKongServiceRequestFromResourceData(d *schema.ResourceData) *kong.Service {
-	return &kong.Service{
+	service := &kong.Service{
 		Name:           readStringPtrFromResource(d, "name"),
 		Protocol:       readStringPtrFromResource(d, "protocol"),
 		Host:           readStringPtrFromResource(d, "host"),
@@ -179,4 +179,8 @@ func createKongServiceRequestFromResourceData(d *schema.ResourceData) *kong.Serv
 		WriteTimeout:   readIntPtrFromResource(d, "write_timeout"),
 		ReadTimeout:    readIntPtrFromResource(d, "read_timeout"),
 	}
+	if d.Id() != "" {
+		service.ID = kong.String(d.Id())
+	}
+	return service
 }

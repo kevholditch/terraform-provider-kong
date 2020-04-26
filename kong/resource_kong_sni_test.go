@@ -65,7 +65,7 @@ func testAccCheckKongSniDestroy(state *terraform.State) error {
 
 	response, err := client.Get(context.Background(), kong.String(snis[0].Primary.ID))
 
-	if err != nil {
+	if !kong.IsNotFoundErr(err) && err != nil {
 		return fmt.Errorf("error calling get sni by id: %v", err)
 	}
 

@@ -172,7 +172,7 @@ func testAccCheckKongPluginDestroy(state *terraform.State) error {
 
 	response, err := client.Get(context.Background(), kong.String(plugins[0].Primary.ID))
 
-	if err != nil {
+	if !kong.IsNotFoundErr(err) && err != nil {
 		return fmt.Errorf("error calling get plugin by id: %v", err)
 	}
 
@@ -234,7 +234,7 @@ func testAccCheckKongPluginExists(resourceKey string) resource.TestCheckFunc {
 		client := testAccProvider.Meta().(*config).adminClient.Plugins
 		api, err := client.Get(context.Background(), kong.String(rs.Primary.ID))
 
-		if err != nil {
+		if !kong.IsNotFoundErr(err) && err != nil {
 			return err
 		}
 

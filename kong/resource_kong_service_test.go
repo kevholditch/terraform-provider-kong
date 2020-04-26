@@ -100,7 +100,7 @@ func testAccCheckKongServiceDestroy(state *terraform.State) error {
 
 	response, err := client.Get(context.Background(), kong.String(services[0].Primary.ID))
 
-	if err != nil {
+	if !kong.IsNotFoundErr(err) && err != nil {
 		return fmt.Errorf("error calling get service by id: %v", err)
 	}
 

@@ -35,7 +35,10 @@ func resourceKongConsumer() *schema.Resource {
 
 func resourceKongConsumerCreate(d *schema.ResourceData, meta interface{}) error {
 
-	consumerRequest := createKongConsumerRequestFromResourceData(d)
+	consumerRequest := &kong.Consumer{
+		Username: kong.String(d.Get("username").(string)),
+		CustomID: kong.String(d.Get("custom_id").(string)),
+	}
 
 	client := meta.(*config).adminClient.Consumers
 	consumer, err := client.Create(context.Background(), consumerRequest)
@@ -52,7 +55,11 @@ func resourceKongConsumerCreate(d *schema.ResourceData, meta interface{}) error 
 func resourceKongConsumerUpdate(d *schema.ResourceData, meta interface{}) error {
 	d.Partial(false)
 
-	consumerRequest := createKongConsumerRequestFromResourceData(d)
+	consumerRequest := &kong.Consumer{
+		ID:       kong.String(d.Id()),
+		Username: kong.String(d.Get("username").(string)),
+		CustomID: kong.String(d.Get("custom_id").(string)),
+	}
 
 	client := meta.(*config).adminClient.Consumers
 	_, err := client.Update(context.Background(), consumerRequest)
@@ -71,7 +78,9 @@ func resourceKongConsumerRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*config).adminClient.Consumers
 	consumer, err := client.Get(context.Background(), kong.String(id))
 
-	if err != nil {
+	if kong.IsNotFoundErr(err) {
+		d.SetId("")
+	} else if err != nil {
 		return fmt.Errorf("could not find kong consumer with id: %s error: %v", id, err)
 	}
 
@@ -95,14 +104,4 @@ func resourceKongConsumerDelete(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	return nil
-}
-
-func createKongConsumerRequestFromResourceData(d *schema.ResourceData) *kong.Consumer {
-
-	consumerRequest := &kong.Consumer{}
-
-	consumerRequest.Username = kong.String(readStringFromResource(d, "username"))
-	consumerRequest.CustomID = kong.String(readStringFromResource(d, "custom_id"))
-
-	return consumerRequest
 }

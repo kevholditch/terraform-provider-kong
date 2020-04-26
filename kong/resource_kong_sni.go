@@ -84,7 +84,11 @@ func createKongSniRequestFromResourceData(d *schema.ResourceData) *kong.SNI {
 	sniRequest := &kong.SNI{}
 
 	sniRequest.Name = readStringPtrFromResource(d, "name")
-	sniRequest.Certificate.ID = readIdPtrFromResource(d, "certificate_id")
-
+	sniRequest.Certificate = &kong.Certificate{
+		ID: readIdPtrFromResource(d, "certificate_id"),
+	}
+	if d.Id() != "" {
+		sniRequest.ID = kong.String(d.Id())
+	}
 	return sniRequest
 }

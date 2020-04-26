@@ -144,7 +144,7 @@ func testAccCheckKongTargetExists(resourceKey string) resource.TestCheckFunc {
 		client := testAccProvider.Meta().(*config).adminClient.Targets
 		api, _, err := client.List(context.Background(), kong.String(ids[0]), nil)
 
-		if err != nil {
+		if !kong.IsNotFoundErr(err) && err != nil {
 			return err
 		}
 
