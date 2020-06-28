@@ -15,7 +15,7 @@ require (
 	github.com/gotestyourself/gotestyourself v2.2.0+incompatible // indirect
 	github.com/hashicorp/terraform v0.12.24 // indirect
 	github.com/hashicorp/terraform-plugin-sdk v1.7.0
-	github.com/hbagdi/go-kong v0.11.0
+	github.com/hbagdi/go-kong v0.11.1-0.20200520215447-05279344daa9
 	github.com/lib/pq v1.0.0
 	github.com/opencontainers/image-spec v1.0.1 // indirect
 	github.com/opencontainers/runc v0.1.1 // indirect

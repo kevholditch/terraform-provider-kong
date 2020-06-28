@@ -242,6 +242,8 @@ github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d h1:kJCB4vdITiW1eC1
 github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d/go.mod h1:+NfK9FKeTrX5uv1uIXGdwYDTeHna2qgaIlx54MXqjAM=
 github.com/hbagdi/go-kong v0.11.0 h1:yWhxXQ4Zsglx4vy1I+2NbXkabq3m23e/XXgwZ2CNjAM=
 github.com/hbagdi/go-kong v0.11.0/go.mod h1:qEtSDLbiWs8n2NzpRsNE46Z8LsWpGj2ELrMmIESYIyc=
+github.com/hbagdi/go-kong v0.11.1-0.20200520215447-05279344daa9 h1:++MeCYRxkOL/hX1mho2r4S1BZInO/X2SP3gjCOhm9/8=
+github.com/hbagdi/go-kong v0.11.1-0.20200520215447-05279344daa9/go.mod h1:qEtSDLbiWs8n2NzpRsNE46Z8LsWpGj2ELrMmIESYIyc=
 github.com/hbagdi/go-kong/kong v0.0.0-20191114132141-305470f01f9a h1:LO/whd92BLFpsp6LQYLcUjiOU7sImZcMfZdE04mjZKs=
 github.com/hbagdi/go-kong/kong v0.0.0-20191114132141-305470f01f9a/go.mod h1:/yPEclE0cTiGmrhJK8Un8tHP1ZQ3hty35tTdbwYaXqw=
 github.com/hbagdi/go-kong/kong v0.11.0 h1:yWhxXQ4Zsglx4vy1I+2NbXkabq3m23e/XXgwZ2CNjAM=

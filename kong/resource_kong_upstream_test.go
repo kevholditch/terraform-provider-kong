@@ -158,7 +158,7 @@ func testAccCheckKongUpstreamDestroy(state *terraform.State) error {
 
 	response, err := client.Get(context.Background(), kong.String(upstreams[0].Primary.ID))
 
-	if err != nil {
+	if !kong.IsNotFoundErr(err) && err != nil {
 		return fmt.Errorf("error calling get upstream by id: %v", err)
 	}
 
@@ -243,8 +243,7 @@ func TestCreateKongHealthCheckFromMap(t *testing.T) {
 					Unhealthy:              nil,
 				},
 				Passive: &kong.PassiveHealthcheck{
-					// Requires the merge of https://github.com/hbagdi/go-kong/pull/22
-					// Type:      kong.String("https"),
+					Type:      kong.String("https"),
 					Healthy:   nil,
 					Unhealthy: nil,
 				},
@@ -368,8 +367,7 @@ func TestCreateKongHealthCheckPassiveFromMap(t *testing.T) {
 				"type": "http",
 			},
 			expected: &kong.PassiveHealthcheck{
-				// Requires the merge of https://github.com/hbagdi/go-kong/pull/22
-				// Type:      "http",
+				Type:      kong.String("http"),
 				Healthy:   nil,
 				Unhealthy: nil,
 			},
@@ -393,8 +391,7 @@ func TestCreateKongHealthCheckPassiveFromMap(t *testing.T) {
 				},
 			},
 			expected: &kong.PassiveHealthcheck{
-				// Requires the merge of https://github.com/hbagdi/go-kong/pull/22
-				// Type:      "https",
+				Type: kong.String("https"),
 				Healthy: &kong.Healthy{
 					Successes:    kong.Int(3),
 					HTTPStatuses: []int{200},
@@ -651,8 +648,7 @@ func TestFlattenHealthCheck(t *testing.T) {
 					Unhealthy:              nil,
 				},
 				Passive: &kong.PassiveHealthcheck{
-					// Requires the merge of https://github.com/hbagdi/go-kong/pull/22
-					// Type:      "https",
+					Type:      kong.String("https"),
 					Healthy:   nil,
 					Unhealthy: nil,
 				},
@@ -787,8 +783,7 @@ func TestFlattenHealthCheckPassive(t *testing.T) {
 		// Simple data
 		{
 			in: kong.PassiveHealthcheck{
-				// Requires the merge of https://github.com/hbagdi/go-kong/pull/22
-				// Type:      "http",
+				Type:      kong.String("http"),
 				Healthy:   nil,
 				Unhealthy: nil,
 			},
@@ -800,8 +795,7 @@ func TestFlattenHealthCheckPassive(t *testing.T) {
 		}, // All data
 		{
 			in: kong.PassiveHealthcheck{
-				// Requires the merge of https://github.com/hbagdi/go-kong/pull/22
-				// Type: "https",
+				Type: kong.String("https"),
 				Healthy: &kong.Healthy{
 					Successes:    kong.Int(3),
 					HTTPStatuses: []int{200},

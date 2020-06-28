@@ -294,6 +294,7 @@ func resourceKongUpstreamRead(d *schema.ResourceData, meta interface{}) error {
 	if upstream == nil {
 		d.SetId("")
 	} else {
+		d.SetId(*upstream.ID)
 		d.Set("name", upstream.Name)
 		d.Set("slots", upstream.Slots)
 		d.Set("hash_on", upstream.HashOn)
@@ -326,6 +327,9 @@ func createKongUpstreamRequestFromResourceData(d *schema.ResourceData) *kong.Ups
 
 	upstreamRequest := &kong.Upstream{}
 
+	if d.Id() != "" {
+		upstreamRequest.ID = kong.String(d.Id())
+	}
 	upstreamRequest.Name = readStringPtrFromResource(d, "name")
 	upstreamRequest.Slots = readIntPtrFromResource(d, "slots")
 	upstreamRequest.HashOn = readStringPtrFromResource(d, "hash_on")
@@ -418,9 +422,9 @@ func createKongHealthCheckPassiveFromMap(data *map[string]interface{}) *kong.Pas
 		dataMap := *data
 		passive := &kong.PassiveHealthcheck{}
 
-		// if dataMap["type"] != nil {
-		// 	passive.Type = dataMap["type"].(string)
-		// }
+		if dataMap["type"] != nil {
+			passive.Type = kong.String(dataMap["type"].(string))
+		}
 
 		if dataMap["healthy"] != nil {
 			if healthyArray := dataMap["healthy"].([]interface{}); healthyArray != nil && len(healthyArray) > 0 {
@@ -577,8 +581,7 @@ func flattenHealthCheckPassive(in *kong.PassiveHealthcheck) []interface{} {
 
 	m := make(map[string]interface{})
 
-	// Requires the merge of https://github.com/hbagdi/go-kong/pull/22
-	// m["type"] = in.Type
+	m["type"] = in.Type
 
 	if in.Healthy != nil {
 		m["healthy"] = flattenPassiveHealthy(in.Healthy)
