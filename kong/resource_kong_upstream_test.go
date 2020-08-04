@@ -134,7 +134,7 @@ func TestAccKongUpstreamImport(t *testing.T) {
 
 func testAccCheckKongUpstreamDestroy(state *terraform.State) error {
 
-	client := testAccProvider.Meta().(*gokong.KongAdminClient)
+	client := testAccProvider.Meta().(*config).adminClient
 
 	upstreams := getResourcesByType("kong_upstream", state)
 
@@ -168,7 +168,7 @@ func testAccCheckKongUpstreamExists(resourceKey string) resource.TestCheckFunc {
 			return fmt.Errorf("no ID is set")
 		}
 
-		api, err := testAccProvider.Meta().(*gokong.KongAdminClient).Upstreams().GetById(rs.Primary.ID)
+		api, err := testAccProvider.Meta().(*config).adminClient.Upstreams().GetById(rs.Primary.ID)
 
 		if err != nil {
 			return err

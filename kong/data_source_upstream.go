@@ -247,7 +247,7 @@ func dataSourceKongUpstreamRead(d *schema.ResourceData, meta interface{}) error 
 		}
 	}
 
-	results, err := meta.(*gokong.KongAdminClient).Upstreams().ListFiltered(filter)
+	results, err := meta.(*config).adminClient.Upstreams().ListFiltered(filter)
 
 	if err != nil {
 		return fmt.Errorf("could not find upstream, error: %v", err)

@@ -6,7 +6,6 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/kevholditch/gokong"
 )
 
 func TestAccKongService(t *testing.T) {
@@ -68,7 +67,7 @@ func TestAccKongServiceImport(t *testing.T) {
 
 func testAccCheckKongServiceDestroy(state *terraform.State) error {
 
-	client := testAccProvider.Meta().(*gokong.KongAdminClient)
+	client := testAccProvider.Meta().(*config).adminClient
 
 	services := getResourcesByType("kong_service", state)
 
@@ -102,7 +101,7 @@ func testAccCheckKongServiceExists(resourceKey string) resource.TestCheckFunc {
 			return fmt.Errorf("no ID is set")
 		}
 
-		service, err := testAccProvider.Meta().(*gokong.KongAdminClient).Services().GetServiceById(rs.Primary.ID)
+		service, err := testAccProvider.Meta().(*config).adminClient.Services().GetServiceById(rs.Primary.ID)
 
 		if err != nil {
 			return err
