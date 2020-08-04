@@ -108,7 +108,7 @@ func dataSourceKongApiRead(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	results, err := meta.(*gokong.KongAdminClient).Apis().ListFiltered(filter)
+	results, err := meta.(*config).adminClient.Apis().ListFiltered(filter)
 
 	if err != nil {
 		return fmt.Errorf("could not find api, error: %v", err)

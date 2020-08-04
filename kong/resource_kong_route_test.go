@@ -6,7 +6,6 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/kevholditch/gokong"
 )
 
 func TestAccKongRoute(t *testing.T) {
@@ -65,7 +64,7 @@ func TestAccKongRouteImport(t *testing.T) {
 
 func testAccCheckKongRouteDestroy(state *terraform.State) error {
 
-	client := testAccProvider.Meta().(*gokong.KongAdminClient)
+	client := testAccProvider.Meta().(*config).adminClient
 
 	routes := getResourcesByType("kong_route", state)
 
@@ -99,7 +98,7 @@ func testAccCheckKongRouteExists(resourceKey string) resource.TestCheckFunc {
 			return fmt.Errorf("no ID is set")
 		}
 
-		route, err := testAccProvider.Meta().(*gokong.KongAdminClient).Routes().GetRoute(rs.Primary.ID)
+		route, err := testAccProvider.Meta().(*config).adminClient.Routes().GetRoute(rs.Primary.ID)
 
 		if err != nil {
 			return err

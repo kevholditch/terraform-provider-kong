@@ -6,7 +6,6 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/kevholditch/gokong"
 )
 
 func TestAccKongApi(t *testing.T) {
@@ -155,7 +154,7 @@ func TestAccKongApiImportNoMethods(t *testing.T) {
 
 func testAccCheckKongApiDestroy(state *terraform.State) error {
 
-	client := testAccProvider.Meta().(*gokong.KongAdminClient)
+	client := testAccProvider.Meta().(*config).adminClient
 
 	apis := getResourcesByType("kong_api", state)
 
@@ -189,7 +188,7 @@ func testAccCheckKongApiExists(resourceKey string) resource.TestCheckFunc {
 			return fmt.Errorf("no ID is set")
 		}
 
-		api, err := testAccProvider.Meta().(*gokong.KongAdminClient).Apis().GetById(rs.Primary.ID)
+		api, err := testAccProvider.Meta().(*config).adminClient.Apis().GetById(rs.Primary.ID)
 
 		if err != nil {
 			return err

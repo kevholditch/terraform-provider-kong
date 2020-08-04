@@ -6,7 +6,6 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/kevholditch/gokong"
 )
 
 func TestAccKongPluginForAllConsumersAndApis(t *testing.T) {
@@ -29,6 +28,32 @@ func TestAccKongPluginForAllConsumersAndApis(t *testing.T) {
 					testAccCheckKongPluginExists("kong_plugin.response_rate_limiting"),
 					resource.TestCheckResourceAttr("kong_plugin.response_rate_limiting", "name", "response-ratelimiting"),
 					resource.TestCheckResourceAttr("kong_plugin.response_rate_limiting", "config.limits.sms.minute", "40"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccKongPluginForAllConsumersAndApisFOOOOOOOOOOOOOOOOOOOO(t *testing.T) {
+
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongPluginDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testCreatePluginForAllApisAndConsumersConfig,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKongPluginExists("kong_plugin.response_rate_limiting"),
+					resource.TestCheckResourceAttr("kong_plugin.response_rate_limiting", "name", "response-ratelimiting"),
+					resource.TestCheckResourceAttr("kong_plugin.response_rate_limiting", "config.limits.sms.minute", "10"),
+				),
+			},
+			{
+				Config: testCreatePluginForAllApisAndConsumersConfig,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKongPluginExists("kong_plugin.response_rate_limiting"),
+					resource.TestCheckResourceAttr("kong_plugin.response_rate_limiting", "name", "response-ratelimiting"),
+					resource.TestCheckResourceAttr("kong_plugin.response_rate_limiting", "config.limits.sms.minute", "10"),
 				),
 			},
 		},
@@ -258,7 +283,7 @@ func TestAccKongPluginImportConfigJson(t *testing.T) {
 
 func testAccCheckKongPluginDestroy(state *terraform.State) error {
 
-	client := testAccProvider.Meta().(*gokong.KongAdminClient)
+	client := testAccProvider.Meta().(*config).adminClient
 
 	plugins := getResourcesByType("kong_plugin", state)
 
@@ -327,7 +352,7 @@ func testAccCheckKongPluginExists(resourceKey string) resource.TestCheckFunc {
 			return fmt.Errorf("no ID is set")
 		}
 
-		api, err := testAccProvider.Meta().(*gokong.KongAdminClient).Plugins().GetById(rs.Primary.ID)
+		api, err := testAccProvider.Meta().(*config).adminClient.Plugins().GetById(rs.Primary.ID)
 
 		if err != nil {
 			return err

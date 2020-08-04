@@ -36,7 +36,7 @@ func resourceKongConsumerCreate(d *schema.ResourceData, meta interface{}) error 
 
 	consumerRequest := createKongConsumerRequestFromResourceData(d)
 
-	consumer, err := meta.(*gokong.KongAdminClient).Consumers().Create(consumerRequest)
+	consumer, err := meta.(*config).adminClient.Consumers().Create(consumerRequest)
 
 	if err != nil {
 		return fmt.Errorf("failed to create kong consumer: %v error: %v", consumerRequest, err)
@@ -52,7 +52,7 @@ func resourceKongConsumerUpdate(d *schema.ResourceData, meta interface{}) error 
 
 	consumerRequest := createKongConsumerRequestFromResourceData(d)
 
-	_, err := meta.(*gokong.KongAdminClient).Consumers().UpdateById(d.Id(), consumerRequest)
+	_, err := meta.(*config).adminClient.Consumers().UpdateById(d.Id(), consumerRequest)
 
 	if err != nil {
 		return fmt.Errorf("error updating kong consumer: %s", err)
@@ -64,7 +64,7 @@ func resourceKongConsumerUpdate(d *schema.ResourceData, meta interface{}) error 
 func resourceKongConsumerRead(d *schema.ResourceData, meta interface{}) error {
 
 	id := d.Id()
-	consumer, err := meta.(*gokong.KongAdminClient).Consumers().GetById(id)
+	consumer, err := meta.(*config).adminClient.Consumers().GetById(id)
 
 	if err != nil {
 		return fmt.Errorf("could not find kong consumer with id: %s error: %v", id, err)
@@ -82,7 +82,7 @@ func resourceKongConsumerRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceKongConsumerDelete(d *schema.ResourceData, meta interface{}) error {
 
-	err := meta.(*gokong.KongAdminClient).Consumers().DeleteById(d.Id())
+	err := meta.(*config).adminClient.Consumers().DeleteById(d.Id())
 
 	if err != nil {
 		return fmt.Errorf("could not delete kong consumer: %v", err)

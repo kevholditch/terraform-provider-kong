@@ -74,7 +74,7 @@ func dataSourceKongPluginRead(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	results, err := meta.(*gokong.KongAdminClient).Plugins().ListFiltered(filter)
+	results, err := meta.(*config).adminClient.Plugins().ListFiltered(filter)
 
 	if err != nil {
 		return fmt.Errorf("could not find plugin, error: %v", err)

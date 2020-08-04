@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/kevholditch/gokong"
 )
 
 func dataSourceKongCertificate() *schema.Resource {
@@ -47,7 +46,7 @@ func dataSourceKongCertificateRead(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 
-	result, err := meta.(*gokong.KongAdminClient).Certificates().GetById(filterId)
+	result, err := meta.(*config).adminClient.Certificates().GetById(filterId)
 
 	if err != nil {
 		return fmt.Errorf("could not find certificate, error: %v", err)

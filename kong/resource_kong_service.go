@@ -75,7 +75,7 @@ func resourceKongServiceCreate(d *schema.ResourceData, meta interface{}) error {
 
 	serviceRequest := createKongServiceRequestFromResourceData(d)
 
-	service, err := meta.(*gokong.KongAdminClient).Services().AddService(serviceRequest)
+	service, err := meta.(*config).adminClient.Services().AddService(serviceRequest)
 	if err != nil {
 		return fmt.Errorf("failed to create kong service: %v error: %v", serviceRequest, err)
 	}
@@ -90,7 +90,7 @@ func resourceKongServiceUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	serviceRequest := createKongServiceRequestFromResourceData(d)
 
-	_, err := meta.(*gokong.KongAdminClient).Services().UpdateServiceById(d.Id(), serviceRequest)
+	_, err := meta.(*config).adminClient.Services().UpdateServiceById(d.Id(), serviceRequest)
 
 	if err != nil {
 		return fmt.Errorf("error updating kong service: %s", err)
@@ -101,7 +101,7 @@ func resourceKongServiceUpdate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceKongServiceRead(d *schema.ResourceData, meta interface{}) error {
 
-	service, err := meta.(*gokong.KongAdminClient).Services().GetServiceById(d.Id())
+	service, err := meta.(*config).adminClient.Services().GetServiceById(d.Id())
 
 	if err != nil {
 		return fmt.Errorf("could not find kong service: %v", err)
@@ -152,7 +152,7 @@ func resourceKongServiceRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceKongServiceDelete(d *schema.ResourceData, meta interface{}) error {
 
-	err := meta.(*gokong.KongAdminClient).Services().DeleteServiceById(d.Id())
+	err := meta.(*config).adminClient.Services().DeleteServiceById(d.Id())
 
 	if err != nil {
 		return fmt.Errorf("could not delete kong service: %v", err)

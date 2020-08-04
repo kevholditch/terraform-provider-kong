@@ -7,7 +7,6 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/kevholditch/gokong"
 )
 
 func TestAccKongTarget(t *testing.T) {
@@ -101,7 +100,7 @@ func TestAccKongTargetImport(t *testing.T) {
 
 func testAccCheckKongTargetDestroy(state *terraform.State) error {
 
-	client := testAccProvider.Meta().(*gokong.KongAdminClient)
+	client := testAccProvider.Meta().(*config).adminClient
 
 	targets := getResourcesByType("kong_target", state)
 
@@ -140,7 +139,7 @@ func testAccCheckKongTargetExists(resourceKey string) resource.TestCheckFunc {
 		}
 
 		var ids = strings.Split(rs.Primary.ID, "/")
-		api, err := testAccProvider.Meta().(*gokong.KongAdminClient).Targets().GetTargetsFromUpstreamId(ids[0])
+		api, err := testAccProvider.Meta().(*config).adminClient.Targets().GetTargetsFromUpstreamId(ids[0])
 
 		if err != nil {
 			return err
@@ -180,7 +179,7 @@ func testAccCheckKongTargetDoesNotExist(targetResourceKey string, upstreamResour
 			return fmt.Errorf("no upstream ID is set")
 		}
 
-		targets, err := testAccProvider.Meta().(*gokong.KongAdminClient).Targets().GetTargetsFromUpstreamId(rs.Primary.ID)
+		targets, err := testAccProvider.Meta().(*config).adminClient.Targets().GetTargetsFromUpstreamId(rs.Primary.ID)
 
 		if len(targets) > 0 {
 			return fmt.Errorf("expecting zero target resources found %v", len(targets))
@@ -202,7 +201,7 @@ func deleteUpstream(upstreamResourceKey string) resource.TestCheckFunc {
 			return fmt.Errorf("not found: %s", upstreamResourceKey)
 		}
 
-		if err := testAccProvider.Meta().(*gokong.KongAdminClient).Upstreams().DeleteById(rs.Primary.ID); err != nil {
+		if err := testAccProvider.Meta().(*config).adminClient.Upstreams().DeleteById(rs.Primary.ID); err != nil {
 			return fmt.Errorf("could not delete kong upstream: %v", err)
 		}
 
