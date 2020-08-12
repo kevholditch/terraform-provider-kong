@@ -344,7 +344,7 @@ const testCreatePluginForAllApisAndConsumersConfig = `
 resource "kong_plugin" "response_rate_limiting" {
 	name  = "response-ratelimiting"
 	config = {
-		limits.sms.minute = 10
+		"limits.sms.minute" = 10
 	}
 }
 `
@@ -352,7 +352,7 @@ const testUpdatePluginForAllApisAndConsumersConfig = `
 resource "kong_plugin" "response_rate_limiting" {
 	name  = "response-ratelimiting"
 	config = {
-		limits.sms.minute = 40
+		"limits.sms.minute" = 40
 	}
 }
 `
@@ -418,7 +418,7 @@ resource "kong_plugin" "rate_limit" {
 	name        = "response-ratelimiting"
 	consumer_id = "${kong_consumer.plugin_consumer.id}"
 	config 		= {
-		limits.sms.minute = 20
+		"limits.sms.minute" = 20
 	}
 }
 `
@@ -434,7 +434,7 @@ resource "kong_plugin" "rate_limit" {
 	name        = "response-ratelimiting"
 	service_id = "${kong_service.service.id}"
 	config 		= {
-		limits.sms.minute = 20
+		"limits.sms.minute" = 20
 	}
 }
 `
@@ -460,7 +460,7 @@ resource "kong_plugin" "rate_limit" {
 	name        = "response-ratelimiting"
 	route_id = "${kong_route.route.id}"
 	config 		= {
-		limits.sms.minute = 20
+		"limits.sms.minute" = 20
 	}
 }
 `
@@ -475,7 +475,7 @@ resource "kong_plugin" "rate_limit" {
 	name        = "response-ratelimiting"
 	consumer_id = "${kong_consumer.plugin_consumer.id}"
 	config 		= {
-		limits.sms.minute = 11
+		"limits.sms.minute" = 11
 	}
 }
 `
@@ -491,7 +491,7 @@ resource "kong_plugin" "rate_limit" {
 	name        = "response-ratelimiting"
 	service_id = "${kong_service.service.id}"
 	config 		= {
-		limits.sms.minute = 11
+		"limits.sms.minute" = 11
 	}
 }
 `
@@ -517,7 +517,7 @@ resource "kong_plugin" "rate_limit" {
 	name        = "response-ratelimiting"
 	route_id = "${kong_route.route.id}"
 	config 		= {
-		limits.sms.minute = 11
+		"limits.sms.minute" = 11
 	}
 }
 `
@@ -549,7 +549,7 @@ resource "kong_plugin" "rate_limit" {
 	api_id 		= "${kong_api.api.id}"
 	consumer_id = "${kong_consumer.plugin_consumer.id}"
 	config 		= {
-		limits.sms.minute = 77
+		"limits.sms.minute" = 77
 	}
 }
 `
@@ -581,7 +581,7 @@ resource "kong_plugin" "rate_limit" {
 	api_id 		= "${kong_api.api.id}"
 	consumer_id = "${kong_consumer.plugin_consumer.id}"
 	config 		= {
-		limits.sms.minute = 23
+		"limits.sms.minute" = 23
 	}
 }
 `

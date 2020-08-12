@@ -52,7 +52,7 @@ resource "kong_api" "my_test_api" {
 }
 
 data "kong_api" "api_data_source" {
-	filter = {
+	filter {
 		id = "${kong_api.my_test_api.id}"
 		name = "TestDataSourceApi"
 		upstream_url = "http://localhost:4140"
