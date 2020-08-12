@@ -25,11 +25,11 @@ type UpstreamHealthCheck struct {
 }
 
 type UpstreamHealthCheckActive struct {
-	Concurrency            int              `json:"concurrency,omitempty"`
-	Healthy                *ActiveHealthy   `json:"healthy,omitempty"`
-	HttpPath               string           `json:"http_path,omitempty"`
-	Timeout                int              `json:"timeout,omitempty"`
-	Unhealthy              *ActiveUnhealthy `json:"unhealthy,omitempty"`
+	Concurrency int              `json:"concurrency,omitempty"`
+	Healthy     *ActiveHealthy   `json:"healthy,omitempty"`
+	HttpPath    string           `json:"http_path,omitempty"`
+	Timeout     int              `json:"timeout,omitempty"`
+	Unhealthy   *ActiveUnhealthy `json:"unhealthy,omitempty"`
 }
 
 type ActiveHealthy struct {

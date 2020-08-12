@@ -8,7 +8,7 @@ default: build test
 build: fmtcheck errcheck vet
 	go install
 
-test: goimportscheck
+test:
 	go test -v ./...
 
 vet:
