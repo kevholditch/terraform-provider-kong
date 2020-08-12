@@ -47,7 +47,7 @@ func resourceKongTargetCreate(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("failed to create kong target: %v error: %v", targetRequest, err)
 	}
 
-	d.SetId(*target.Upstream + "/" + *target.Id)
+	d.SetId(*target.UpstreamId + "/" + *target.Id)
 
 	return resourceKongTargetRead(d, meta)
 }
@@ -75,7 +75,7 @@ func resourceKongTargetRead(d *schema.ResourceData, meta interface{}) error {
 			if *element.Id == ids[1] {
 				d.Set("target", element.Target)
 				d.Set("weight", element.Weight)
-				d.Set("upstream_id", element.Upstream)
+				d.Set("upstream_id", element.UpstreamId)
 			}
 		}
 	}
