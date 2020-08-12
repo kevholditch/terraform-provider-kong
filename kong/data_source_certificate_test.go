@@ -29,7 +29,7 @@ resource "kong_certificate" "test_certificate" {
 }
 
 data "kong_certificate" "certificate_data_source" {
-	filter = {
+	filter {
 		id = "${kong_certificate.test_certificate.id}"
 	}
 }

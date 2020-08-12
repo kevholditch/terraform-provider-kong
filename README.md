@@ -129,7 +129,7 @@ terraform import kong_api.<api_identifier> <api_id>
 resource "kong_plugin" "response_rate_limiting" {
     name   = "response-ratelimiting"
     config = {
-        limits.sms.minute = 10
+        "limits.sms.minute" = 10
     }
 }
 ```
@@ -170,7 +170,7 @@ resource "kong_plugin" "rate_limit" {
     api_id 	= "${kong_api.api.id}"
     consumer_id = "${kong_consumer.plugin_consumer.id}"
     config      = {
-        limits.sms.minute = 77
+        "limits.sms.minute" = 77
     }
 }
 ```
@@ -281,17 +281,17 @@ resource "kong_upstream" "upstream" {
     hash_fallback        = "consumer"
     hash_on_header       = "HeaderName"
     hash_fallback_header = "FallbackHeaderName"
-    healthchecks         = {
-        active = {
+    healthchecks {
+        active {
             http_path                = "/status"
             timeout                  = 10
             concurrency              = 20
-            healthy = {
+            healthy {
                 successes = 1
                 interval  = 5
                 http_statuses = [200, 201]
             }
-            unhealthy = {
+            unhealthy {
                 timeouts      = 7
                 interval      = 3
                 tcp_failures  = 1
@@ -299,12 +299,12 @@ resource "kong_upstream" "upstream" {
                 http_statuses = [500, 501]
             }
         }
-        passive = {
-            healthy = {
+        passive {
+            healthy {
                 successes = 1
                 http_statuses = [200, 201, 202]
             }
-            unhealthy = {
+            unhealthy {
                 timeouts      = 3
                 tcp_failures  = 5
                 http_failures = 6
@@ -345,7 +345,7 @@ resource "kong_upstream" "upstream" {
 To look up an existing api you can do so by using a filter:
 ```hcl
 data "kong_api" "api_data_source" {
-    filter = {
+    filter {
         id = "de539d26-97d2-4d5b-aaf9-628e51087d9c"
 	name = "TestDataSourceApi"
 	upstream_url = "http://localhost:4140"
@@ -374,7 +374,7 @@ returned:
 To look up an existing certificate:
 ```hcl
 data "kong_certificate" "certificate_data_source" {
-    filter = {
+    filter {
         id = "471c625a-4eba-4b78-985f-86cf54a2dc12"
     }
 }
@@ -389,7 +389,7 @@ You can only find existing certificates by their id in Kong.  The following outp
 To look up an existing consumer:
 ```hcl
 data "kong_consumer" "consumer_data_source" {
-    filter = {
+    filter {
         id 	  = "8086a91b-cb5a-4e60-90b0-ca6650e82464"
 	username  = "User777"
 	custom_id = "123456"
@@ -407,7 +407,7 @@ returned:
 To look up an existing plugin:
 ```hcl
 data "kong_plugin" "plugin_data_source" {
-    filter = {
+    filter {
         id          = "f0e656af-ad53-4622-ac73-ffd46ae05289"
 	name        = "response-ratelimiting"
 	api_id      = "51694bcd-3c72-43b3-b414-a09bbf4e3c30"
@@ -427,7 +427,7 @@ Each of the filter parameters are optional and they are combined for an AND sear
 To lookup an existing upstream:
 ```hcl
 data "kong_upstream" "upstream_data_source" {
-    filter = {
+    filter {
         id   = "893a49a8-090f-421e-afce-ba70b02ce958"
 	name = "TestUpstream"
     }

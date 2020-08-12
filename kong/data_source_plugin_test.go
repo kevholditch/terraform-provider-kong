@@ -49,12 +49,12 @@ resource "kong_plugin" "rate_limit" {
 	api_id 		= "${kong_api.my_api.id}"
 	consumer_id = "${kong_consumer.my_consumer.id}"
 	config 		= {
-		limits.sms.minute = 11
+		"limits.sms.minute" = 11
 	}
 }
 
 data "kong_plugin" "plugin_data_source" {
-	filter = {
+	filter {
 		id          = "${kong_plugin.rate_limit.id}"
 		name        = "response-ratelimiting"
 		api_id      = "${kong_api.my_api.id}"

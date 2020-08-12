@@ -10,24 +10,24 @@ type TargetClient struct {
 }
 
 type TargetRequest struct {
-	Target string `json:"target"`
-	Weight int    `json:"weight"`
+	Target string `json:"target" yaml:"target"`
+	Weight int    `json:"weight" yaml:"weight"`
 }
 
 type Target struct {
-	Id        *string  `json:"id,omitempty"`
-	CreatedAt *float32 `json:"created_at"`
-	Target    *string  `json:"target"`
-	Weight    *int     `json:"weight"`
-	Upstream  *string  `json:"upstream_id"`
-	Health    *string  `json:"health"`
+	Id         *string  `json:"id,omitempty" yaml:"id,omitempty"`
+	CreatedAt  *float32 `json:"created_at" yaml:"created_at"`
+	Target     *string  `json:"target" yaml:"target"`
+	Weight     *int     `json:"weight" yaml:"weight"`
+	UpstreamId *string  `json:"upstream_id" yaml:"upstream_id"`
+	Health     *string  `json:"health" yaml:"health"`
 }
 
 type Targets struct {
-	Data   []*Target `json:"data"`
-	Total  int       `json:"total,omitempty"`
-	Next   string    `json:"next,omitempty"`
-	NodeId string    `json:"node_id,omitempty"`
+	Data   []*Target `json:"data" yaml:"data"`
+	Total  int       `json:"total,omitempty" yaml:"total,omitempty"`
+	Next   string    `json:"next,omitempty" yaml:"next,omitempty"`
+	NodeId string    `json:"node_id,omitempty" yaml:"node_id,omitempty"`
 }
 
 const TargetsPath = "/upstreams/%s/targets"
@@ -193,10 +193,3 @@ func (targetClient *TargetClient) GetTargetsWithHealthFromUpstreamId(id string) 
 	}
 	return targets, nil
 }
-
-// TODO: Implement List all Targets - https://docs.konghq.com/1.0.x/admin-api/#list-all-targets
-// Note: JSON returned by this method has slightly different structure to the standard Get request. This method retruns "upstream_id": "07131005-ba30-4204-a29f-0927d53257b4" instead of "upstream": {"id":"127dfc88-ed57-45bf-b77a-a9d3a152ad31"},
-
-// TODO: Implement other methods available by /targets paths
-// https://docs.konghq.com/1.0.x/admin-api/#update-or-create-upstream
-// https://docs.konghq.com/1.0.x/admin-api/#delete-upstream

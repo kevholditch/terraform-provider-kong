@@ -34,9 +34,35 @@ type ConsumerFilter struct {
 	Offset   int    `url:"offset,omitempty"`
 }
 
+type ConsumerPluginConfigs struct {
+	Results []*ConsumerPluginConfig `json:"data,omitempty"`
+	Total   int                     `json:"total,omitempty"`
+	Next    string                  `json:"next,omitempty"`
+}
+
 type ConsumerPluginConfig struct {
 	Id   string `json:"id,omitempty"`
 	Body string
+}
+
+/* Type used specifically to unmarshal the ConsumerPluginConfig into an Id and the
+ * body of the config
+ */
+type consumerPluginConfigMarshal struct {
+	Id string `json:"id,omitempty"`
+}
+
+func (c *ConsumerPluginConfig) UnmarshalJSON(data []byte) error {
+	consumerPluginConfigM := consumerPluginConfigMarshal{}
+	err := json.Unmarshal([]byte(data), &consumerPluginConfigM)
+
+	if err != nil {
+		return err
+	}
+
+	c.Id = consumerPluginConfigM.Id
+	c.Body = string(data[:])
+	return nil
 }
 
 const ConsumersPath = "/consumers/"
@@ -190,9 +216,26 @@ func (consumerClient *ConsumerClient) CreatePluginConfig(consumerId string, plug
 		return nil, fmt.Errorf("could not create consumer plugin config, error: %v", body)
 	}
 
-	createdConsumerPluginConfig.Body = body
-
 	return createdConsumerPluginConfig, nil
+}
+
+func (consumerClient *ConsumerClient) ListPluginConfig(consumerId string, pluginName string) (*ConsumerPluginConfigs, error) {
+	r, body, errs := newGet(consumerClient.config, consumerClient.config.HostAddress+ConsumersPath+consumerId+"/"+pluginName).End()
+	if errs != nil {
+		return nil, fmt.Errorf("could not get plugin config for consumer, error: %v", errs)
+	}
+
+	if r.StatusCode == 401 || r.StatusCode == 403 {
+		return nil, fmt.Errorf("not authorised, message from kong: %s", body)
+	}
+
+	consumerPluginConfigs := ConsumerPluginConfigs{}
+	err := json.Unmarshal([]byte(body), &consumerPluginConfigs)
+	if err != nil {
+		return nil, fmt.Errorf("could not parse consumer plugin configs response, error: %v", err)
+	}
+
+	return &consumerPluginConfigs, nil
 }
 
 func (consumerClient *ConsumerClient) GetPluginConfig(consumerId string, pluginName string, id string) (*ConsumerPluginConfig, error) {
@@ -215,8 +258,6 @@ func (consumerClient *ConsumerClient) GetPluginConfig(consumerId string, pluginN
 	if consumerPluginConfig.Id == "" {
 		return nil, nil
 	}
-
-	consumerPluginConfig.Body = body
 
 	return consumerPluginConfig, nil
 }

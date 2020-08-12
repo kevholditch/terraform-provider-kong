@@ -29,7 +29,7 @@ resource "kong_consumer" "test_consumer" {
 }
 
 data "kong_consumer" "consumer_data_source" {
-	filter = {
+	filter {
 		id 		  = "${kong_consumer.test_consumer.id}"
 		username  = "User777"
 		custom_id = "123456"

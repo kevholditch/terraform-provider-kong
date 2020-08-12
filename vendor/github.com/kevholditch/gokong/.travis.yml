@@ -1,0 +1,10 @@
+language: go
+go:
+  - 1.10.x
+install:
+- go get golang.org/x/tools/cmd/goimports
+services:
+  - docker
+env:
+  matrix:
+    - KONG_VERSION=0.13.0
