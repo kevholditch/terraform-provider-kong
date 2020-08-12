@@ -34,32 +34,6 @@ func TestAccKongPluginForAllConsumersAndApis(t *testing.T) {
 	})
 }
 
-func TestAccKongPluginForAllConsumersAndApisFOOOOOOOOOOOOOOOOOOOO(t *testing.T) {
-
-	resource.Test(t, resource.TestCase{
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKongPluginDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testCreatePluginForAllApisAndConsumersConfig,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckKongPluginExists("kong_plugin.response_rate_limiting"),
-					resource.TestCheckResourceAttr("kong_plugin.response_rate_limiting", "name", "response-ratelimiting"),
-					resource.TestCheckResourceAttr("kong_plugin.response_rate_limiting", "config.limits.sms.minute", "10"),
-				),
-			},
-			{
-				Config: testCreatePluginForAllApisAndConsumersConfig,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckKongPluginExists("kong_plugin.response_rate_limiting"),
-					resource.TestCheckResourceAttr("kong_plugin.response_rate_limiting", "name", "response-ratelimiting"),
-					resource.TestCheckResourceAttr("kong_plugin.response_rate_limiting", "config.limits.sms.minute", "10"),
-				),
-			},
-		},
-	})
-}
-
 func TestAccKongPluginForASpecificApi(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
