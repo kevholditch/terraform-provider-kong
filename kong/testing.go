@@ -1,7 +1,7 @@
 package kong
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func getResourcesByType(resourceType string, state *terraform.State) []*terraform.ResourceState {

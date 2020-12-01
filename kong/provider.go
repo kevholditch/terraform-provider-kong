@@ -3,8 +3,7 @@ package kong
 import (
 	"os"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/kevholditch/gokong"
 )
 
@@ -14,7 +13,7 @@ type config struct {
 	strictConsumerPlugins bool
 }
 
-func Provider() terraform.ResourceProvider {
+func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"kong_admin_uri": &schema.Schema{
