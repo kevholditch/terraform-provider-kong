@@ -8,7 +8,7 @@ To create a tcp/tls route you set `sources` and `destinations` by repeating the 
 
 ```hcl
 resource "kong_route" "route" {
-    name            = "MyRoute"
+        name            = "MyRoute"
 	protocols 	    = [ "http", "https" ]
 	methods 	    = [ "GET", "POST" ]
 	hosts 		    = [ "example2.com" ]
@@ -16,7 +16,7 @@ resource "kong_route" "route" {
 	strip_path 	    = false
 	preserve_host 	= true
 	regex_priority 	= 1
-	service_id 	    = "${kong_service.service.id}"
+	service_id 	= kong_service.service.id
 }
 
 ```
