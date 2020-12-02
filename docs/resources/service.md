@@ -20,15 +20,15 @@ resource "kong_service" "service" {
 
 ## Argument reference
 
-`name` - (Required) Service name
-`protocol` - (Required) Protocol to use
-`host` - (Required) Host to map to
-`port` - (Required) Port to map to
-`path` - (Optional) Path to map to
-`retries` - (Optional) Number of retries
-`connect_timeout` - (Optional) Connection timeout
-`write_timeout` - (Optional) Write timout
-`read_timeout` - (Optional) Read timeout
+* `name` - (Required) Service name
+* `protocol` - (Required) Protocol to use
+* `host` - (Optional) Host to map to
+* `port` - (Optional, int) Port to map to. Default: 80
+* `path` - (Optional) Path to map to
+* `retries` - (Optional, int) Number of retries. Default: 5
+* `connect_timeout` - (Optional, int) Connection timeout. Default(ms): 60000
+* `write_timeout` - (Optional, int) Write timout. Default(ms): 60000
+* `read_timeout` - (Optional, int) Read timeout. Default(ms): 60000
 
 ## Import
 
