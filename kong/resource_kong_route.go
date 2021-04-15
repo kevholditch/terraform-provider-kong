@@ -179,7 +179,7 @@ func resourceKongRouteRead(d *schema.ResourceData, meta interface{}) error {
 		}
 
 		if route.Destinations != nil {
-			d.Set("destination", route.Sources)
+			d.Set("destination", route.Destinations)
 		}
 
 		if route.PreserveHost != nil {
