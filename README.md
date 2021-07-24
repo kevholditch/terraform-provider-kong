@@ -187,8 +187,9 @@ EOT
 To apply a plugin to a route use the `route_id` property, for example:
 
 ```hcl
-resource "kong_service" "service" {
+resource "kong_route" "route" {
 	name     = "test"
+	service_id = "${kong_service.service.id}"
 	protocol = "http"
 	host     = "test.org"
 }
@@ -196,7 +197,7 @@ resource "kong_service" "service" {
 resource "kong_plugin" "rate_limit" {
 	name        = "rate-limiting"
 	enabled     = true
-	service_id = "${kong_service.service.id}"
+	route_id = "${kong_route.route.id}"
 	config_json = <<EOT
 	{
 		"second": 11,
