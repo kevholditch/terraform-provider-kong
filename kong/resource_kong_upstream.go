@@ -555,11 +555,21 @@ func flattenHealthCheckActive(in *kong.ActiveHealthcheck) []interface{} {
 	}
 	m := make(map[string]interface{})
 
-	m["type"] = in.Type
-	m["timeout"] = in.Timeout
-	m["concurrency"] = in.Concurrency
-	m["http_path"] = in.HTTPPath
-	m["https_verify_certificate"] = in.HTTPSVerifyCertificate
+	if in.Type != nil {
+		m["type"] = *in.Type
+	}
+	if in.Timeout != nil {
+		m["timeout"] = *in.Timeout
+	}
+	if in.Concurrency != nil {
+		m["concurrency"] = *in.Concurrency
+	}
+	if in.HTTPPath != nil {
+		m["http_path"] = *in.HTTPPath
+	}
+	if in.HTTPSVerifyCertificate != nil {
+		m["https_verify_certificate"] = *in.HTTPSVerifyCertificate
+	}
 
 	if in.HTTPSSni != nil {
 		m["https_sni"] = *in.HTTPSSni
@@ -581,7 +591,9 @@ func flattenHealthCheckPassive(in *kong.PassiveHealthcheck) []interface{} {
 
 	m := make(map[string]interface{})
 
-	m["type"] = in.Type
+	if in.Type != nil {
+		m["type"] = *in.Type
+	}
 
 	if in.Healthy != nil {
 		m["healthy"] = flattenPassiveHealthy(in.Healthy)
@@ -599,9 +611,13 @@ func flattenActiveHealthy(in *kong.Healthy) []map[string]interface{} {
 	}
 	m := make(map[string]interface{})
 
-	m["interval"] = in.Interval
+	if in.Interval != nil {
+		m["interval"] = *in.Interval
+	}
 	m["http_statuses"] = in.HTTPStatuses
-	m["successes"] = in.Successes
+	if in.Successes != nil {
+		m["successes"] = *in.Successes
+	}
 
 	return []map[string]interface{}{m}
 }
@@ -612,11 +628,19 @@ func flattenActiveUnhealthy(in *kong.Unhealthy) []map[string]interface{} {
 	}
 	m := make(map[string]interface{})
 
-	m["interval"] = in.Interval
+	if in.Interval != nil {
+		m["interval"] = *in.Interval
+	}
 	m["http_statuses"] = in.HTTPStatuses
-	m["tcp_failures"] = in.TCPFailures
-	m["http_failures"] = in.HTTPFailures
-	m["timeouts"] = in.Timeouts
+	if in.TCPFailures != nil {
+		m["tcp_failures"] = *in.TCPFailures
+	}
+	if in.HTTPFailures != nil {
+		m["http_failures"] = *in.HTTPFailures
+	}
+	if in.Timeouts != nil {
+		m["timeouts"] = *in.Timeouts
+	}
 
 	return []map[string]interface{}{m}
 }
@@ -628,7 +652,9 @@ func flattenPassiveHealthy(in *kong.Healthy) []map[string]interface{} {
 	m := make(map[string]interface{})
 
 	m["http_statuses"] = in.HTTPStatuses
-	m["successes"] = in.Successes
+	if in.Successes != nil {
+		m["successes"] = *in.Successes
+	}
 
 	return []map[string]interface{}{m}
 }
@@ -640,9 +666,15 @@ func flattenPassiveUnhealthy(in *kong.Unhealthy) []map[string]interface{} {
 	m := make(map[string]interface{})
 
 	m["http_statuses"] = in.HTTPStatuses
-	m["tcp_failures"] = in.TCPFailures
-	m["http_failures"] = in.HTTPFailures
-	m["timeouts"] = in.Timeouts
+	if in.TCPFailures != nil {
+		m["tcp_failures"] = *in.TCPFailures
+	}
+	if in.HTTPFailures != nil {
+		m["http_failures"] = *in.HTTPFailures
+	}
+	if in.Timeouts != nil {
+		m["timeouts"] = *in.Timeouts
+	}
 
 	return []map[string]interface{}{m}
 }

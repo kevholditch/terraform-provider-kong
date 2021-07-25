@@ -152,5 +152,5 @@ func IDToString(v *string) string {
 	if v == nil {
 		return ""
 	}
-	return string(*v)
+	return *v
 }
