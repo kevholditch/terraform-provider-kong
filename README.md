@@ -1,4 +1,3 @@
-[![Build Status](https://travis-ci.org/kevholditch/terraform-provider-kong.svg?branch=master)](https://travis-ci.org/kevholditch/terraform-provider-kong)
 
 Terraform Provider Kong
 =======================
@@ -19,8 +18,8 @@ the `config` property has been removed.  This is due to some internal changes th
 Requirements
 ------------
 
--	[Terraform](https://www.terraform.io/downloads.html) 0.10.x
--	[Go](https://golang.org/doc/install) 1.8 (to build the provider plugin)
+-	[Terraform](https://www.terraform.io/downloads.html) 1.x
+-	[Go](https://golang.org/doc/install) 1.16 (to build the provider plugin)
 
 Usage
 -----
