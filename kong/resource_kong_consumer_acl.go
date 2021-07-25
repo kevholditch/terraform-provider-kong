@@ -52,7 +52,7 @@ func resourceKongConsumerACLCreate(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("failed to create kong ACL Group: %v error: %v", ACLGroupRequest, err)
 	}
 
-	d.SetId(buildJWTID(*aclGroup.ID, *consumerId))
+	d.SetId(buildConsumerPairID(*aclGroup.ID, *consumerId))
 
 	return resourceKongConsumerACLRead(d, meta)
 }

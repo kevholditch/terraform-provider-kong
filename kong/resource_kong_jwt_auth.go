@@ -66,12 +66,12 @@ func resourceKongJWTAuthCreate(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("failed to create kong JWTAuth: %v error: %v", JWTAuthRequest, err)
 	}
 
-	d.SetId(buildJWTID(*JWTAuth.ID, *consumerId))
+	d.SetId(buildConsumerPairID(*JWTAuth.ID, *consumerId))
 
 	return resourceKongJWTAuthRead(d, meta)
 }
 
-func buildJWTID(ID, consumerID string) string {
+func buildConsumerPairID(ID, consumerID string) string {
 	return ID + "|" + consumerID
 }
 

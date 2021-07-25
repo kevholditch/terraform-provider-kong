@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/kong/go-kong/kong"
@@ -223,4 +224,35 @@ func pluginConfigJSONToString(data map[string]interface{}) string {
 	rawJSON, _ := json.Marshal(marshalledData)
 
 	return string(rawJSON)
+}
+
+func validateDataJSON(configI interface{}, k string) ([]string, []error) {
+	dataJSON := configI.(string)
+	dataMap := map[string]interface{}{}
+	err := json.Unmarshal([]byte(dataJSON), &dataMap)
+	if err != nil {
+		return nil, []error{err}
+	}
+	return nil, nil
+}
+
+func normalizeDataJSON(configI interface{}) string {
+	dataJSON := configI.(string)
+
+	dataMap := map[string]interface{}{}
+	err := json.Unmarshal([]byte(dataJSON), &dataMap)
+	if err != nil {
+		// The validate function should've taken care of this.
+		log.Printf("[ERROR] Invalid JSON data in config_json: %s", err)
+		return ""
+	}
+
+	ret, err := json.Marshal(dataMap)
+	if err != nil {
+		// Should never happen.
+		log.Printf("[ERROR] Problem normalizing JSON for config_json: %s", err)
+		return dataJSON
+	}
+
+	return string(ret)
 }
