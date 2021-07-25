@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hbagdi/go-kong/kong"
+	"github.com/kong/go-kong/kong"
 )
 
 func resourceKongCertificate() *schema.Resource {
@@ -31,6 +31,12 @@ func resourceKongCertificate() *schema.Resource {
 				ForceNew:  false,
 				Sensitive: true,
 			},
+			"snis": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: false,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
@@ -40,6 +46,7 @@ func resourceKongCertificateCreate(d *schema.ResourceData, meta interface{}) err
 	certificateRequest := &kong.Certificate{
 		Cert: kong.String(d.Get("certificate").(string)),
 		Key:  kong.String(d.Get("private_key").(string)),
+		SNIs: readStringArrayPtrFromResource(d, "snis"),
 	}
 
 	client := meta.(*config).adminClient.Certificates
