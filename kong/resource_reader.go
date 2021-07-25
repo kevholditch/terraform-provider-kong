@@ -2,7 +2,7 @@ package kong
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/kevholditch/gokong"
+	"github.com/kong/go-kong/kong"
 )
 
 func readStringArrayPtrFromResource(d *schema.ResourceData, key string) []*string {
@@ -15,24 +15,24 @@ func readStringArrayPtrFromResource(d *schema.ResourceData, key string) []*strin
 			array = append(array, item)
 		}
 
-		return gokong.StringSlice(array)
+		return kong.StringSlice(array...)
 	}
 
 	return nil
 }
 
-func readIpPortArrayFromResource(d *schema.ResourceData, key string) []*gokong.IpPort {
+func readIpPortArrayFromResource(d *schema.ResourceData, key string) []*kong.CIDRPort {
 	if attr, ok := d.GetOk(key); ok {
 		set := attr.(*schema.Set)
-		results := make([]*gokong.IpPort, 0)
+		results := make([]*kong.CIDRPort, 0)
 		for _, item := range set.List() {
 			m := item.(map[string]interface{})
-			ipPort := &gokong.IpPort{}
+			ipPort := &kong.CIDRPort{}
 			if port, ok := m["port"].(int); ok && port != 0 {
 				ipPort.Port = &port
 			}
 			if ip, ok := m["ip"].(string); ok && ip != "" {
-				ipPort.Ip = &ip
+				ipPort.IP = &ip
 			}
 			results = append(results, ipPort)
 		}
@@ -58,9 +58,9 @@ func readStringFromResource(d *schema.ResourceData, key string) string {
 	return ""
 }
 
-func readIdPtrFromResource(d *schema.ResourceData, key string) *gokong.Id {
+func readIdPtrFromResource(d *schema.ResourceData, key string) *string {
 	if value, ok := d.GetOk(key); ok {
-		id := gokong.Id(value.(string))
+		id := value.(string)
 		return &id
 	}
 	return nil
@@ -68,13 +68,13 @@ func readIdPtrFromResource(d *schema.ResourceData, key string) *gokong.Id {
 
 func readStringPtrFromResource(d *schema.ResourceData, key string) *string {
 	if value, ok := d.GetOkExists(key); ok {
-		return gokong.String(value.(string))
+		return kong.String(value.(string))
 	}
 	return nil
 }
 
 func readBoolPtrFromResource(d *schema.ResourceData, key string) *bool {
-	return gokong.Bool(d.Get(key).(bool))
+	return kong.Bool(d.Get(key).(bool))
 }
 
 func readIntFromResource(d *schema.ResourceData, key string) int {
@@ -86,7 +86,7 @@ func readIntFromResource(d *schema.ResourceData, key string) int {
 
 func readIntPtrFromResource(d *schema.ResourceData, key string) *int {
 	if value, ok := d.GetOkExists(key); ok {
-		return gokong.Int(value.(int))
+		return kong.Int(value.(int))
 	}
 	return nil
 }

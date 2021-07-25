@@ -1,4 +1,3 @@
-[![Build Status](https://travis-ci.org/kevholditch/terraform-provider-kong.svg?branch=master)](https://travis-ci.org/kevholditch/terraform-provider-kong)
 
 Terraform Provider Kong
 =======================
@@ -6,21 +5,15 @@ The Kong Terraform Provider tested against real Kong!
 
 **`v5.0.0` of the provider supports Terraform `0.12`**
 
-
 IMPORTANT
 ------
-This provider now supports kong `v1.0.0` and onwards **ONLY** (from `v2.0.0` onwards of provider).  Since the release of Kong `v1.0.0` has many breaking changes (e.g. removing APIs) this provider is
-no longer compatible with version of kong pre `v1.0.0`.  If you want to use the provider with versions of kong pre `v1.0.0` then please checkout branch `kong-pre-1.0.0` or
-use a version of the provider `v1.9.2` or less.
-
-Due to compatibility issues I have had to remove some of the properties on the resources.  Most notability for a plugin you can only configure it using the `config_json` property
-the `config` property has been removed.  This is due to some internal changes that have been made to kong in `v1.0.0`.
+The provider has been updated to support Kong `v2.X`, there were some breaking changes made between Kong `v1` and `v2`.  To use an Kong `v1` use provider version `v6.X.X`.  That version will no longer be maintained.
 
 Requirements
 ------------
 
--	[Terraform](https://www.terraform.io/downloads.html) 0.10.x
--	[Go](https://golang.org/doc/install) 1.8 (to build the provider plugin)
+-	[Terraform](https://www.terraform.io/downloads.html) 1.x
+-	[Go](https://golang.org/doc/install) 1.16 (to build the provider plugin)
 
 Usage
 -----

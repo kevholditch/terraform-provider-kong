@@ -1,11 +1,13 @@
 package kong
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/kong/go-kong/kong"
 )
 
 func TestAccKongGlobalPlugin(t *testing.T) {
@@ -63,7 +65,7 @@ func TestAccKongPluginForASpecificConsumer(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKongPluginExists("kong_plugin.rate_limit"),
 					testAccCheckKongConsumerExists("kong_consumer.plugin_consumer"),
-					testAccCheckForChildIdCorrect("kong_consumer.plugin_consumer", "kong_plugin.rate_limit", "consumer_id"),
+					testAccCheckForChildIDCorrect("kong_consumer.plugin_consumer", "kong_plugin.rate_limit", "consumer_id"),
 					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "name", "rate-limiting"),
 					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "enabled", "true"),
 				),
@@ -73,7 +75,7 @@ func TestAccKongPluginForASpecificConsumer(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKongPluginExists("kong_plugin.rate_limit"),
 					testAccCheckKongConsumerExists("kong_consumer.plugin_consumer"),
-					testAccCheckForChildIdCorrect("kong_consumer.plugin_consumer", "kong_plugin.rate_limit", "consumer_id"),
+					testAccCheckForChildIDCorrect("kong_consumer.plugin_consumer", "kong_plugin.rate_limit", "consumer_id"),
 					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "name", "rate-limiting"),
 					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "enabled", "true"),
 				),
@@ -93,7 +95,7 @@ func TestAccKongPluginForASpecificService(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKongPluginExists("kong_plugin.rate_limit"),
 					testAccCheckKongServiceExists("kong_service.service"),
-					testAccCheckForChildIdCorrect("kong_service.service", "kong_plugin.rate_limit", "service_id"),
+					testAccCheckForChildIDCorrect("kong_service.service", "kong_plugin.rate_limit", "service_id"),
 					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "name", "rate-limiting"),
 				),
 			},
@@ -102,7 +104,7 @@ func TestAccKongPluginForASpecificService(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKongPluginExists("kong_plugin.rate_limit"),
 					testAccCheckKongServiceExists("kong_service.service"),
-					testAccCheckForChildIdCorrect("kong_service.service", "kong_plugin.rate_limit", "service_id"),
+					testAccCheckForChildIDCorrect("kong_service.service", "kong_plugin.rate_limit", "service_id"),
 					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "name", "rate-limiting"),
 				),
 			},
@@ -122,7 +124,7 @@ func TestAccKongPluginForASpecificRoute(t *testing.T) {
 					testAccCheckKongPluginExists("kong_plugin.rate_limit"),
 					testAccCheckKongServiceExists("kong_service.service"),
 					testAccCheckKongRouteExists("kong_route.route"),
-					testAccCheckForChildIdCorrect("kong_route.route", "kong_plugin.rate_limit", "route_id"),
+					testAccCheckForChildIDCorrect("kong_route.route", "kong_plugin.rate_limit", "route_id"),
 					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "name", "rate-limiting"),
 				),
 			},
@@ -132,7 +134,7 @@ func TestAccKongPluginForASpecificRoute(t *testing.T) {
 					testAccCheckKongPluginExists("kong_plugin.rate_limit"),
 					testAccCheckKongServiceExists("kong_service.service"),
 					testAccCheckKongRouteExists("kong_route.route"),
-					testAccCheckForChildIdCorrect("kong_route.route", "kong_plugin.rate_limit", "route_id"),
+					testAccCheckForChildIDCorrect("kong_route.route", "kong_plugin.rate_limit", "route_id"),
 					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "name", "rate-limiting"),
 				),
 			},
@@ -160,7 +162,7 @@ func TestAccKongPluginImportConfigJson(t *testing.T) {
 
 func testAccCheckKongPluginDestroy(state *terraform.State) error {
 
-	client := testAccProvider.Meta().(*config).adminClient
+	client := testAccProvider.Meta().(*config).adminClient.Plugins
 
 	plugins := getResourcesByType("kong_plugin", state)
 
@@ -168,9 +170,9 @@ func testAccCheckKongPluginDestroy(state *terraform.State) error {
 		return fmt.Errorf("expecting only 1 plugin resource found %v", len(plugins))
 	}
 
-	response, err := client.Plugins().GetById(plugins[0].Primary.ID)
+	response, err := client.Get(context.Background(), kong.String(plugins[0].Primary.ID))
 
-	if err != nil {
+	if !kong.IsNotFoundErr(err) && err != nil {
 		return fmt.Errorf("error calling get plugin by id: %v", err)
 	}
 
@@ -181,7 +183,7 @@ func testAccCheckKongPluginDestroy(state *terraform.State) error {
 	return nil
 }
 
-func testAccCheckForChildIdCorrect(parentResource string, childResource string, childIdField string) resource.TestCheckFunc {
+func testAccCheckForChildIDCorrect(parentResource string, childResource string, childIDField string) resource.TestCheckFunc {
 
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[parentResource]
@@ -194,7 +196,7 @@ func testAccCheckForChildIdCorrect(parentResource string, childResource string, 
 			return fmt.Errorf("no ID is set")
 		}
 
-		parentId := rs.Primary.ID
+		parentID := rs.Primary.ID
 
 		rs, ok = s.RootModule().Resources[childResource]
 
@@ -202,14 +204,14 @@ func testAccCheckForChildIdCorrect(parentResource string, childResource string, 
 			return fmt.Errorf("not found: %s", parentResource)
 		}
 
-		childId, ok := rs.Primary.Attributes[childIdField]
+		childID, ok := rs.Primary.Attributes[childIDField]
 
 		if !ok {
-			return fmt.Errorf("child id field %s not set on %s", childIdField, childResource)
+			return fmt.Errorf("child id field %s not set on %s", childIDField, childResource)
 		}
 
-		if parentId != childId {
-			return fmt.Errorf("expected %s id of %s to equal %s id field %s of %s", parentResource, parentId, childResource, childIdField, childId)
+		if parentID != childID {
+			return fmt.Errorf("expected %s id of %s to equal %s id field %s of %s", parentResource, parentID, childResource, childIDField, childID)
 		}
 
 		return nil
@@ -229,9 +231,10 @@ func testAccCheckKongPluginExists(resourceKey string) resource.TestCheckFunc {
 			return fmt.Errorf("no ID is set")
 		}
 
-		api, err := testAccProvider.Meta().(*config).adminClient.Plugins().GetById(rs.Primary.ID)
+		client := testAccProvider.Meta().(*config).adminClient.Plugins
+		api, err := client.Get(context.Background(), kong.String(rs.Primary.ID))
 
-		if err != nil {
+		if !kong.IsNotFoundErr(err) && err != nil {
 			return err
 		}
 

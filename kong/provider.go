@@ -5,11 +5,11 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-	"github.com/kevholditch/gokong"
+	"github.com/kong/go-kong/kong"
 )
 
 type config struct {
-	adminClient           *gokong.KongAdminClient
+	adminClient           *kong.Client
 	strictPlugins         bool
 	strictConsumerPlugins bool
 }
@@ -53,6 +53,11 @@ func Provider() terraform.ResourceProvider {
 				DefaultFunc: envDefaultFuncWithDefault("KONG_ADMIN_TOKEN", ""),
 				Description: "API key for the kong api (Enterprise Edition)",
 			},
+			"kong_workspace": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Workspace context (Enterprise Edition)",
+			},
 			"strict_plugins_match": &schema.Schema{
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -63,15 +68,16 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"kong_certificate":            resourceKongCertificate(),
-			"kong_consumer":               resourceKongConsumer(),
-			"kong_consumer_plugin_config": resourceKongConsumerPluginConfig(),
-			"kong_plugin":                 resourceKongPlugin(),
-			"kong_sni":                    resourceKongSni(),
-			"kong_upstream":               resourceKongUpstream(),
-			"kong_target":                 resourceKongTarget(),
-			"kong_service":                resourceKongService(),
-			"kong_route":                  resourceKongRoute(),
+			"kong_certificate":         resourceKongCertificate(),
+			"kong_consumer":            resourceKongConsumer(),
+			"kong_consumer_acl":        resourceKongConsumerACL(),
+			"kong_consumer_basic_auth": resourceKongConsumerBasicAuth(),
+			"kong_plugin":              resourceKongPlugin(),
+			"kong_upstream":            resourceKongUpstream(),
+			"kong_target":              resourceKongTarget(),
+			"kong_service":             resourceKongService(),
+			"kong_route":               resourceKongRoute(),
+			"kong_jwt_auth":            resourceKongJWTAuth(),
 		},
 
 		//DataSourcesMap: map[string]*schema.Resource{
@@ -101,17 +107,23 @@ func envDefaultFuncWithDefault(key string, defaultValue string) schema.SchemaDef
 
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 
-	kongConfig := &gokong.Config{
-		HostAddress:        d.Get("kong_admin_uri").(string),
+	kongConfig := &Config{
+		Address:            d.Get("kong_admin_uri").(string),
 		Username:           d.Get("kong_admin_username").(string),
 		Password:           d.Get("kong_admin_password").(string),
 		InsecureSkipVerify: d.Get("tls_skip_verify").(bool),
-		ApiKey:             d.Get("kong_api_key").(string),
+		APIKey:             d.Get("kong_api_key").(string),
 		AdminToken:         d.Get("kong_admin_token").(string),
+		Workspace:          d.Get("kong_workspace").(string),
+	}
+
+	client, err := GetKongClient(*kongConfig)
+	if err != nil {
+		return nil, err
 	}
 
 	config := &config{
-		adminClient:   gokong.NewClient(kongConfig),
+		adminClient:   client,
 		strictPlugins: d.Get("strict_plugins_match").(bool),
 	}
 

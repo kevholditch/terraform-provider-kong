@@ -1,10 +1,11 @@
 package kong
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/kevholditch/gokong"
+	"github.com/kong/go-kong/kong"
 )
 
 func resourceKongService() *schema.Resource {
@@ -76,12 +77,13 @@ func resourceKongServiceCreate(d *schema.ResourceData, meta interface{}) error {
 
 	serviceRequest := createKongServiceRequestFromResourceData(d)
 
-	service, err := meta.(*config).adminClient.Services().Create(serviceRequest)
+	client := meta.(*config).adminClient.Services
+	service, err := client.Create(context.Background(), serviceRequest)
 	if err != nil {
 		return fmt.Errorf("failed to create kong service: %v error: %v", serviceRequest, err)
 	}
 
-	d.SetId(*service.Id)
+	d.SetId(*service.ID)
 
 	return resourceKongServiceRead(d, meta)
 }
@@ -91,7 +93,8 @@ func resourceKongServiceUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	serviceRequest := createKongServiceRequestFromResourceData(d)
 
-	_, err := meta.(*config).adminClient.Services().UpdateServiceById(d.Id(), serviceRequest)
+	client := meta.(*config).adminClient.Services
+	_, err := client.Update(context.Background(), serviceRequest)
 
 	if err != nil {
 		return fmt.Errorf("error updating kong service: %s", err)
@@ -102,7 +105,8 @@ func resourceKongServiceUpdate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceKongServiceRead(d *schema.ResourceData, meta interface{}) error {
 
-	service, err := meta.(*config).adminClient.Services().GetServiceById(d.Id())
+	client := meta.(*config).adminClient.Services
+	service, err := client.Get(context.Background(), kong.String(d.Id()))
 
 	if err != nil {
 		return fmt.Errorf("could not find kong service: %v", err)
@@ -153,7 +157,8 @@ func resourceKongServiceRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceKongServiceDelete(d *schema.ResourceData, meta interface{}) error {
 
-	err := meta.(*config).adminClient.Services().DeleteServiceById(d.Id())
+	client := meta.(*config).adminClient.Services
+	err := client.Delete(context.Background(), kong.String(d.Id()))
 
 	if err != nil {
 		return fmt.Errorf("could not delete kong service: %v", err)
@@ -162,8 +167,8 @@ func resourceKongServiceDelete(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func createKongServiceRequestFromResourceData(d *schema.ResourceData) *gokong.ServiceRequest {
-	return &gokong.ServiceRequest{
+func createKongServiceRequestFromResourceData(d *schema.ResourceData) *kong.Service {
+	service := &kong.Service{
 		Name:           readStringPtrFromResource(d, "name"),
 		Protocol:       readStringPtrFromResource(d, "protocol"),
 		Host:           readStringPtrFromResource(d, "host"),
@@ -174,4 +179,8 @@ func createKongServiceRequestFromResourceData(d *schema.ResourceData) *gokong.Se
 		WriteTimeout:   readIntPtrFromResource(d, "write_timeout"),
 		ReadTimeout:    readIntPtrFromResource(d, "read_timeout"),
 	}
+	if d.Id() != "" {
+		service.ID = kong.String(d.Id())
+	}
+	return service
 }

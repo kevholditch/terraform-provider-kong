@@ -1,13 +1,14 @@
 package kong
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-	"github.com/kevholditch/gokong"
+	"github.com/kong/go-kong/kong"
 )
 
 func TestAccKongUpstream(t *testing.T) {
@@ -147,7 +148,7 @@ func TestAccKongUpstreamImport(t *testing.T) {
 
 func testAccCheckKongUpstreamDestroy(state *terraform.State) error {
 
-	client := testAccProvider.Meta().(*config).adminClient
+	client := testAccProvider.Meta().(*config).adminClient.Upstreams
 
 	upstreams := getResourcesByType("kong_upstream", state)
 
@@ -155,9 +156,9 @@ func testAccCheckKongUpstreamDestroy(state *terraform.State) error {
 		return fmt.Errorf("expecting only 1 upstream resource found %v", len(upstreams))
 	}
 
-	response, err := client.Upstreams().GetById(upstreams[0].Primary.ID)
+	response, err := client.Get(context.Background(), kong.String(upstreams[0].Primary.ID))
 
-	if err != nil {
+	if !kong.IsNotFoundErr(err) && err != nil {
 		return fmt.Errorf("error calling get upstream by id: %v", err)
 	}
 
@@ -181,7 +182,8 @@ func testAccCheckKongUpstreamExists(resourceKey string) resource.TestCheckFunc {
 			return fmt.Errorf("no ID is set")
 		}
 
-		api, err := testAccProvider.Meta().(*config).adminClient.Upstreams().GetById(rs.Primary.ID)
+		client := testAccProvider.Meta().(*config).adminClient.Upstreams
+		api, err := client.Get(context.Background(), kong.String(rs.Primary.ID))
 
 		if err != nil {
 			return err
@@ -198,16 +200,16 @@ func testAccCheckKongUpstreamExists(resourceKey string) resource.TestCheckFunc {
 func TestCreateKongHealthCheckFromMap(t *testing.T) {
 	cases := []struct {
 		in       *map[string]interface{}
-		expected *gokong.UpstreamHealthCheck
+		expected *kong.Healthcheck
 	}{
 		// Empty data
 		{
 			in:       &map[string]interface{}{},
-			expected: &gokong.UpstreamHealthCheck{},
+			expected: &kong.Healthcheck{},
 		}, // Simple data
 		{
 			in: &map[string]interface{}{},
-			expected: &gokong.UpstreamHealthCheck{
+			expected: &kong.Healthcheck{
 				Active:  nil,
 				Passive: nil,
 			},
@@ -229,19 +231,19 @@ func TestCreateKongHealthCheckFromMap(t *testing.T) {
 					},
 				},
 			},
-			expected: &gokong.UpstreamHealthCheck{
-				Active: &gokong.UpstreamHealthCheckActive{
-					Type:                   "http",
-					Concurrency:            12,
+			expected: &kong.Healthcheck{
+				Active: &kong.ActiveHealthcheck{
+					Type:                   kong.String("http"),
+					Concurrency:            kong.Int(12),
 					Healthy:                nil,
-					HttpPath:               "/health",
-					HttpsVerifyCertificate: true,
-					HttpsSni:               nil,
-					Timeout:                60,
+					HTTPPath:               kong.String("/health"),
+					HTTPSVerifyCertificate: kong.Bool(true),
+					HTTPSSni:               nil,
+					Timeout:                kong.Int(60),
 					Unhealthy:              nil,
 				},
-				Passive: &gokong.UpstreamHealthCheckPassive{
-					Type:      "https",
+				Passive: &kong.PassiveHealthcheck{
+					Type:      kong.String("https"),
 					Healthy:   nil,
 					Unhealthy: nil,
 				},
@@ -264,12 +266,12 @@ func TestCreateKongHealthCheckFromMap(t *testing.T) {
 func TestCreateKongHealthCheckActiveFromMap(t *testing.T) {
 	cases := []struct {
 		in       *map[string]interface{}
-		expected *gokong.UpstreamHealthCheckActive
+		expected *kong.ActiveHealthcheck
 	}{
 		// Empty data
 		{
 			in:       &map[string]interface{}{},
-			expected: &gokong.UpstreamHealthCheckActive{},
+			expected: &kong.ActiveHealthcheck{},
 		}, // Simple data
 		{
 			in: &map[string]interface{}{
@@ -279,14 +281,14 @@ func TestCreateKongHealthCheckActiveFromMap(t *testing.T) {
 				"https_verify_certificate": true,
 				"timeout":                  60,
 			},
-			expected: &gokong.UpstreamHealthCheckActive{
-				Type:                   "http",
-				Concurrency:            12,
+			expected: &kong.ActiveHealthcheck{
+				Type:                   kong.String("http"),
+				Concurrency:            kong.Int(12),
 				Healthy:                nil,
-				HttpPath:               "/health",
-				HttpsVerifyCertificate: true,
-				HttpsSni:               nil,
-				Timeout:                60,
+				HTTPPath:               kong.String("/health"),
+				HTTPSVerifyCertificate: kong.Bool(true),
+				HTTPSSni:               nil,
+				Timeout:                kong.Int(60),
 				Unhealthy:              nil,
 			},
 		}, // All data
@@ -315,24 +317,24 @@ func TestCreateKongHealthCheckActiveFromMap(t *testing.T) {
 					},
 				},
 			},
-			expected: &gokong.UpstreamHealthCheckActive{
-				Type:        "http",
-				Concurrency: 12,
-				Healthy: &gokong.ActiveHealthy{
-					Successes:    3,
-					Interval:     5,
-					HttpStatuses: []int{200},
+			expected: &kong.ActiveHealthcheck{
+				Type:        kong.String("http"),
+				Concurrency: kong.Int(12),
+				Healthy: &kong.Healthy{
+					Successes:    kong.Int(3),
+					Interval:     kong.Int(5),
+					HTTPStatuses: []int{200},
 				},
-				HttpPath:               "/health",
-				HttpsVerifyCertificate: true,
-				HttpsSni:               String("some.domain.com"),
-				Timeout:                60,
-				Unhealthy: &gokong.ActiveUnhealthy{
-					HttpFailures: 1,
-					HttpStatuses: []int{500},
-					Interval:     5,
-					TcpFailures:  2,
-					Timeouts:     4,
+				HTTPPath:               kong.String("/health"),
+				HTTPSVerifyCertificate: kong.Bool(true),
+				HTTPSSni:               kong.String("some.domain.com"),
+				Timeout:                kong.Int(60),
+				Unhealthy: &kong.Unhealthy{
+					HTTPFailures: kong.Int(1),
+					HTTPStatuses: []int{500},
+					Interval:     kong.Int(5),
+					TCPFailures:  kong.Int(2),
+					Timeouts:     kong.Int(4),
 				},
 			},
 		},
@@ -353,19 +355,19 @@ func TestCreateKongHealthCheckActiveFromMap(t *testing.T) {
 func TestCreateKongHealthCheckPassiveFromMap(t *testing.T) {
 	cases := []struct {
 		in       *map[string]interface{}
-		expected *gokong.UpstreamHealthCheckPassive
+		expected *kong.PassiveHealthcheck
 	}{
 		// Empty data
 		{
 			in:       &map[string]interface{}{},
-			expected: &gokong.UpstreamHealthCheckPassive{},
+			expected: &kong.PassiveHealthcheck{},
 		}, // Simple data
 		{
 			in: &map[string]interface{}{
 				"type": "http",
 			},
-			expected: &gokong.UpstreamHealthCheckPassive{
-				Type:      "http",
+			expected: &kong.PassiveHealthcheck{
+				Type:      kong.String("http"),
 				Healthy:   nil,
 				Unhealthy: nil,
 			},
@@ -388,17 +390,17 @@ func TestCreateKongHealthCheckPassiveFromMap(t *testing.T) {
 					},
 				},
 			},
-			expected: &gokong.UpstreamHealthCheckPassive{
-				Type: "https",
-				Healthy: &gokong.PassiveHealthy{
-					Successes:    3,
-					HttpStatuses: []int{200},
+			expected: &kong.PassiveHealthcheck{
+				Type: kong.String("https"),
+				Healthy: &kong.Healthy{
+					Successes:    kong.Int(3),
+					HTTPStatuses: []int{200},
 				},
-				Unhealthy: &gokong.PassiveUnhealthy{
-					HttpFailures: 1,
-					HttpStatuses: []int{500},
-					TcpFailures:  2,
-					Timeouts:     4,
+				Unhealthy: &kong.Unhealthy{
+					HTTPFailures: kong.Int(1),
+					HTTPStatuses: []int{500},
+					TCPFailures:  kong.Int(2),
+					Timeouts:     kong.Int(4),
 				},
 			},
 		},
@@ -419,12 +421,12 @@ func TestCreateKongHealthCheckPassiveFromMap(t *testing.T) {
 func TestCreateKongActiveHealthyFromMap(t *testing.T) {
 	cases := []struct {
 		in       *map[string]interface{}
-		expected *gokong.ActiveHealthy
+		expected *kong.Healthy
 	}{
 		// Empty data
 		{
 			in:       &map[string]interface{}{},
-			expected: &gokong.ActiveHealthy{},
+			expected: &kong.Healthy{},
 		}, // Simple data
 		{
 			in: &map[string]interface{}{
@@ -432,22 +434,22 @@ func TestCreateKongActiveHealthyFromMap(t *testing.T) {
 				"http_statuses": []interface{}{200},
 				"successes":     2,
 			},
-			expected: &gokong.ActiveHealthy{
-				HttpStatuses: []int{200},
-				Interval:     3,
-				Successes:    2,
+			expected: &kong.Healthy{
+				HTTPStatuses: []int{200},
+				Interval:     kong.Int(3),
+				Successes:    kong.Int(2),
 			},
-		}, // EmptyHttpStatuses
+		}, // EmptyHTTPStatuses
 		{
 			in: &map[string]interface{}{
 				"interval":      3,
 				"http_statuses": []interface{}{},
 				"successes":     2,
 			},
-			expected: &gokong.ActiveHealthy{
-				HttpStatuses: []int{},
-				Interval:     3,
-				Successes:    2,
+			expected: &kong.Healthy{
+				HTTPStatuses: []int{},
+				Interval:     kong.Int(3),
+				Successes:    kong.Int(2),
 			},
 		},
 		{
@@ -467,12 +469,12 @@ func TestCreateKongActiveHealthyFromMap(t *testing.T) {
 func TestCreateKongActiveUnhealthyFromMap(t *testing.T) {
 	cases := []struct {
 		in       *map[string]interface{}
-		expected *gokong.ActiveUnhealthy
+		expected *kong.Unhealthy
 	}{
 		// Empty data
 		{
 			in:       &map[string]interface{}{},
-			expected: &gokong.ActiveUnhealthy{},
+			expected: &kong.Unhealthy{},
 		}, // Simple data
 		{
 			in: &map[string]interface{}{
@@ -482,14 +484,14 @@ func TestCreateKongActiveUnhealthyFromMap(t *testing.T) {
 				"tcp_failures":  5,
 				"timeouts":      6,
 			},
-			expected: &gokong.ActiveUnhealthy{
-				HttpFailures: 4,
-				HttpStatuses: []int{200},
-				Interval:     3,
-				TcpFailures:  5,
-				Timeouts:     6,
+			expected: &kong.Unhealthy{
+				HTTPFailures: kong.Int(4),
+				HTTPStatuses: []int{200},
+				Interval:     kong.Int(3),
+				TCPFailures:  kong.Int(5),
+				Timeouts:     kong.Int(6),
 			},
-		}, // EmptyHttpStatuses
+		}, // EmptyHTTPStatuses
 		{
 			in: &map[string]interface{}{
 				"http_failures": 4,
@@ -498,12 +500,12 @@ func TestCreateKongActiveUnhealthyFromMap(t *testing.T) {
 				"tcp_failures":  5,
 				"timeouts":      6,
 			},
-			expected: &gokong.ActiveUnhealthy{
-				HttpFailures: 4,
-				HttpStatuses: []int{},
-				Interval:     3,
-				TcpFailures:  5,
-				Timeouts:     6,
+			expected: &kong.Unhealthy{
+				HTTPFailures: kong.Int(4),
+				HTTPStatuses: []int{},
+				Interval:     kong.Int(3),
+				TCPFailures:  kong.Int(5),
+				Timeouts:     kong.Int(6),
 			},
 		},
 		{
@@ -523,12 +525,12 @@ func TestCreateKongActiveUnhealthyFromMap(t *testing.T) {
 func TestCreateKongPassiveHealthyFromMap(t *testing.T) {
 	cases := []struct {
 		in       *map[string]interface{}
-		expected *gokong.PassiveHealthy
+		expected *kong.Healthy
 	}{
 		// Empty data
 		{
 			in:       &map[string]interface{}{},
-			expected: &gokong.PassiveHealthy{},
+			expected: &kong.Healthy{},
 		}, // Simple data
 		{
 			in: &map[string]interface{}{
@@ -537,19 +539,19 @@ func TestCreateKongPassiveHealthyFromMap(t *testing.T) {
 				},
 				"successes": 3,
 			},
-			expected: &gokong.PassiveHealthy{
-				HttpStatuses: []int{200},
-				Successes:    3,
+			expected: &kong.Healthy{
+				HTTPStatuses: []int{200},
+				Successes:    kong.Int(3),
 			},
-		}, // EmptyHttpStatuses
+		}, // EmptyHTTPStatuses
 		{
 			in: &map[string]interface{}{
 				"http_statuses": []interface{}{},
 				"successes":     3,
 			},
-			expected: &gokong.PassiveHealthy{
-				HttpStatuses: []int{},
-				Successes:    3,
+			expected: &kong.Healthy{
+				HTTPStatuses: []int{},
+				Successes:    kong.Int(3),
 			},
 		},
 		{
@@ -569,12 +571,12 @@ func TestCreateKongPassiveHealthyFromMap(t *testing.T) {
 func TestCreateKongPassiveUnhealthyFromMap(t *testing.T) {
 	cases := []struct {
 		in       *map[string]interface{}
-		expected *gokong.PassiveUnhealthy
+		expected *kong.Unhealthy
 	}{
 		// Empty data
 		{
 			in:       &map[string]interface{}{},
-			expected: &gokong.PassiveUnhealthy{},
+			expected: &kong.Unhealthy{},
 		}, // Simple data
 		{
 			in: &map[string]interface{}{
@@ -583,13 +585,13 @@ func TestCreateKongPassiveUnhealthyFromMap(t *testing.T) {
 				"http_failures": 4,
 				"timeouts":      5,
 			},
-			expected: &gokong.PassiveUnhealthy{
-				HttpStatuses: []int{200},
-				TcpFailures:  3,
-				HttpFailures: 4,
-				Timeouts:     5,
+			expected: &kong.Unhealthy{
+				HTTPStatuses: []int{200},
+				TCPFailures:  kong.Int(3),
+				HTTPFailures: kong.Int(4),
+				Timeouts:     kong.Int(5),
 			},
-		}, // EmptyHttpStatuses
+		}, // EmptyHTTPStatuses
 		{
 			in: &map[string]interface{}{
 				"http_statuses": []interface{}{},
@@ -597,11 +599,11 @@ func TestCreateKongPassiveUnhealthyFromMap(t *testing.T) {
 				"http_failures": 4,
 				"timeouts":      5,
 			},
-			expected: &gokong.PassiveUnhealthy{
-				HttpStatuses: []int{},
-				TcpFailures:  3,
-				HttpFailures: 4,
-				Timeouts:     5,
+			expected: &kong.Unhealthy{
+				HTTPStatuses: []int{},
+				TCPFailures:  kong.Int(3),
+				HTTPFailures: kong.Int(4),
+				Timeouts:     kong.Int(5),
 			},
 		},
 		{
@@ -620,12 +622,12 @@ func TestCreateKongPassiveUnhealthyFromMap(t *testing.T) {
 
 func TestFlattenHealthCheck(t *testing.T) {
 	cases := []struct {
-		in       *gokong.UpstreamHealthCheck
+		in       *kong.Healthcheck
 		expected []interface{}
 	}{
 		// Simple data
 		{
-			in: &gokong.UpstreamHealthCheck{
+			in: &kong.Healthcheck{
 				Active:  nil,
 				Passive: nil,
 			},
@@ -634,19 +636,19 @@ func TestFlattenHealthCheck(t *testing.T) {
 			},
 		}, // All data
 		{
-			in: &gokong.UpstreamHealthCheck{
-				Active: &gokong.UpstreamHealthCheckActive{
-					Type:                   "http",
-					Concurrency:            12,
+			in: &kong.Healthcheck{
+				Active: &kong.ActiveHealthcheck{
+					Type:                   kong.String("http"),
+					Concurrency:            kong.Int(12),
 					Healthy:                nil,
-					HttpPath:               "/health",
-					HttpsVerifyCertificate: true,
-					HttpsSni:               nil,
-					Timeout:                60,
+					HTTPPath:               kong.String("/health"),
+					HTTPSVerifyCertificate: kong.Bool(true),
+					HTTPSSni:               nil,
+					Timeout:                kong.Int(60),
 					Unhealthy:              nil,
 				},
-				Passive: &gokong.UpstreamHealthCheckPassive{
-					Type:      "https",
+				Passive: &kong.PassiveHealthcheck{
+					Type:      kong.String("https"),
 					Healthy:   nil,
 					Unhealthy: nil,
 				},
@@ -686,19 +688,19 @@ func TestFlattenHealthCheck(t *testing.T) {
 
 func TestFlattenHealthCheckActive(t *testing.T) {
 	cases := []struct {
-		in       *gokong.UpstreamHealthCheckActive
+		in       kong.ActiveHealthcheck
 		expected []interface{}
 	}{
 		// Simple data
 		{
-			in: &gokong.UpstreamHealthCheckActive{
-				Type:                   "http",
-				Concurrency:            12,
+			in: kong.ActiveHealthcheck{
+				Type:                   kong.String("http"),
+				Concurrency:            kong.Int(12),
 				Healthy:                nil,
-				HttpPath:               "/health",
-				HttpsVerifyCertificate: true,
-				HttpsSni:               nil,
-				Timeout:                60,
+				HTTPPath:               kong.String("/health"),
+				HTTPSVerifyCertificate: kong.Bool(true),
+				HTTPSSni:               nil,
+				Timeout:                kong.Int(60),
 				Unhealthy:              nil,
 			},
 			expected: []interface{}{
@@ -712,24 +714,24 @@ func TestFlattenHealthCheckActive(t *testing.T) {
 			},
 		}, // All data
 		{
-			in: &gokong.UpstreamHealthCheckActive{
-				Type:        "http",
-				Concurrency: 12,
-				Healthy: &gokong.ActiveHealthy{
-					Successes:    3,
-					Interval:     5,
-					HttpStatuses: []int{200},
+			in: kong.ActiveHealthcheck{
+				Type:        kong.String("http"),
+				Concurrency: kong.Int(12),
+				Healthy: &kong.Healthy{
+					Successes:    kong.Int(3),
+					Interval:     kong.Int(5),
+					HTTPStatuses: []int{200},
 				},
-				HttpPath:               "/health",
-				HttpsVerifyCertificate: true,
-				HttpsSni:               String("some.domain.com"),
-				Timeout:                60,
-				Unhealthy: &gokong.ActiveUnhealthy{
-					HttpFailures: 1,
-					HttpStatuses: []int{500},
-					Interval:     5,
-					TcpFailures:  2,
-					Timeouts:     4,
+				HTTPPath:               kong.String("/health"),
+				HTTPSVerifyCertificate: kong.Bool(true),
+				HTTPSSni:               kong.String("some.domain.com"),
+				Timeout:                kong.Int(60),
+				Unhealthy: &kong.Unhealthy{
+					HTTPFailures: kong.Int(1),
+					HTTPStatuses: []int{500},
+					Interval:     kong.Int(5),
+					TCPFailures:  kong.Int(2),
+					Timeouts:     kong.Int(4),
 				},
 			},
 			expected: []interface{}{
@@ -760,13 +762,13 @@ func TestFlattenHealthCheckActive(t *testing.T) {
 			},
 		}, // Nil object
 		{
-			in:       nil,
-			expected: []interface{}{},
+			in:       kong.ActiveHealthcheck{},
+			expected: []interface{}{map[string]interface{}{}},
 		},
 	}
 
 	for _, c := range cases {
-		out := flattenHealthCheckActive(c.in)
+		out := flattenHealthCheckActive(&c.in)
 		if !reflect.DeepEqual(out, c.expected) {
 			t.Fatalf("Error matching output and expected: %#v vs %#v", out, c.expected)
 		}
@@ -775,13 +777,13 @@ func TestFlattenHealthCheckActive(t *testing.T) {
 
 func TestFlattenHealthCheckPassive(t *testing.T) {
 	cases := []struct {
-		in       *gokong.UpstreamHealthCheckPassive
+		in       kong.PassiveHealthcheck
 		expected []interface{}
 	}{
 		// Simple data
 		{
-			in: &gokong.UpstreamHealthCheckPassive{
-				Type:      "http",
+			in: kong.PassiveHealthcheck{
+				Type:      kong.String("http"),
 				Healthy:   nil,
 				Unhealthy: nil,
 			},
@@ -792,17 +794,17 @@ func TestFlattenHealthCheckPassive(t *testing.T) {
 			},
 		}, // All data
 		{
-			in: &gokong.UpstreamHealthCheckPassive{
-				Type: "https",
-				Healthy: &gokong.PassiveHealthy{
-					Successes:    3,
-					HttpStatuses: []int{200},
+			in: kong.PassiveHealthcheck{
+				Type: kong.String("https"),
+				Healthy: &kong.Healthy{
+					Successes:    kong.Int(3),
+					HTTPStatuses: []int{200},
 				},
-				Unhealthy: &gokong.PassiveUnhealthy{
-					HttpFailures: 1,
-					HttpStatuses: []int{500},
-					TcpFailures:  2,
-					Timeouts:     4,
+				Unhealthy: &kong.Unhealthy{
+					HTTPFailures: kong.Int(1),
+					HTTPStatuses: []int{500},
+					TCPFailures:  kong.Int(2),
+					Timeouts:     kong.Int(4),
 				},
 			},
 			expected: []interface{}{
@@ -826,13 +828,13 @@ func TestFlattenHealthCheckPassive(t *testing.T) {
 			},
 		}, // Nil object
 		{
-			in:       nil,
-			expected: []interface{}{},
+			in:       kong.PassiveHealthcheck{},
+			expected: []interface{}{map[string]interface{}{}},
 		},
 	}
 
 	for _, c := range cases {
-		out := flattenHealthCheckPassive(c.in)
+		out := flattenHealthCheckPassive(&c.in)
 		if !reflect.DeepEqual(out, c.expected) {
 			t.Fatalf("Error matching output and expected: %#v vs %#v", out, c.expected)
 		}
@@ -841,15 +843,15 @@ func TestFlattenHealthCheckPassive(t *testing.T) {
 
 func TestFlattenActiveHealthy(t *testing.T) {
 	cases := []struct {
-		in       *gokong.ActiveHealthy
+		in       *kong.Healthy
 		expected []map[string]interface{}
 	}{
 		// Simple, all data
 		{
-			in: &gokong.ActiveHealthy{
-				HttpStatuses: []int{200},
-				Interval:     3,
-				Successes:    2,
+			in: &kong.Healthy{
+				HTTPStatuses: []int{200},
+				Interval:     kong.Int(3),
+				Successes:    kong.Int(2),
 			},
 			expected: []map[string]interface{}{
 				{
@@ -858,12 +860,12 @@ func TestFlattenActiveHealthy(t *testing.T) {
 					"successes":     2,
 				},
 			},
-		}, // EmptyHttpStatuses
+		}, // EmptyHTTPStatuses
 		{
-			in: &gokong.ActiveHealthy{
-				HttpStatuses: []int{},
-				Interval:     3,
-				Successes:    2,
+			in: &kong.Healthy{
+				HTTPStatuses: []int{},
+				Interval:     kong.Int(3),
+				Successes:    kong.Int(2),
 			},
 			expected: []map[string]interface{}{
 				{
@@ -889,17 +891,17 @@ func TestFlattenActiveHealthy(t *testing.T) {
 
 func TestFlattenActiveUnhealthy(t *testing.T) {
 	cases := []struct {
-		in       *gokong.ActiveUnhealthy
+		in       *kong.Unhealthy
 		expected []map[string]interface{}
 	}{
 		// Simple, all data
 		{
-			in: &gokong.ActiveUnhealthy{
-				HttpFailures: 4,
-				HttpStatuses: []int{200},
-				Interval:     3,
-				TcpFailures:  5,
-				Timeouts:     6,
+			in: &kong.Unhealthy{
+				HTTPFailures: kong.Int(4),
+				HTTPStatuses: []int{200},
+				Interval:     kong.Int(3),
+				TCPFailures:  kong.Int(5),
+				Timeouts:     kong.Int(6),
 			},
 			expected: []map[string]interface{}{
 				{
@@ -910,14 +912,14 @@ func TestFlattenActiveUnhealthy(t *testing.T) {
 					"timeouts":      6,
 				},
 			},
-		}, // EmptyHttpStatuses
+		}, // EmptyHTTPStatuses
 		{
-			in: &gokong.ActiveUnhealthy{
-				HttpFailures: 4,
-				HttpStatuses: []int{},
-				Interval:     3,
-				TcpFailures:  5,
-				Timeouts:     6,
+			in: &kong.Unhealthy{
+				HTTPFailures: kong.Int(4),
+				HTTPStatuses: []int{},
+				Interval:     kong.Int(3),
+				TCPFailures:  kong.Int(5),
+				Timeouts:     kong.Int(6),
 			},
 			expected: []map[string]interface{}{
 				{
@@ -945,14 +947,14 @@ func TestFlattenActiveUnhealthy(t *testing.T) {
 
 func TestFlattenPassiveHealthy(t *testing.T) {
 	cases := []struct {
-		in       *gokong.PassiveHealthy
+		in       *kong.Healthy
 		expected []map[string]interface{}
 	}{
 		// Simple, all data
 		{
-			in: &gokong.PassiveHealthy{
-				HttpStatuses: []int{200},
-				Successes:    3,
+			in: &kong.Healthy{
+				HTTPStatuses: []int{200},
+				Successes:    kong.Int(3),
 			},
 			expected: []map[string]interface{}{
 				{
@@ -960,11 +962,11 @@ func TestFlattenPassiveHealthy(t *testing.T) {
 					"successes":     3,
 				},
 			},
-		}, // EmptyHttpStatuses
+		}, // EmptyHTTPStatuses
 		{
-			in: &gokong.PassiveHealthy{
-				HttpStatuses: []int{},
-				Successes:    3,
+			in: &kong.Healthy{
+				HTTPStatuses: []int{},
+				Successes:    kong.Int(3),
 			},
 			expected: []map[string]interface{}{
 				{
@@ -989,16 +991,16 @@ func TestFlattenPassiveHealthy(t *testing.T) {
 
 func TestFlattenPassiveUnhealthy(t *testing.T) {
 	cases := []struct {
-		in       *gokong.PassiveUnhealthy
+		in       *kong.Unhealthy
 		expected []map[string]interface{}
 	}{
 		// Simple, all data
 		{
-			in: &gokong.PassiveUnhealthy{
-				HttpStatuses: []int{200},
-				TcpFailures:  3,
-				HttpFailures: 4,
-				Timeouts:     5,
+			in: &kong.Unhealthy{
+				HTTPStatuses: []int{200},
+				TCPFailures:  kong.Int(3),
+				HTTPFailures: kong.Int(4),
+				Timeouts:     kong.Int(5),
 			},
 			expected: []map[string]interface{}{
 				{
@@ -1008,13 +1010,13 @@ func TestFlattenPassiveUnhealthy(t *testing.T) {
 					"timeouts":      5,
 				},
 			},
-		}, // EmptyHttpStatuses
+		}, // EmptyHTTPStatuses
 		{
-			in: &gokong.PassiveUnhealthy{
-				HttpStatuses: []int{},
-				TcpFailures:  3,
-				HttpFailures: 4,
-				Timeouts:     5,
+			in: &kong.Unhealthy{
+				HTTPStatuses: []int{},
+				TCPFailures:  kong.Int(3),
+				HTTPFailures: kong.Int(4),
+				Timeouts:     kong.Int(5),
 			},
 			expected: []map[string]interface{}{
 				{
