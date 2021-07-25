@@ -68,7 +68,7 @@ func testAccCheckJWTAuthDestroy(state *terraform.State) error {
 		return fmt.Errorf("expecting only 1 jwt auth resource found %v", len(resources))
 	}
 
-	id, err := splitJwtID(resources[0].Primary.ID)
+	id, err := splitConsumerID(resources[0].Primary.ID)
 	jwtAuth, err := client.Get(context.Background(), kong.String(id.ConsumerID), kong.String(id.ID))
 
 	if !kong.IsNotFoundErr(err) && err != nil {
@@ -96,7 +96,7 @@ func testAccCheckJWTAuthExists(resourceKey string) resource.TestCheckFunc {
 		}
 
 		client := testAccProvider.Meta().(*config).adminClient.JWTAuths
-		id, err := splitJwtID(rs.Primary.ID)
+		id, err := splitConsumerID(rs.Primary.ID)
 
 		jwtAuth, err := client.Get(context.Background(), kong.String(id.ConsumerID), kong.String(id.ID))
 

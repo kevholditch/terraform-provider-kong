@@ -75,23 +75,23 @@ func buildJWTID(ID, consumerID string) string {
 	return ID + "|" + consumerID
 }
 
-type JWTID struct {
+type ConsumerIDPair struct {
 	ID         string
 	ConsumerID string
 }
 
-func splitJwtID(value string) (*JWTID, error) {
+func splitConsumerID(value string) (*ConsumerIDPair, error) {
 	v := strings.Split(value, "|")
 	if len(v) != 2 {
 		return nil, fmt.Errorf("expecting there to be exactly 2 strings in ID but found %d", len(v))
 	}
-	return &JWTID{ID: v[0], ConsumerID: v[1]}, nil
+	return &ConsumerIDPair{ID: v[0], ConsumerID: v[1]}, nil
 }
 
 func resourceKongJWTAuthUpdate(d *schema.ResourceData, meta interface{}) error {
 	d.Partial(false)
 
-	id, err := splitJwtID(d.Id())
+	id, err := splitConsumerID(d.Id())
 
 	JWTAuthRequest := &kong.JWTAuth{
 		ID:           kong.String(id.ID),
@@ -115,7 +115,7 @@ func resourceKongJWTAuthUpdate(d *schema.ResourceData, meta interface{}) error {
 
 func resourceKongJWTAuthRead(d *schema.ResourceData, meta interface{}) error {
 
-	id, err := splitJwtID(d.Id())
+	id, err := splitConsumerID(d.Id())
 	if err != nil {
 		return err
 	}
@@ -144,7 +144,7 @@ func resourceKongJWTAuthRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceKongJWTAuthDelete(d *schema.ResourceData, meta interface{}) error {
 
-	id, err := splitJwtID(d.Id())
+	id, err := splitConsumerID(d.Id())
 	if err != nil {
 		return err
 	}
