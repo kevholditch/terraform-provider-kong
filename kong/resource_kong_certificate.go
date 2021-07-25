@@ -69,6 +69,7 @@ func resourceKongCertificateUpdate(d *schema.ResourceData, meta interface{}) err
 		ID:   kong.String(d.Id()),
 		Cert: kong.String(d.Get("certificate").(string)),
 		Key:  kong.String(d.Get("private_key").(string)),
+		SNIs: readStringArrayPtrFromResource(d, "snis"),
 	}
 
 	client := meta.(*config).adminClient.Certificates
@@ -101,6 +102,10 @@ func resourceKongCertificateRead(d *schema.ResourceData, meta interface{}) error
 
 		if certificate.Key != nil {
 			d.Set("private_key", &certificate.Key)
+		}
+
+		if certificate.SNIs != nil {
+			d.Set("snis", StringValueSlice(certificate.SNIs))
 		}
 	}
 

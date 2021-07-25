@@ -42,15 +42,15 @@ func TestAccKongCertificateImport(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckKongCertificateDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: fmt.Sprintf(testCreateCertificateConfig, testCert1, testKey1),
 			},
 
-			resource.TestStep{
+			{
 				ResourceName:      "kong_certificate.certificate",
 				ImportState:       true,
 				ImportStateVerify: true,
-			},
+						},
 		},
 	})
 }
