@@ -763,7 +763,7 @@ func TestFlattenHealthCheckActive(t *testing.T) {
 		}, // Nil object
 		{
 			in:       kong.ActiveHealthcheck{},
-			expected: []interface {}{map[string]interface {}{}},
+			expected: []interface{}{map[string]interface{}{}},
 		},
 	}
 
@@ -829,7 +829,7 @@ func TestFlattenHealthCheckPassive(t *testing.T) {
 		}, // Nil object
 		{
 			in:       kong.PassiveHealthcheck{},
-			expected: []interface {}{map[string]interface {}{}},
+			expected: []interface{}{map[string]interface{}{}},
 		},
 	}
 

@@ -50,7 +50,7 @@ func TestAccKongCertificateImport(t *testing.T) {
 				ResourceName:      "kong_certificate.certificate",
 				ImportState:       true,
 				ImportStateVerify: true,
-						},
+			},
 		},
 	})
 }
