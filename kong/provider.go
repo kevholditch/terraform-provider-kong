@@ -76,6 +76,7 @@ func Provider() terraform.ResourceProvider {
 			"kong_target":                 resourceKongTarget(),
 			"kong_service":                resourceKongService(),
 			"kong_route":                  resourceKongRoute(),
+			"kong_jwt_auth":               resourceKongJWTAuth(),
 		},
 
 		//DataSourcesMap: map[string]*schema.Resource{
