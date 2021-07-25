@@ -10,7 +10,7 @@ import (
 	"github.com/kevholditch/terraform-provider-kong/kong/containers"
 )
 
-const defaultKongVersion = "1.3.0"
+const defaultKongVersion = "2.5.0-ubuntu"
 const EnvKongAdminHostAddress = "KONG_ADMIN_ADDR"
 const EnvKongAdminUsername = "KONG_ADMIN_USERNAME"
 const EnvKongAdminPassword = "KONG_ADMIN_PASSWORD"
