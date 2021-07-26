@@ -4,18 +4,19 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/kong/go-kong/kong"
 )
 
 func resourceKongPlugin() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceKongPluginCreate,
-		Read:   resourceKongPluginRead,
-		Delete: resourceKongPluginDelete,
-		Update: resourceKongPluginUpdate,
+		CreateContext: resourceKongPluginCreate,
+		ReadContext:   resourceKongPluginRead,
+		DeleteContext: resourceKongPluginDelete,
+		UpdateContext: resourceKongPluginUpdate,
 
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -72,50 +73,49 @@ func resourceKongPlugin() *schema.Resource {
 	}
 }
 
-func resourceKongPluginCreate(d *schema.ResourceData, meta interface{}) error {
-
+func resourceKongPluginCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	pluginRequest, err := createKongPluginRequestFromResourceData(d)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	client := meta.(*config).adminClient.Plugins
-	plugin, err := client.Create(context.Background(), pluginRequest)
+	plugin, err := client.Create(ctx, pluginRequest)
 
 	if err != nil {
-		return fmt.Errorf("failed to create kong plugin: %v error: %v", pluginRequest, err)
+		return diag.FromErr(fmt.Errorf("failed to create kong plugin: %v error: %v", pluginRequest, err))
 	}
 
 	d.SetId(*plugin.ID)
 
-	return resourceKongPluginRead(d, meta)
+	return resourceKongPluginRead(ctx, d, meta)
 }
 
-func resourceKongPluginUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceKongPluginUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	d.Partial(false)
 
 	pluginRequest, err := createKongPluginRequestFromResourceData(d)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	client := meta.(*config).adminClient.Plugins
-	_, err = client.Update(context.Background(), pluginRequest)
+	_, err = client.Update(ctx, pluginRequest)
 
 	if err != nil {
-		return fmt.Errorf("error updating kong plugin: %s", err)
+		return diag.FromErr(fmt.Errorf("error updating kong plugin: %s", err))
 	}
 
-	return resourceKongPluginRead(d, meta)
+	return resourceKongPluginRead(ctx, d, meta)
 }
 
-func resourceKongPluginRead(d *schema.ResourceData, meta interface{}) error {
-
+func resourceKongPluginRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
 	client := meta.(*config).adminClient.Plugins
-	plugin, err := client.Get(context.Background(), kong.String(d.Id()))
+	plugin, err := client.Get(ctx, kong.String(d.Id()))
 
 	if err != nil {
-		return fmt.Errorf("could not find kong plugin: %v", err)
+		return diag.FromErr(fmt.Errorf("could not find kong plugin: %v", err))
 	}
 
 	if plugin == nil {
@@ -152,19 +152,19 @@ func resourceKongPluginRead(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	return nil
+	return diags
 }
 
-func resourceKongPluginDelete(d *schema.ResourceData, meta interface{}) error {
-
+func resourceKongPluginDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
 	client := meta.(*config).adminClient.Plugins
-	err := client.Delete(context.Background(), kong.String(d.Id()))
+	err := client.Delete(ctx, kong.String(d.Id()))
 
 	if err != nil {
-		return fmt.Errorf("could not delete kong plugin: %v", err)
+		return diag.FromErr(fmt.Errorf("could not delete kong plugin: %v", err))
 	}
 
-	return nil
+	return diags
 }
 
 func createKongPluginRequestFromResourceData(d *schema.ResourceData) (*kong.Plugin, error) {

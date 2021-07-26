@@ -3,17 +3,18 @@ package kong
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/kong/go-kong/kong"
 	"strings"
 )
 
 func resourceKongJWTAuth() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceKongJWTAuthCreate,
-		Read:   resourceKongJWTAuthRead,
-		Delete: resourceKongJWTAuthDelete,
-		Update: resourceKongJWTAuthUpdate,
+		CreateContext: resourceKongJWTAuthCreate,
+		ReadContext:   resourceKongJWTAuthRead,
+		DeleteContext: resourceKongJWTAuthDelete,
+		UpdateContext: resourceKongJWTAuthUpdate,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -48,7 +49,7 @@ func resourceKongJWTAuth() *schema.Resource {
 	}
 }
 
-func resourceKongJWTAuthCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceKongJWTAuthCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	JWTAuthRequest := &kong.JWTAuth{
 		Algorithm:    kong.String(d.Get("algorithm").(string)),
@@ -60,15 +61,15 @@ func resourceKongJWTAuthCreate(d *schema.ResourceData, meta interface{}) error {
 	consumerId := kong.String(d.Get("consumer_id").(string))
 
 	client := meta.(*config).adminClient.JWTAuths
-	JWTAuth, err := client.Create(context.Background(), consumerId, JWTAuthRequest)
+	JWTAuth, err := client.Create(ctx, consumerId, JWTAuthRequest)
 
 	if err != nil {
-		return fmt.Errorf("failed to create kong JWTAuth: %v error: %v", JWTAuthRequest, err)
+		return diag.FromErr(fmt.Errorf("failed to create kong JWTAuth: %v error: %v", JWTAuthRequest, err))
 	}
 
 	d.SetId(buildConsumerPairID(*JWTAuth.ID, *consumerId))
 
-	return resourceKongJWTAuthRead(d, meta)
+	return resourceKongJWTAuthRead(ctx, d, meta)
 }
 
 func buildConsumerPairID(ID, consumerID string) string {
@@ -88,7 +89,7 @@ func splitConsumerID(value string) (*ConsumerIDPair, error) {
 	return &ConsumerIDPair{ID: v[0], ConsumerID: v[1]}, nil
 }
 
-func resourceKongJWTAuthUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceKongJWTAuthUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	d.Partial(false)
 
 	id, err := splitConsumerID(d.Id())
@@ -104,29 +105,29 @@ func resourceKongJWTAuthUpdate(d *schema.ResourceData, meta interface{}) error {
 	consumerId := kong.String(d.Get("consumer_id").(string))
 
 	client := meta.(*config).adminClient.JWTAuths
-	_, err = client.Update(context.Background(), consumerId, JWTAuthRequest)
+	_, err = client.Update(ctx, consumerId, JWTAuthRequest)
 
 	if err != nil {
-		return fmt.Errorf("error updating kong JWTAuth: %s", err)
+		return diag.FromErr(fmt.Errorf("error updating kong JWTAuth: %s", err))
 	}
 
-	return resourceKongJWTAuthRead(d, meta)
+	return resourceKongJWTAuthRead(ctx, d, meta)
 }
 
-func resourceKongJWTAuthRead(d *schema.ResourceData, meta interface{}) error {
-
+func resourceKongJWTAuthRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
 	id, err := splitConsumerID(d.Id())
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	client := meta.(*config).adminClient.JWTAuths
-	JWTAuth, err := client.Get(context.Background(), kong.String(id.ConsumerID), kong.String(id.ID))
+	JWTAuth, err := client.Get(ctx, kong.String(id.ConsumerID), kong.String(id.ID))
 
 	if kong.IsNotFoundErr(err) {
 		d.SetId("")
 	} else if err != nil {
-		return fmt.Errorf("could not find kong JWTAuth with id: %s error: %v", id, err)
+		return diag.FromErr(fmt.Errorf("could not find kong JWTAuth with id: %s error: %v", id, err))
 	}
 
 	if JWTAuth == nil {
@@ -139,21 +140,21 @@ func resourceKongJWTAuthRead(d *schema.ResourceData, meta interface{}) error {
 		d.Set("algorithm", JWTAuth.Algorithm)
 	}
 
-	return nil
+	return diags
 }
 
-func resourceKongJWTAuthDelete(d *schema.ResourceData, meta interface{}) error {
-
+func resourceKongJWTAuthDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
 	id, err := splitConsumerID(d.Id())
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	client := meta.(*config).adminClient.JWTAuths
-	err = client.Delete(context.Background(), kong.String(id.ConsumerID), kong.String(id.ID))
+	err = client.Delete(ctx, kong.String(id.ConsumerID), kong.String(id.ID))
 
 	if err != nil {
-		return fmt.Errorf("could not delete kong JWTAuth: %v", err)
+		return diag.FromErr(fmt.Errorf("could not delete kong JWTAuth: %v", err))
 	}
 
-	return nil
+	return diags
 }

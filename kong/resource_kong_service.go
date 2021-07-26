@@ -3,17 +3,18 @@ package kong
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/kong/go-kong/kong"
 )
 
 func resourceKongService() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceKongServiceCreate,
-		Read:   resourceKongServiceRead,
-		Delete: resourceKongServiceDelete,
-		Update: resourceKongServiceUpdate,
+		CreateContext: resourceKongServiceCreate,
+		ReadContext:   resourceKongServiceRead,
+		DeleteContext: resourceKongServiceDelete,
+		UpdateContext: resourceKongServiceUpdate,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -73,43 +74,43 @@ func resourceKongService() *schema.Resource {
 	}
 }
 
-func resourceKongServiceCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceKongServiceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	serviceRequest := createKongServiceRequestFromResourceData(d)
 
 	client := meta.(*config).adminClient.Services
-	service, err := client.Create(context.Background(), serviceRequest)
+	service, err := client.Create(ctx, serviceRequest)
 	if err != nil {
-		return fmt.Errorf("failed to create kong service: %v error: %v", serviceRequest, err)
+		return diag.FromErr(fmt.Errorf("failed to create kong service: %v error: %v", serviceRequest, err))
 	}
 
 	d.SetId(*service.ID)
 
-	return resourceKongServiceRead(d, meta)
+	return resourceKongServiceRead(ctx, d, meta)
 }
 
-func resourceKongServiceUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceKongServiceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	d.Partial(false)
 
 	serviceRequest := createKongServiceRequestFromResourceData(d)
 
 	client := meta.(*config).adminClient.Services
-	_, err := client.Update(context.Background(), serviceRequest)
+	_, err := client.Update(ctx, serviceRequest)
 
 	if err != nil {
-		return fmt.Errorf("error updating kong service: %s", err)
+		return diag.FromErr(fmt.Errorf("error updating kong service: %s", err))
 	}
 
-	return resourceKongServiceRead(d, meta)
+	return resourceKongServiceRead(ctx, d, meta)
 }
 
-func resourceKongServiceRead(d *schema.ResourceData, meta interface{}) error {
+func resourceKongServiceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	client := meta.(*config).adminClient.Services
-	service, err := client.Get(context.Background(), kong.String(d.Id()))
+	service, err := client.Get(ctx, kong.String(d.Id()))
 
 	if err != nil {
-		return fmt.Errorf("could not find kong service: %v", err)
+		return diag.FromErr(fmt.Errorf("could not find kong service: %v", err))
 	}
 
 	if service == nil {
@@ -155,16 +156,17 @@ func resourceKongServiceRead(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceKongServiceDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceKongServiceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
+	var diags diag.Diagnostics
 	client := meta.(*config).adminClient.Services
-	err := client.Delete(context.Background(), kong.String(d.Id()))
+	err := client.Delete(ctx, kong.String(d.Id()))
 
 	if err != nil {
-		return fmt.Errorf("could not delete kong service: %v", err)
+		return diag.FromErr(fmt.Errorf("could not delete kong service: %v", err))
 	}
 
-	return nil
+	return diags
 }
 
 func createKongServiceRequestFromResourceData(d *schema.ResourceData) *kong.Service {

@@ -3,11 +3,11 @@ package kong
 import (
 	"context"
 	"fmt"
+	"github.com/kong/go-kong/kong"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-	"github.com/kong/go-kong/kong"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccKongRoute(t *testing.T) {
@@ -20,9 +20,13 @@ func TestAccKongRoute(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKongRouteExists("kong_route.route"),
 					resource.TestCheckResourceAttr("kong_route.route", "name", "foo"),
+					resource.TestCheckResourceAttr("kong_route.route", "protocols.#", "1"),
 					resource.TestCheckResourceAttr("kong_route.route", "protocols.0", "http"),
+					resource.TestCheckResourceAttr("kong_route.route", "methods.#", "1"),
 					resource.TestCheckResourceAttr("kong_route.route", "methods.0", "GET"),
+					resource.TestCheckResourceAttr("kong_route.route", "hosts.#", "1"),
 					resource.TestCheckResourceAttr("kong_route.route", "hosts.0", "example.com"),
+					resource.TestCheckResourceAttr("kong_route.route", "paths.#", "1"),
 					resource.TestCheckResourceAttr("kong_route.route", "paths.0", "/"),
 					resource.TestCheckResourceAttr("kong_route.route", "strip_path", "true"),
 					resource.TestCheckResourceAttr("kong_route.route", "preserve_host", "false"),
@@ -34,11 +38,14 @@ func TestAccKongRoute(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKongRouteExists("kong_route.route"),
 					resource.TestCheckResourceAttr("kong_route.route", "name", "bar"),
+					resource.TestCheckResourceAttr("kong_route.route", "protocols.#", "2"),
 					resource.TestCheckResourceAttr("kong_route.route", "protocols.0", "http"),
 					resource.TestCheckResourceAttr("kong_route.route", "protocols.1", "https"),
+					resource.TestCheckResourceAttr("kong_route.route", "methods.#", "2"),
 					resource.TestCheckResourceAttr("kong_route.route", "methods.0", "GET"),
 					resource.TestCheckResourceAttr("kong_route.route", "methods.1", "POST"),
 					resource.TestCheckResourceAttr("kong_route.route", "hosts.0", "example2.com"),
+					resource.TestCheckResourceAttr("kong_route.route", "paths.#", "1"),
 					resource.TestCheckResourceAttr("kong_route.route", "paths.0", "/test"),
 					resource.TestCheckResourceAttr("kong_route.route", "strip_path", "false"),
 					resource.TestCheckResourceAttr("kong_route.route", "preserve_host", "true"),
@@ -208,6 +215,7 @@ resource "kong_route" "route" {
 	}
 	source {
 		ip   = "192.168.1.2"
+		port = 82 
 	}
 	destination {
 		ip 	 = "172.10.1.1"

@@ -3,17 +3,18 @@ package kong
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/kong/go-kong/kong"
 )
 
 func resourceKongTarget() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceKongTargetCreate,
-		Read:   resourceKongTargetRead,
-		Delete: resourceKongTargetDelete,
+		CreateContext: resourceKongTargetCreate,
+		ReadContext:   resourceKongTargetRead,
+		DeleteContext: resourceKongTargetDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -38,39 +39,39 @@ func resourceKongTarget() *schema.Resource {
 	}
 }
 
-func resourceKongTargetCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceKongTargetCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	targetRequest := createKongTargetRequestFromResourceData(d)
 
 	client := meta.(*config).adminClient.Targets
-	target, err := client.Create(context.Background(), readStringPtrFromResource(d, "upstream_id"), targetRequest)
+	target, err := client.Create(ctx, readStringPtrFromResource(d, "upstream_id"), targetRequest)
 
 	if err != nil {
-		return fmt.Errorf("failed to create kong target: %v error: %v", targetRequest, err)
+		return diag.FromErr(fmt.Errorf("failed to create kong target: %v error: %v", targetRequest, err))
 	}
 
 	d.SetId(IDToString(target.Upstream.ID) + "/" + *target.ID)
 
-	return resourceKongTargetRead(d, meta)
+	return resourceKongTargetRead(ctx, d, meta)
 }
 
-func resourceKongTargetRead(d *schema.ResourceData, meta interface{}) error {
-
+func resourceKongTargetRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
 	var ids = strings.Split(d.Id(), "/")
 
 	upstreamClient := meta.(*config).adminClient.Upstreams
 	// First check if the upstream exists. If it does not then the target no longer exists either.
-	if upstream, _ := upstreamClient.Get(context.Background(), kong.String(ids[0])); upstream == nil {
+	if upstream, _ := upstreamClient.Get(ctx, kong.String(ids[0])); upstream == nil {
 		d.SetId("")
-		return nil
+		return diags
 	}
 
 	// TODO: Support paging
 	client := meta.(*config).adminClient.Targets
-	targets, _, err := client.List(context.Background(), kong.String(ids[0]), nil)
+	targets, _, err := client.List(ctx, kong.String(ids[0]), nil)
 
 	if err != nil {
-		return fmt.Errorf("could not find kong target: %v", err)
+		return diag.FromErr(fmt.Errorf("could not find kong target: %v", err))
 	}
 
 	if targets == nil {
@@ -85,18 +86,18 @@ func resourceKongTargetRead(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	return nil
+	return diags
 }
 
-func resourceKongTargetDelete(d *schema.ResourceData, meta interface{}) error {
-
+func resourceKongTargetDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
 	var ids = strings.Split(d.Id(), "/")
 	client := meta.(*config).adminClient.Targets
-	if err := client.Delete(context.Background(), kong.String(ids[0]), kong.String(ids[1])); err != nil {
-		return fmt.Errorf("could not delete kong target: %v", err)
+	if err := client.Delete(ctx, kong.String(ids[0]), kong.String(ids[1])); err != nil {
+		return diag.FromErr(fmt.Errorf("could not delete kong target: %v", err))
 	}
 
-	return nil
+	return diags
 }
 
 func createKongTargetRequestFromResourceData(d *schema.ResourceData) *kong.Target {

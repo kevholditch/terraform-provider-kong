@@ -3,17 +3,18 @@ package kong
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/kong/go-kong/kong"
 )
 
 func resourceKongCertificate() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceKongCertificateCreate,
-		Read:   resourceKongCertificateRead,
-		Delete: resourceKongCertificateDelete,
-		Update: resourceKongCertificateUpdate,
+		CreateContext: resourceKongCertificateCreate,
+		ReadContext:   resourceKongCertificateRead,
+		DeleteContext: resourceKongCertificateDelete,
+		UpdateContext: resourceKongCertificateUpdate,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -41,7 +42,7 @@ func resourceKongCertificate() *schema.Resource {
 	}
 }
 
-func resourceKongCertificateCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceKongCertificateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	certificateRequest := &kong.Certificate{
 		Cert: kong.String(d.Get("certificate").(string)),
@@ -51,18 +52,18 @@ func resourceKongCertificateCreate(d *schema.ResourceData, meta interface{}) err
 
 	client := meta.(*config).adminClient.Certificates
 
-	certificate, err := client.Create(context.Background(), certificateRequest)
+	certificate, err := client.Create(ctx, certificateRequest)
 
 	if err != nil {
-		return fmt.Errorf("failed to create kong certificate: %v error: %v", certificateRequest, err)
+		return diag.FromErr(fmt.Errorf("failed to create kong certificate: %v error: %v", certificateRequest, err))
 	}
 
 	d.SetId(*certificate.ID)
 
-	return resourceKongCertificateRead(d, meta)
+	return resourceKongCertificateRead(ctx, d, meta)
 }
 
-func resourceKongCertificateUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceKongCertificateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	d.Partial(false)
 
 	certificateRequest := &kong.Certificate{
@@ -74,23 +75,24 @@ func resourceKongCertificateUpdate(d *schema.ResourceData, meta interface{}) err
 
 	client := meta.(*config).adminClient.Certificates
 
-	_, err := client.Update(context.Background(), certificateRequest)
+	_, err := client.Update(ctx, certificateRequest)
 
 	if err != nil {
-		return fmt.Errorf("error updating kong certificate: %s", err)
+		return diag.FromErr(fmt.Errorf("error updating kong certificate: %s", err))
 	}
 
-	return resourceKongCertificateRead(d, meta)
+	return resourceKongCertificateRead(ctx, d, meta)
 }
 
-func resourceKongCertificateRead(d *schema.ResourceData, meta interface{}) error {
+func resourceKongCertificateRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
+	var diags diag.Diagnostics
 	client := meta.(*config).adminClient.Certificates
 
-	certificate, err := client.Get(context.Background(), kong.String(d.Id()))
+	certificate, err := client.Get(ctx, kong.String(d.Id()))
 
 	if !kong.IsNotFoundErr(err) && err != nil {
-		return fmt.Errorf("could not find kong certificate: %v", err)
+		return diag.FromErr(fmt.Errorf("could not find kong certificate: %v", err))
 	}
 
 	if certificate == nil {
@@ -109,18 +111,19 @@ func resourceKongCertificateRead(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
-	return nil
+	return diags
 }
 
-func resourceKongCertificateDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceKongCertificateDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
+	var diags diag.Diagnostics
 	client := meta.(*config).adminClient.Certificates
 
-	err := client.Delete(context.Background(), kong.String(d.Id()))
+	err := client.Delete(ctx, kong.String(d.Id()))
 
 	if err != nil {
-		return fmt.Errorf("could not delete kong certificate: %v", err)
+		return diag.FromErr(fmt.Errorf("could not delete kong certificate: %v", err))
 	}
 
-	return nil
+	return diags
 }
