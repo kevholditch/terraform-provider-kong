@@ -2,11 +2,10 @@ module github.com/kevholditch/terraform-provider-kong
 
 go 1.16
 
-replace "github.com/kevholditch/terraform-provider-kong/kong" => "./kong"
+replace github.com/kevholditch/terraform-provider-kong/kong => ./kong
 
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20170929234023-d6e3b3328b78 // indirect
-	github.com/Microsoft/go-winio v0.4.14 // indirect
 	github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 // indirect
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
 	github.com/containerd/continuity v0.0.0-20200413184840-d3ef23f19fbb // indirect
@@ -16,8 +15,8 @@ require (
 	github.com/elazarl/goproxy/ext v0.0.0-20190421051319-9d40249d3c2f // indirect
 	github.com/gotestyourself/gotestyourself v2.2.0+incompatible // indirect
 	github.com/hashicorp/hcl/v2 v2.3.0 // indirect
-	github.com/hashicorp/terraform v0.12.24 // indirect
 	github.com/hashicorp/terraform-plugin-sdk v1.7.0
+	github.com/hashicorp/terraform-plugin-sdk/v2 v2.7.0 // indirect
 	github.com/kong/go-kong v0.20.0
 	github.com/lib/pq v1.0.0
 	github.com/opencontainers/image-spec v1.0.1 // indirect

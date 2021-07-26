@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/kong/go-kong/kong"
 )
 
@@ -184,7 +184,7 @@ func resourceKongRouteRead(d *schema.ResourceData, meta interface{}) error {
 		}
 
 		if route.Destinations != nil {
-			d.Set("destination", route.Sources)
+			d.Set("destination", route.Destinations)
 		}
 
 		if route.PreserveHost != nil {

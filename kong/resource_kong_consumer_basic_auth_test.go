@@ -6,15 +6,15 @@ import (
 	"github.com/kong/go-kong/kong"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccConsumerBasicAuth(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckConsumerBasicAuthDestroy,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckConsumerBasicAuthDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testCreateConsumerBasicAuthConfig,

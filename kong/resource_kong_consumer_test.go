@@ -5,16 +5,16 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/kong/go-kong/kong"
 )
 
 func TestAccKongConsumer(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKongConsumerDestroy,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckKongConsumerDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testCreateConsumerConfig,
@@ -39,8 +39,8 @@ func TestAccKongConsumer(t *testing.T) {
 func TestAccKongConsumerImport(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKongConsumerDestroy,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckKongConsumerDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testCreateConsumerConfig,

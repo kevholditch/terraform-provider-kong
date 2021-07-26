@@ -5,16 +5,16 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/kong/go-kong/kong"
 )
 
 func TestAccKongCertificate(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKongCertificateDestroy,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckKongCertificateDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(testCreateCertificateConfig, testCert1, testKey1),
@@ -39,8 +39,8 @@ func TestAccKongCertificate(t *testing.T) {
 func TestAccKongCertificateImport(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKongCertificateDestroy,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckKongCertificateDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(testCreateCertificateConfig, testCert1, testKey1),

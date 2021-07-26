@@ -6,16 +6,16 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/kong/go-kong/kong"
 )
 
 func TestAccKongTarget(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKongTargetDestroy,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckKongTargetDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testCreateTargetConfig,
@@ -40,8 +40,8 @@ func TestAccKongTarget(t *testing.T) {
 func TestAccKongTargetDelete(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKongTargetDestroy,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckKongTargetDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testCreateTargetConfig,
@@ -64,8 +64,8 @@ func TestAccKongTargetDelete(t *testing.T) {
 func TestAccKongTargetCreateAndRefreshFromNonExistentUpstream(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKongTargetDestroy,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckKongTargetDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testCreateTargetConfig,
@@ -84,8 +84,8 @@ func TestAccKongTargetCreateAndRefreshFromNonExistentUpstream(t *testing.T) {
 func TestAccKongTargetImport(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKongTargetDestroy,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckKongTargetDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testCreateTargetConfig,

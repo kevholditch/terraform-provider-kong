@@ -6,16 +6,16 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/kong/go-kong/kong"
 )
 
 func TestAccKongUpstream(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKongUpstreamDestroy,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckKongUpstreamDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testCreateUpstreamConfig,
@@ -130,8 +130,8 @@ func TestAccKongUpstream(t *testing.T) {
 func TestAccKongUpstreamImport(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKongUpstreamDestroy,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckKongUpstreamDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testCreateUpstreamConfig,

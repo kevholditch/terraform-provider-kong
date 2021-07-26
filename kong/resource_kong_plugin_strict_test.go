@@ -3,14 +3,14 @@ package kong
 import (
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccKongGlobalPluginStrict(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKongPluginDestroy,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckKongPluginDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testCreateExplicitStrictGlobalPluginConfig,
@@ -35,8 +35,8 @@ func TestAccKongGlobalPluginStrict(t *testing.T) {
 func TestAccKongGlobalPluginImplicitStrict(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKongPluginDestroy,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckKongPluginDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testCreateImplicitStrictGlobalPluginConfig,
@@ -61,8 +61,8 @@ func TestAccKongGlobalPluginImplicitStrict(t *testing.T) {
 func TestAccKongPluginImportConfigJsonStrict(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKongPluginDestroy,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckKongPluginDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testCreateExplicitStrictGlobalPluginConfig,

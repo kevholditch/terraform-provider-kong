@@ -5,16 +5,16 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/kong/go-kong/kong"
 )
 
 func TestAccKongGlobalPlugin(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKongPluginDestroy,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckKongPluginDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testCreateGlobalPluginConfig,
@@ -39,8 +39,8 @@ func TestAccKongGlobalPlugin(t *testing.T) {
 func TestAccKongGlobalPluginDisabled(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKongPluginDestroy,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckKongPluginDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testCreateGlobalPluginConfigDisabled,
@@ -57,8 +57,8 @@ func TestAccKongGlobalPluginDisabled(t *testing.T) {
 func TestAccKongPluginForASpecificConsumer(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKongPluginDestroy,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckKongPluginDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testCreatePluginForASpecificConsumerConfig,
@@ -87,8 +87,8 @@ func TestAccKongPluginForASpecificConsumer(t *testing.T) {
 func TestAccKongPluginForASpecificService(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKongPluginDestroy,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckKongPluginDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testCreatePluginForASpecificServiceConfig,
@@ -115,8 +115,8 @@ func TestAccKongPluginForASpecificService(t *testing.T) {
 func TestAccKongPluginForASpecificRoute(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKongPluginDestroy,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckKongPluginDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testCreatePluginForASpecificRouteConfig,
@@ -145,8 +145,8 @@ func TestAccKongPluginForASpecificRoute(t *testing.T) {
 func TestAccKongPluginImportConfigJson(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKongPluginDestroy,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckKongPluginDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testCreateGlobalPluginConfig,
