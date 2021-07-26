@@ -3,6 +3,7 @@ package kong
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/kong/go-kong/kong"
@@ -10,10 +11,10 @@ import (
 
 func resourceKongRoute() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceKongRouteCreate,
-		Read:   resourceKongRouteRead,
-		Delete: resourceKongRouteDelete,
-		Update: resourceKongRouteUpdate,
+		CreateContext: resourceKongRouteCreate,
+		ReadContext:   resourceKongRouteRead,
+		DeleteContext: resourceKongRouteDelete,
+		UpdateContext: resourceKongRouteUpdate,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -113,44 +114,44 @@ func resourceKongRoute() *schema.Resource {
 	}
 }
 
-func resourceKongRouteCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceKongRouteCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	routeRequest := createKongRouteRequestFromResourceData(d)
 
 	client := meta.(*config).adminClient.Routes
-	route, err := client.Create(context.Background(), routeRequest)
+	route, err := client.Create(ctx, routeRequest)
 	if err != nil {
-		return fmt.Errorf("failed to create kong route: %v error: %v", routeRequest, err)
+		return diag.FromErr(fmt.Errorf("failed to create kong route: %v error: %v", routeRequest, err))
 	}
 
 	d.SetId(*route.ID)
 
-	return resourceKongRouteRead(d, meta)
+	return resourceKongRouteRead(ctx, d, meta)
 }
 
-func resourceKongRouteUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceKongRouteUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	d.Partial(false)
 
 	routeRequest := createKongRouteRequestFromResourceData(d)
 
 	client := meta.(*config).adminClient.Routes
 
-	_, err := client.Update(context.Background(), routeRequest)
+	_, err := client.Update(ctx, routeRequest)
 
 	if err != nil {
-		return fmt.Errorf("error updating kong route: %s", err)
+		return diag.FromErr(fmt.Errorf("error updating kong route: %s", err))
 	}
 
-	return resourceKongRouteRead(d, meta)
+	return resourceKongRouteRead(ctx, d, meta)
 }
 
-func resourceKongRouteRead(d *schema.ResourceData, meta interface{}) error {
-
+func resourceKongRouteRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
 	client := meta.(*config).adminClient.Routes
-	route, err := client.Get(context.Background(), kong.String(d.Id()))
+	route, err := client.Get(ctx, kong.String(d.Id()))
 
 	if !kong.IsNotFoundErr(err) && err != nil {
-		return fmt.Errorf("could not find kong route: %v", err)
+		return diag.FromErr(fmt.Errorf("could not find kong route: %v", err))
 	}
 
 	if route == nil {
@@ -205,7 +206,7 @@ func resourceKongRouteRead(d *schema.ResourceData, meta interface{}) error {
 
 	}
 
-	return nil
+	return diags
 }
 func flattenIpCidrArray(addresses []*kong.CIDRPort) []map[string]interface{} {
 	var out = make([]map[string]interface{}, len(addresses), len(addresses))
@@ -222,16 +223,16 @@ func flattenIpCidrArray(addresses []*kong.CIDRPort) []map[string]interface{} {
 	return out
 }
 
-func resourceKongRouteDelete(d *schema.ResourceData, meta interface{}) error {
-
+func resourceKongRouteDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
 	client := meta.(*config).adminClient.Routes
-	err := client.Delete(context.Background(), kong.String(d.Id()))
+	err := client.Delete(ctx, kong.String(d.Id()))
 
 	if err != nil {
-		return fmt.Errorf("could not delete kong route: %v", err)
+		return diag.FromErr(fmt.Errorf("could not delete kong route: %v", err))
 	}
 
-	return nil
+	return diags
 }
 
 func createKongRouteRequestFromResourceData(d *schema.ResourceData) *kong.Route {

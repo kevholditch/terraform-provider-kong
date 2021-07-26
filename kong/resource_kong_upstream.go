@@ -3,6 +3,7 @@ package kong
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/kong/go-kong/kong"
@@ -10,10 +11,10 @@ import (
 
 func resourceKongUpstream() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceKongUpstreamCreate,
-		Read:   resourceKongUpstreamRead,
-		Delete: resourceKongUpstreamDelete,
-		Update: resourceKongUpstreamUpdate,
+		CreateContext: resourceKongUpstreamCreate,
+		ReadContext:   resourceKongUpstreamRead,
+		DeleteContext: resourceKongUpstreamDelete,
+		UpdateContext: resourceKongUpstreamUpdate,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -251,44 +252,44 @@ func resourceKongUpstream() *schema.Resource {
 	}
 }
 
-func resourceKongUpstreamCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceKongUpstreamCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	upstreamRequest := createKongUpstreamRequestFromResourceData(d)
 
 	client := meta.(*config).adminClient.Upstreams
-	upstream, err := client.Create(context.Background(), upstreamRequest)
+	upstream, err := client.Create(ctx, upstreamRequest)
 
 	if err != nil {
-		return fmt.Errorf("failed to create kong upstream: %v error: %v", upstreamRequest, err)
+		return diag.FromErr(fmt.Errorf("failed to create kong upstream: %v error: %v", upstreamRequest, err))
 	}
 
 	d.SetId(*upstream.ID)
 
-	return resourceKongUpstreamRead(d, meta)
+	return resourceKongUpstreamRead(ctx, d, meta)
 }
 
-func resourceKongUpstreamUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceKongUpstreamUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	d.Partial(false)
 
 	upstreamRequest := createKongUpstreamRequestFromResourceData(d)
 
 	client := meta.(*config).adminClient.Upstreams
-	_, err := client.Update(context.Background(), upstreamRequest)
+	_, err := client.Update(ctx, upstreamRequest)
 
 	if err != nil {
-		return fmt.Errorf("error updating kong upstream: %s", err)
+		return diag.FromErr(fmt.Errorf("error updating kong upstream: %s", err))
 	}
 
-	return resourceKongUpstreamRead(d, meta)
+	return resourceKongUpstreamRead(ctx, d, meta)
 }
 
-func resourceKongUpstreamRead(d *schema.ResourceData, meta interface{}) error {
-
+func resourceKongUpstreamRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
 	client := meta.(*config).adminClient.Upstreams
-	upstream, err := client.Get(context.Background(), kong.String(d.Id()))
+	upstream, err := client.Get(ctx, kong.String(d.Id()))
 
 	if !kong.IsNotFoundErr(err) && err != nil {
-		return fmt.Errorf("could not find kong upstream: %v", err)
+		return diag.FromErr(fmt.Errorf("could not find kong upstream: %v", err))
 	}
 
 	if upstream == nil {
@@ -304,23 +305,23 @@ func resourceKongUpstreamRead(d *schema.ResourceData, meta interface{}) error {
 		d.Set("hash_on_cookie", upstream.HashOnCookie)
 		d.Set("hash_on_cookie_path", upstream.HashOnCookiePath)
 		if err := d.Set("healthchecks", flattenHealthCheck(upstream.Healthchecks)); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
-	return nil
+	return diags
 }
 
-func resourceKongUpstreamDelete(d *schema.ResourceData, meta interface{}) error {
-
+func resourceKongUpstreamDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
 	client := meta.(*config).adminClient.Upstreams
-	err := client.Delete(context.Background(), kong.String(d.Id()))
+	err := client.Delete(ctx, kong.String(d.Id()))
 
 	if err != nil {
-		return fmt.Errorf("could not delete kong upstream: %v", err)
+		return diag.FromErr(fmt.Errorf("could not delete kong upstream: %v", err))
 	}
 
-	return nil
+	return diags
 }
 
 func createKongUpstreamRequestFromResourceData(d *schema.ResourceData) *kong.Upstream {

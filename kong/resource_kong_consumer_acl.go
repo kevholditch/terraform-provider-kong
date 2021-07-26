@@ -3,16 +3,17 @@ package kong
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/kong/go-kong/kong"
 )
 
 func resourceKongConsumerACL() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceKongConsumerACLCreate,
-		Read:   resourceKongConsumerACLRead,
-		Delete: resourceKongConsumerACLDelete,
-		Update: resourceKongConsumerACLUpdate,
+		CreateContext: resourceKongConsumerACLCreate,
+		ReadContext:   resourceKongConsumerACLRead,
+		DeleteContext: resourceKongConsumerACLDelete,
+		UpdateContext: resourceKongConsumerACLUpdate,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -37,7 +38,7 @@ func resourceKongConsumerACL() *schema.Resource {
 	}
 }
 
-func resourceKongConsumerACLCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceKongConsumerACLCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	ACLGroupRequest := &kong.ACLGroup{
 		Group: kong.String(d.Get("group").(string)),
 		Tags:  readStringArrayPtrFromResource(d, "tags"),
@@ -46,18 +47,18 @@ func resourceKongConsumerACLCreate(d *schema.ResourceData, meta interface{}) err
 	consumerId := kong.String(d.Get("consumer_id").(string))
 
 	client := meta.(*config).adminClient.ACLs
-	aclGroup, err := client.Create(context.Background(), consumerId, ACLGroupRequest)
+	aclGroup, err := client.Create(ctx, consumerId, ACLGroupRequest)
 
 	if err != nil {
-		return fmt.Errorf("failed to create kong ACL Group: %v error: %v", ACLGroupRequest, err)
+		return diag.FromErr(fmt.Errorf("failed to create kong ACL Group: %v error: %v", ACLGroupRequest, err))
 	}
 
 	d.SetId(buildConsumerPairID(*aclGroup.ID, *consumerId))
 
-	return resourceKongConsumerACLRead(d, meta)
+	return resourceKongConsumerACLRead(ctx, d, meta)
 }
 
-func resourceKongConsumerACLUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceKongConsumerACLUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	id, err := splitConsumerID(d.Id())
 
 	ACLGroupRequest := &kong.ACLGroup{
@@ -69,28 +70,29 @@ func resourceKongConsumerACLUpdate(d *schema.ResourceData, meta interface{}) err
 	consumerId := kong.String(d.Get("consumer_id").(string))
 
 	client := meta.(*config).adminClient.ACLs
-	_, err = client.Update(context.Background(), consumerId, ACLGroupRequest)
+	_, err = client.Update(ctx, consumerId, ACLGroupRequest)
 
 	if err != nil {
-		return fmt.Errorf("error updating kong ACL Group: %s", err)
+		return diag.FromErr(fmt.Errorf("error updating kong ACL Group: %s", err))
 	}
 
-	return resourceKongConsumerACLRead(d, meta)
+	return resourceKongConsumerACLRead(ctx, d, meta)
 }
 
-func resourceKongConsumerACLRead(d *schema.ResourceData, meta interface{}) error {
+func resourceKongConsumerACLRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
 	id, err := splitConsumerID(d.Id())
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	client := meta.(*config).adminClient.ACLs
-	ACLGroup, err := client.Get(context.Background(), kong.String(id.ConsumerID), kong.String(id.ID))
+	ACLGroup, err := client.Get(ctx, kong.String(id.ConsumerID), kong.String(id.ID))
 
 	if kong.IsNotFoundErr(err) {
 		d.SetId("")
 	} else if err != nil {
-		return fmt.Errorf("could not find kong ACLGroup with id: %s error: %v", id, err)
+		return diag.FromErr(fmt.Errorf("could not find kong ACLGroup with id: %s error: %v", id, err))
 	}
 
 	if ACLGroup == nil {
@@ -101,20 +103,21 @@ func resourceKongConsumerACLRead(d *schema.ResourceData, meta interface{}) error
 		d.Set("tags", ACLGroup.Tags)
 	}
 
-	return nil
+	return diags
 }
 
-func resourceKongConsumerACLDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceKongConsumerACLDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
 	id, err := splitConsumerID(d.Id())
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	client := meta.(*config).adminClient.ACLs
-	err = client.Delete(context.Background(), kong.String(id.ConsumerID), kong.String(id.ID))
+	err = client.Delete(ctx, kong.String(id.ConsumerID), kong.String(id.ID))
 
 	if err != nil {
-		return fmt.Errorf("could not delete kong ACL Group: %v", err)
+		return diag.FromErr(fmt.Errorf("could not delete kong ACL Group: %v", err))
 	}
 
-	return nil
+	return diags
 }
