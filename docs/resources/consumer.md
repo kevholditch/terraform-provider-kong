@@ -1,6 +1,6 @@
 # kong_consumer
 
-The consumer resource maps directly onto the json for creating an Consumer in Kong.  For more information on the parameters [see the Kong Consumer create documentation](https://getkong.org/docs/1.0.x/admin-api/#consumer-object).
+The consumer resource maps directly onto the json for creating a Consumer in Kong.  For more information on the parameters [see the Kong Consumer create documentation](https://docs.konghq.com/gateway-oss/2.5.x/admin-api/#consumer-object).
 
 ## Example Usage
 
@@ -13,8 +13,8 @@ resource "kong_consumer" "consumer" {
 
 ## Argument Reference
 
-* `username` - (Required) The usernamae to use
-* `custom_id` - (Required) A custom id for the consumer
+* `username` - (Semi-optional) The username to use, you must set either the username or custom_id
+* `custom_id` - (Semi-optional) A custom id for the consumer, you must set either the username or custom_id
 
 ## Import
 
