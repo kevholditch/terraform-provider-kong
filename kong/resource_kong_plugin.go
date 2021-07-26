@@ -1,19 +1,22 @@
 package kong
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/kevholditch/gokong"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/kong/go-kong/kong"
 )
 
 func resourceKongPlugin() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceKongPluginCreate,
-		Read:   resourceKongPluginRead,
-		Delete: resourceKongPluginDelete,
-		Update: resourceKongPluginUpdate,
+		CreateContext: resourceKongPluginCreate,
+		ReadContext:   resourceKongPluginRead,
+		DeleteContext: resourceKongPluginDelete,
+		UpdateContext: resourceKongPluginUpdate,
 
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -70,67 +73,76 @@ func resourceKongPlugin() *schema.Resource {
 	}
 }
 
-func resourceKongPluginCreate(d *schema.ResourceData, meta interface{}) error {
-
+func resourceKongPluginCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	pluginRequest, err := createKongPluginRequestFromResourceData(d)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	plugin, err := meta.(*config).adminClient.Plugins().Create(pluginRequest)
+	client := meta.(*config).adminClient.Plugins
+	plugin, err := client.Create(ctx, pluginRequest)
 
 	if err != nil {
-		return fmt.Errorf("failed to create kong plugin: %v error: %v", pluginRequest, err)
+		return diag.FromErr(fmt.Errorf("failed to create kong plugin: %v error: %v", pluginRequest, err))
 	}
 
-	d.SetId(plugin.Id)
+	d.SetId(*plugin.ID)
 
-	return resourceKongPluginRead(d, meta)
+	return resourceKongPluginRead(ctx, d, meta)
 }
 
-func resourceKongPluginUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceKongPluginUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	d.Partial(false)
 
 	pluginRequest, err := createKongPluginRequestFromResourceData(d)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	_, err = meta.(*config).adminClient.Plugins().UpdateById(d.Id(), pluginRequest)
+	client := meta.(*config).adminClient.Plugins
+	_, err = client.Update(ctx, pluginRequest)
 
 	if err != nil {
-		return fmt.Errorf("error updating kong plugin: %s", err)
+		return diag.FromErr(fmt.Errorf("error updating kong plugin: %s", err))
 	}
 
-	return resourceKongPluginRead(d, meta)
+	return resourceKongPluginRead(ctx, d, meta)
 }
 
-func resourceKongPluginRead(d *schema.ResourceData, meta interface{}) error {
-
-	plugin, err := meta.(*config).adminClient.Plugins().GetById(d.Id())
+func resourceKongPluginRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
+	client := meta.(*config).adminClient.Plugins
+	plugin, err := client.Get(ctx, kong.String(d.Id()))
 
 	if err != nil {
-		return fmt.Errorf("could not find kong plugin: %v", err)
+		return diag.FromErr(fmt.Errorf("could not find kong plugin: %v", err))
 	}
 
 	if plugin == nil {
 		d.SetId("")
 	} else {
+		d.SetId(*plugin.ID)
 		d.Set("name", plugin.Name)
-		d.Set("service_id", plugin.ServiceId)
-		d.Set("route_id", plugin.RouteId)
-		d.Set("consumer_id", plugin.ConsumerId)
+		if plugin.Service != nil {
+			d.Set("service_id", plugin.Service.ID)
+		}
+		if plugin.Route != nil {
+			d.Set("route_id", plugin.Route.ID)
+		}
+		if plugin.Consumer != nil {
+			d.Set("consumer_id", plugin.Consumer.ID)
+		}
 		d.Set("enabled", plugin.Enabled)
 
 		// We sync this property from upstream as a method to allow you to import a resource with the config tracked in
 		// terraform state. We do not track `config` as it will be a source of a perpetual diff.
 		// https://www.terraform.io/docs/extend/best-practices/detecting-drift.html#capture-all-state-in-read
-		upstreamJson := pluginConfigJsonToString(plugin.Config)
+		upstreamJSON := pluginConfigJSONToString(plugin.Config)
 		setConfig := func(strict bool) {
 			if strict {
-				d.Set("config_json", upstreamJson)
+				d.Set("config_json", upstreamJSON)
 			} else {
-				d.Set("computed_config", upstreamJson)
+				d.Set("computed_config", upstreamJSON)
 			}
 		}
 		if value, ok := d.GetOk("strict_match"); ok {
@@ -140,46 +152,68 @@ func resourceKongPluginRead(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	return nil
+	return diags
 }
 
-func resourceKongPluginDelete(d *schema.ResourceData, meta interface{}) error {
-
-	err := meta.(*config).adminClient.Plugins().DeleteById(d.Id())
+func resourceKongPluginDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
+	client := meta.(*config).adminClient.Plugins
+	err := client.Delete(ctx, kong.String(d.Id()))
 
 	if err != nil {
-		return fmt.Errorf("could not delete kong plugin: %v", err)
+		return diag.FromErr(fmt.Errorf("could not delete kong plugin: %v", err))
 	}
 
-	return nil
+	return diags
 }
 
-func createKongPluginRequestFromResourceData(d *schema.ResourceData) (*gokong.PluginRequest, error) {
+func createKongPluginRequestFromResourceData(d *schema.ResourceData) (*kong.Plugin, error) {
 
-	pluginRequest := &gokong.PluginRequest{}
+	pluginRequest := &kong.Plugin{}
+	// Build Consumer Configuration
+	consumerID := readIdPtrFromResource(d, "consumer_id")
+	if consumerID != nil {
+		pluginRequest.Consumer = &kong.Consumer{
+			ID: consumerID,
+		}
+	}
+	// Build Service Configuration
+	serviceID := readIdPtrFromResource(d, "service_id")
+	if serviceID != nil {
+		pluginRequest.Service = &kong.Service{
+			ID: serviceID,
+		}
+	}
+	// Build Route Configuration
+	routeID := readIdPtrFromResource(d, "route_id")
+	if routeID != nil {
+		pluginRequest.Route = &kong.Route{
+			ID: routeID,
+		}
+	}
+	if d.Id() != "" {
+		pluginRequest.ID = kong.String(d.Id())
+	}
 
-	pluginRequest.Name = readStringFromResource(d, "name")
-	pluginRequest.ConsumerId = readIdPtrFromResource(d, "consumer_id")
-	pluginRequest.ServiceId = readIdPtrFromResource(d, "service_id")
-	pluginRequest.RouteId = readIdPtrFromResource(d, "route_id")
+	pluginRequest.Name = readStringPtrFromResource(d, "name")
 	pluginRequest.Enabled = readBoolPtrFromResource(d, "enabled")
 
 	if data, ok := d.GetOk("config_json"); ok {
-		var configJson map[string]interface{}
+		var configJSON map[string]interface{}
 
-		err := json.Unmarshal([]byte(data.(string)), &configJson)
+		err := json.Unmarshal([]byte(data.(string)), &configJSON)
 		if err != nil {
 			return pluginRequest, fmt.Errorf("failed to unmarshal config_json, err: %v", err)
 		}
 
-		pluginRequest.Config = configJson
+		pluginRequest.Config = configJSON
 	}
 
 	return pluginRequest, nil
 }
 
 // Since this config is a schemaless "blob" we have to remove computed properties
-func pluginConfigJsonToString(data map[string]interface{}) string {
+func pluginConfigJSONToString(data map[string]interface{}) string {
 	marshalledData := map[string]interface{}{}
 	for key, val := range data {
 		if !contains(computedPluginProperties, key) {
@@ -187,7 +221,38 @@ func pluginConfigJsonToString(data map[string]interface{}) string {
 		}
 	}
 	// We know it is valid JSON at this point
-	rawJson, _ := json.Marshal(marshalledData)
+	rawJSON, _ := json.Marshal(marshalledData)
 
-	return string(rawJson)
+	return string(rawJSON)
+}
+
+func validateDataJSON(configI interface{}, k string) ([]string, []error) {
+	dataJSON := configI.(string)
+	dataMap := map[string]interface{}{}
+	err := json.Unmarshal([]byte(dataJSON), &dataMap)
+	if err != nil {
+		return nil, []error{err}
+	}
+	return nil, nil
+}
+
+func normalizeDataJSON(configI interface{}) string {
+	dataJSON := configI.(string)
+
+	dataMap := map[string]interface{}{}
+	err := json.Unmarshal([]byte(dataJSON), &dataMap)
+	if err != nil {
+		// The validate function should've taken care of this.
+		log.Printf("[ERROR] Invalid JSON data in config_json: %s", err)
+		return ""
+	}
+
+	ret, err := json.Marshal(dataMap)
+	if err != nil {
+		// Should never happen.
+		log.Printf("[ERROR] Problem normalizing JSON for config_json: %s", err)
+		return dataJSON
+	}
+
+	return string(ret)
 }

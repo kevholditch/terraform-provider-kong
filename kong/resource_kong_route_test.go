@@ -1,11 +1,13 @@
 package kong
 
 import (
+	"context"
 	"fmt"
+	"github.com/kong/go-kong/kong"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccKongRoute(t *testing.T) {
@@ -18,9 +20,13 @@ func TestAccKongRoute(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKongRouteExists("kong_route.route"),
 					resource.TestCheckResourceAttr("kong_route.route", "name", "foo"),
+					resource.TestCheckResourceAttr("kong_route.route", "protocols.#", "1"),
 					resource.TestCheckResourceAttr("kong_route.route", "protocols.0", "http"),
+					resource.TestCheckResourceAttr("kong_route.route", "methods.#", "1"),
 					resource.TestCheckResourceAttr("kong_route.route", "methods.0", "GET"),
+					resource.TestCheckResourceAttr("kong_route.route", "hosts.#", "1"),
 					resource.TestCheckResourceAttr("kong_route.route", "hosts.0", "example.com"),
+					resource.TestCheckResourceAttr("kong_route.route", "paths.#", "1"),
 					resource.TestCheckResourceAttr("kong_route.route", "paths.0", "/"),
 					resource.TestCheckResourceAttr("kong_route.route", "strip_path", "true"),
 					resource.TestCheckResourceAttr("kong_route.route", "preserve_host", "false"),
@@ -32,11 +38,14 @@ func TestAccKongRoute(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKongRouteExists("kong_route.route"),
 					resource.TestCheckResourceAttr("kong_route.route", "name", "bar"),
+					resource.TestCheckResourceAttr("kong_route.route", "protocols.#", "2"),
 					resource.TestCheckResourceAttr("kong_route.route", "protocols.0", "http"),
 					resource.TestCheckResourceAttr("kong_route.route", "protocols.1", "https"),
+					resource.TestCheckResourceAttr("kong_route.route", "methods.#", "2"),
 					resource.TestCheckResourceAttr("kong_route.route", "methods.0", "GET"),
 					resource.TestCheckResourceAttr("kong_route.route", "methods.1", "POST"),
 					resource.TestCheckResourceAttr("kong_route.route", "hosts.0", "example2.com"),
+					resource.TestCheckResourceAttr("kong_route.route", "paths.#", "1"),
 					resource.TestCheckResourceAttr("kong_route.route", "paths.0", "/test"),
 					resource.TestCheckResourceAttr("kong_route.route", "strip_path", "false"),
 					resource.TestCheckResourceAttr("kong_route.route", "preserve_host", "true"),
@@ -101,7 +110,7 @@ func TestAccKongRouteImport(t *testing.T) {
 
 func testAccCheckKongRouteDestroy(state *terraform.State) error {
 
-	client := testAccProvider.Meta().(*config).adminClient
+	client := testAccProvider.Meta().(*config).adminClient.Routes
 
 	routes := getResourcesByType("kong_route", state)
 
@@ -109,9 +118,9 @@ func testAccCheckKongRouteDestroy(state *terraform.State) error {
 		return fmt.Errorf("expecting only 1 route resource found %v", len(routes))
 	}
 
-	response, err := client.Routes().GetById(routes[0].Primary.ID)
+	response, err := client.Get(context.Background(), kong.String(routes[0].Primary.ID))
 
-	if err != nil {
+	if !kong.IsNotFoundErr(err) && err != nil {
 		return fmt.Errorf("error calling get route by id: %v", err)
 	}
 
@@ -135,7 +144,8 @@ func testAccCheckKongRouteExists(resourceKey string) resource.TestCheckFunc {
 			return fmt.Errorf("no ID is set")
 		}
 
-		route, err := testAccProvider.Meta().(*config).adminClient.Routes().GetById(rs.Primary.ID)
+		client := testAccProvider.Meta().(*config).adminClient.Routes
+		route, err := client.Get(context.Background(), kong.String(rs.Primary.ID))
 
 		if err != nil {
 			return err
@@ -205,6 +215,7 @@ resource "kong_route" "route" {
 	}
 	source {
 		ip   = "192.168.1.2"
+		port = 82 
 	}
 	destination {
 		ip 	 = "172.10.1.1"

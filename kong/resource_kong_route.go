@@ -1,18 +1,20 @@
 package kong
 
 import (
+	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/kevholditch/gokong"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/kong/go-kong/kong"
 )
 
 func resourceKongRoute() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceKongRouteCreate,
-		Read:   resourceKongRouteRead,
-		Delete: resourceKongRouteDelete,
-		Update: resourceKongRouteUpdate,
+		CreateContext: resourceKongRouteCreate,
+		ReadContext:   resourceKongRouteRead,
+		DeleteContext: resourceKongRouteDelete,
+		UpdateContext: resourceKongRouteUpdate,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -112,40 +114,44 @@ func resourceKongRoute() *schema.Resource {
 	}
 }
 
-func resourceKongRouteCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceKongRouteCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	routeRequest := createKongRouteRequestFromResourceData(d)
 
-	route, err := meta.(*config).adminClient.Routes().Create(routeRequest)
+	client := meta.(*config).adminClient.Routes
+	route, err := client.Create(ctx, routeRequest)
 	if err != nil {
-		return fmt.Errorf("failed to create kong route: %v error: %v", routeRequest, err)
+		return diag.FromErr(fmt.Errorf("failed to create kong route: %v error: %v", routeRequest, err))
 	}
 
-	d.SetId(*route.Id)
+	d.SetId(*route.ID)
 
-	return resourceKongRouteRead(d, meta)
+	return resourceKongRouteRead(ctx, d, meta)
 }
 
-func resourceKongRouteUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceKongRouteUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	d.Partial(false)
 
 	routeRequest := createKongRouteRequestFromResourceData(d)
 
-	_, err := meta.(*config).adminClient.Routes().UpdateById(d.Id(), routeRequest)
+	client := meta.(*config).adminClient.Routes
+
+	_, err := client.Update(ctx, routeRequest)
 
 	if err != nil {
-		return fmt.Errorf("error updating kong route: %s", err)
+		return diag.FromErr(fmt.Errorf("error updating kong route: %s", err))
 	}
 
-	return resourceKongRouteRead(d, meta)
+	return resourceKongRouteRead(ctx, d, meta)
 }
 
-func resourceKongRouteRead(d *schema.ResourceData, meta interface{}) error {
+func resourceKongRouteRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
+	client := meta.(*config).adminClient.Routes
+	route, err := client.Get(ctx, kong.String(d.Id()))
 
-	route, err := meta.(*config).adminClient.Routes().GetById(d.Id())
-
-	if err != nil {
-		return fmt.Errorf("could not find kong route: %v", err)
+	if !kong.IsNotFoundErr(err) && err != nil {
+		return diag.FromErr(fmt.Errorf("could not find kong route: %v", err))
 	}
 
 	if route == nil {
@@ -155,19 +161,19 @@ func resourceKongRouteRead(d *schema.ResourceData, meta interface{}) error {
 			d.Set("name", route.Name)
 		}
 		if route.Protocols != nil {
-			d.Set("protocols", gokong.StringValueSlice(route.Protocols))
+			d.Set("protocols", StringValueSlice(route.Protocols))
 		}
 
 		if route.Methods != nil {
-			d.Set("methods", gokong.StringValueSlice(route.Methods))
+			d.Set("methods", StringValueSlice(route.Methods))
 		}
 
 		if route.Hosts != nil {
-			d.Set("hosts", gokong.StringValueSlice(route.Hosts))
+			d.Set("hosts", StringValueSlice(route.Hosts))
 		}
 
 		if route.Paths != nil {
-			d.Set("paths", gokong.StringValueSlice(route.Paths))
+			d.Set("paths", StringValueSlice(route.Paths))
 		}
 
 		if route.StripPath != nil {
@@ -175,11 +181,11 @@ func resourceKongRouteRead(d *schema.ResourceData, meta interface{}) error {
 		}
 
 		if route.Sources != nil {
-			d.Set("source", route.Sources)
+			d.Set("source", flattenIpCidrArray(route.Sources))
 		}
 
 		if route.Destinations != nil {
-			d.Set("destination", route.Sources)
+			d.Set("destination", flattenIpCidrArray(route.Destinations))
 		}
 
 		if route.PreserveHost != nil {
@@ -190,32 +196,48 @@ func resourceKongRouteRead(d *schema.ResourceData, meta interface{}) error {
 			d.Set("regex_priority", route.RegexPriority)
 		}
 
-		if route.Snis != nil {
-			d.Set("snis", gokong.StringValueSlice(route.Snis))
+		if route.SNIs != nil {
+			d.Set("snis", StringValueSlice(route.SNIs))
 		}
 
 		if route.Service != nil {
-			d.Set("service_id", route.Service)
+			d.Set("service_id", route.Service.ID)
 		}
 
 	}
 
-	return nil
+	return diags
+}
+func flattenIpCidrArray(addresses []*kong.CIDRPort) []map[string]interface{} {
+	var out = make([]map[string]interface{}, len(addresses), len(addresses))
+	for i, v := range addresses {
+		m := make(map[string]interface{})
+		if v.IP != nil {
+			m["ip"] = v.IP
+		}
+		if v.Port != nil {
+			m["port"] = v.Port
+		}
+		out[i] = m
+	}
+	return out
 }
 
-func resourceKongRouteDelete(d *schema.ResourceData, meta interface{}) error {
-
-	err := meta.(*config).adminClient.Routes().DeleteById(d.Id())
+func resourceKongRouteDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
+	client := meta.(*config).adminClient.Routes
+	err := client.Delete(ctx, kong.String(d.Id()))
 
 	if err != nil {
-		return fmt.Errorf("could not delete kong route: %v", err)
+		return diag.FromErr(fmt.Errorf("could not delete kong route: %v", err))
 	}
 
-	return nil
+	return diags
 }
 
-func createKongRouteRequestFromResourceData(d *schema.ResourceData) *gokong.RouteRequest {
-	return &gokong.RouteRequest{
+func createKongRouteRequestFromResourceData(d *schema.ResourceData) *kong.Route {
+
+	route := &kong.Route{
 		Name:          readStringPtrFromResource(d, "name"),
 		Protocols:     readStringArrayPtrFromResource(d, "protocols"),
 		Methods:       readStringArrayPtrFromResource(d, "methods"),
@@ -226,7 +248,13 @@ func createKongRouteRequestFromResourceData(d *schema.ResourceData) *gokong.Rout
 		Destinations:  readIpPortArrayFromResource(d, "destination"),
 		PreserveHost:  readBoolPtrFromResource(d, "preserve_host"),
 		RegexPriority: readIntPtrFromResource(d, "regex_priority"),
-		Snis:          readStringArrayPtrFromResource(d, "snis"),
-		Service:       readIdPtrFromResource(d, "service_id"),
+		SNIs:          readStringArrayPtrFromResource(d, "snis"),
+		Service: &kong.Service{
+			ID: readIdPtrFromResource(d, "service_id"),
+		},
 	}
+	if d.Id() != "" {
+		route.ID = kong.String(d.Id())
+	}
+	return route
 }

@@ -1,18 +1,20 @@
 package kong
 
 import (
+	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/kevholditch/gokong"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/kong/go-kong/kong"
 )
 
 func resourceKongTarget() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceKongTargetCreate,
-		Read:   resourceKongTargetRead,
-		Delete: resourceKongTargetDelete,
+		CreateContext: resourceKongTargetCreate,
+		ReadContext:   resourceKongTargetRead,
+		DeleteContext: resourceKongTargetDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -37,65 +39,74 @@ func resourceKongTarget() *schema.Resource {
 	}
 }
 
-func resourceKongTargetCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceKongTargetCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	targetRequest := createKongTargetRequestFromResourceData(d)
 
-	target, err := meta.(*config).adminClient.Targets().CreateFromUpstreamId(readStringFromResource(d, "upstream_id"), targetRequest)
+	client := meta.(*config).adminClient.Targets
+	target, err := client.Create(ctx, readStringPtrFromResource(d, "upstream_id"), targetRequest)
 
 	if err != nil {
-		return fmt.Errorf("failed to create kong target: %v error: %v", targetRequest, err)
+		return diag.FromErr(fmt.Errorf("failed to create kong target: %v error: %v", targetRequest, err))
 	}
 
-	d.SetId(gokong.IdToString(target.Upstream) + "/" + *target.Id)
+	d.SetId(IDToString(target.Upstream.ID) + "/" + *target.ID)
 
-	return resourceKongTargetRead(d, meta)
+	return resourceKongTargetRead(ctx, d, meta)
 }
 
-func resourceKongTargetRead(d *schema.ResourceData, meta interface{}) error {
-
+func resourceKongTargetRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
 	var ids = strings.Split(d.Id(), "/")
 
+	upstreamClient := meta.(*config).adminClient.Upstreams
 	// First check if the upstream exists. If it does not then the target no longer exists either.
-	if upstream, _ := meta.(*config).adminClient.Upstreams().GetById(ids[0]); upstream == nil {
+	if upstream, _ := upstreamClient.Get(ctx, kong.String(ids[0])); upstream == nil {
 		d.SetId("")
-		return nil
+		return diags
 	}
 
-	targets, err := meta.(*config).adminClient.Targets().GetTargetsFromUpstreamId(ids[0])
+	// TODO: Support paging
+	client := meta.(*config).adminClient.Targets
+	targets, _, err := client.List(ctx, kong.String(ids[0]), nil)
 
 	if err != nil {
-		return fmt.Errorf("could not find kong target: %v", err)
+		return diag.FromErr(fmt.Errorf("could not find kong target: %v", err))
 	}
 
 	if targets == nil {
 		d.SetId("")
 	} else {
 		for _, element := range targets {
-			if *element.Id == ids[1] {
+			if *element.ID == ids[1] {
 				d.Set("target", element.Target)
 				d.Set("weight", element.Weight)
-				d.Set("upstream_id", element.Upstream)
+				d.Set("upstream_id", element.Upstream.ID)
 			}
 		}
 	}
 
-	return nil
+	return diags
 }
 
-func resourceKongTargetDelete(d *schema.ResourceData, meta interface{}) error {
-
+func resourceKongTargetDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
 	var ids = strings.Split(d.Id(), "/")
-	if err := meta.(*config).adminClient.Targets().DeleteFromUpstreamById(ids[0], ids[1]); err != nil {
-		return fmt.Errorf("could not delete kong target: %v", err)
+	client := meta.(*config).adminClient.Targets
+	if err := client.Delete(ctx, kong.String(ids[0]), kong.String(ids[1])); err != nil {
+		return diag.FromErr(fmt.Errorf("could not delete kong target: %v", err))
 	}
 
-	return nil
+	return diags
 }
 
-func createKongTargetRequestFromResourceData(d *schema.ResourceData) *gokong.TargetRequest {
-	return &gokong.TargetRequest{
-		Target: readStringFromResource(d, "target"),
-		Weight: readIntFromResource(d, "weight"),
+func createKongTargetRequestFromResourceData(d *schema.ResourceData) *kong.Target {
+	upstream := kong.Upstream{
+		ID: readStringPtrFromResource(d, "upstream_id"),
+	}
+	return &kong.Target{
+		Target:   readStringPtrFromResource(d, "target"),
+		Weight:   readIntPtrFromResource(d, "weight"),
+		Upstream: &upstream,
 	}
 }
