@@ -180,11 +180,11 @@ func resourceKongRouteRead(d *schema.ResourceData, meta interface{}) error {
 		}
 
 		if route.Sources != nil {
-			d.Set("source", route.Sources)
+			d.Set("source", flattenIpCidrArray(route.Sources))
 		}
 
 		if route.Destinations != nil {
-			d.Set("destination", route.Destinations)
+			d.Set("destination", flattenIpCidrArray(route.Destinations))
 		}
 
 		if route.PreserveHost != nil {
@@ -206,6 +206,20 @@ func resourceKongRouteRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	return nil
+}
+func flattenIpCidrArray(addresses []*kong.CIDRPort) []map[string]interface{} {
+	var out = make([]map[string]interface{}, len(addresses), len(addresses))
+	for i, v := range addresses {
+		m := make(map[string]interface{})
+		if v.IP != nil {
+			m["ip"] = v.IP
+		}
+		if v.Port != nil {
+			m["port"] = v.Port
+		}
+		out[i] = m
+	}
+	return out
 }
 
 func resourceKongRouteDelete(d *schema.ResourceData, meta interface{}) error {
