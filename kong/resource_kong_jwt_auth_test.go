@@ -13,8 +13,8 @@ import (
 func TestAccJWTAuth(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckJWTAuthDestroy,
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckJWTAuthDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testCreateJWTAuthConfig,
@@ -43,8 +43,8 @@ func TestAccJWTAuth(t *testing.T) {
 func TestAccJWTAuthImport(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckJWTAuthDestroy,
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckJWTAuthDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testCreateJWTAuthConfig,

@@ -9,8 +9,8 @@ import (
 func TestAccKongGlobalPluginStrict(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckKongPluginDestroy,
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongPluginDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testCreateExplicitStrictGlobalPluginConfig,
@@ -35,8 +35,8 @@ func TestAccKongGlobalPluginStrict(t *testing.T) {
 func TestAccKongGlobalPluginImplicitStrict(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckKongPluginDestroy,
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongPluginDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testCreateImplicitStrictGlobalPluginConfig,
@@ -61,8 +61,8 @@ func TestAccKongGlobalPluginImplicitStrict(t *testing.T) {
 func TestAccKongPluginImportConfigJsonStrict(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckKongPluginDestroy,
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongPluginDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testCreateExplicitStrictGlobalPluginConfig,

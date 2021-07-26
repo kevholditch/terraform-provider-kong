@@ -13,8 +13,8 @@ import (
 func TestAccConsumerBasicAuth(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckConsumerBasicAuthDestroy,
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckConsumerBasicAuthDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testCreateConsumerBasicAuthConfig,

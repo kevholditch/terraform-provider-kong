@@ -12,8 +12,8 @@ import (
 
 func TestAccKongService(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckKongServiceDestroy,
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongServiceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testCreateServiceConfig,
@@ -48,8 +48,8 @@ func TestAccKongService(t *testing.T) {
 	})
 
 	resource.Test(t, resource.TestCase{
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckKongServiceDestroy,
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongServiceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testCreateServiceConfigZero,
@@ -72,8 +72,8 @@ func TestAccKongService(t *testing.T) {
 func TestAccKongServiceImport(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckKongServiceDestroy,
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongServiceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testImportServiceConfig,

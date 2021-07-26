@@ -13,8 +13,8 @@ import (
 func TestAccConsumerACL(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckConsumerACLDestroy,
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckConsumerACLDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testCreateConsumerACLConfig,
@@ -42,8 +42,8 @@ func TestAccConsumerACL(t *testing.T) {
 func TestAccConsumerACLImport(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckConsumerACLDestroy,
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckConsumerACLDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testCreateConsumerACLConfig,

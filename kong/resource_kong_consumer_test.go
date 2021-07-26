@@ -13,8 +13,8 @@ import (
 func TestAccKongConsumer(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckKongConsumerDestroy,
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongConsumerDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testCreateConsumerConfig,
@@ -39,8 +39,8 @@ func TestAccKongConsumer(t *testing.T) {
 func TestAccKongConsumerImport(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckKongConsumerDestroy,
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongConsumerDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testCreateConsumerConfig,

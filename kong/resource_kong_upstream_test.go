@@ -14,8 +14,8 @@ import (
 func TestAccKongUpstream(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckKongUpstreamDestroy,
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongUpstreamDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testCreateUpstreamConfig,
@@ -130,8 +130,8 @@ func TestAccKongUpstream(t *testing.T) {
 func TestAccKongUpstreamImport(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckKongUpstreamDestroy,
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongUpstreamDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testCreateUpstreamConfig,

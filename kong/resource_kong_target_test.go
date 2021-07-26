@@ -14,8 +14,8 @@ import (
 func TestAccKongTarget(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckKongTargetDestroy,
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongTargetDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testCreateTargetConfig,
@@ -40,8 +40,8 @@ func TestAccKongTarget(t *testing.T) {
 func TestAccKongTargetDelete(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckKongTargetDestroy,
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongTargetDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testCreateTargetConfig,
@@ -64,8 +64,8 @@ func TestAccKongTargetDelete(t *testing.T) {
 func TestAccKongTargetCreateAndRefreshFromNonExistentUpstream(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckKongTargetDestroy,
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongTargetDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testCreateTargetConfig,
@@ -84,8 +84,8 @@ func TestAccKongTargetCreateAndRefreshFromNonExistentUpstream(t *testing.T) {
 func TestAccKongTargetImport(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckKongTargetDestroy,
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongTargetDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testCreateTargetConfig,
