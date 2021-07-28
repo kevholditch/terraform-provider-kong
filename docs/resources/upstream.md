@@ -81,6 +81,9 @@ resource "kong_upstream" "upstream" {
 * `healthchecks.passive.unhealthy.http_failures` - (Optional) is a number of HTTP failures in proxied traffic (as defined by `healthchecks.passive.unhealthy.http_statuses`) to consider a target unhealthy, as observed by passive health checks. Defaults to `0`.
 * `healthchecks.passive.unhealthy.timeouts` - (Optional) is a number of timeouts in proxied traffic to consider a target unhealthy, as observed by passive health checks. Defaults to `0`.
 * `healthchecks.passive.unhealthy.http_statuses` - (Optional) is an array of HTTP statuses which represent unhealthiness when produced by proxied traffic, as observed by passive health checks. Defaults to `[429, 500, 503]`.
+* `tags` - (Optional) A list of strings associated with the Upstream for grouping and filtering.
+* `host_header` - (Optional) The hostname to be used as Host header when proxying requests through Kong.
+* `client_certificate_id` - (Optional) The ID of the client certificate to use (from certificate resource) while TLS handshaking to the upstream server.
 
 ## Import
 

@@ -1,6 +1,6 @@
 # kong_service
 
-The service resource maps directly onto the json for the service endpoint in Kong.  For more information on the parameters [see the Kong Service create documentation](https://getkong.org/docs/1.0.x/admin-api/#service-object).
+The service resource maps directly onto the json for the service endpoint in Kong.  For more information on the parameters [see the Kong Service create documentation](https://docs.konghq.com/gateway-oss/2.5.x/admin-api/#service-object).
 
 ## Example Usage
 
@@ -29,6 +29,12 @@ resource "kong_service" "service" {
 * `connect_timeout` - (Optional, int) Connection timeout. Default(ms): 60000
 * `write_timeout` - (Optional, int) Write timout. Default(ms): 60000
 * `read_timeout` - (Optional, int) Read timeout. Default(ms): 60000
+* `tags` - (Optional) A list of strings associated with the Service for grouping and filtering.
+* `client_certificate` - (Optional) Certificate to be used as client certificate while TLS handshaking to the upstream server.
+* `tls_verify` - (Optional) Whether to enable verification of upstream server TLS certificate.
+* `tls_verify_depth` - (Optional) Maximum depth of chain while verifying Upstream server’s TLS certificate.
+* `ca_certificates` - (Optional) A of CA Certificate IDs (created from the certificate resource). that are used to build the trust store while verifying upstream server’s TLS certificate.
+
 
 ## Import
 
