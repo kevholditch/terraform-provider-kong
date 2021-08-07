@@ -7,7 +7,7 @@ The Kong Terraform Provider tested against real Kong!
 
 IMPORTANT
 ------
-The provider has been updated to support Kong `v2.X`, there were some breaking changes made between Kong `v1` and `v2`.  To use an Kong `v1` use provider version `v6.X.X`.  That version will no longer be maintained.
+The provider has been updated to support Kong `v2.X`, there were some breaking changes made between Kong `v1` and `v2`.  To use Kong `v1` use provider version `v6.X.X`.  That version will no longer be maintained.
 
 Requirements
 ------------

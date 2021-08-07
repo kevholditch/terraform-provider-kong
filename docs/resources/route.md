@@ -64,7 +64,7 @@ resource "kong_route" "route" {
 * `destination` - (Required) A list of destination `ip` and `port`
 * `snis` - (Optional) A list of SNIs that match this Route when using stream routing.
 * `service_id` - (Required) Service ID to map to
-* `tags` - (Optional) A list of strings associated with the Service for grouping and filtering.
+* `tags` - (Optional) A list of strings associated with the Route for grouping and filtering.
 
 
 ## Import

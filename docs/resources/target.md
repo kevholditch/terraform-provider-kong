@@ -5,8 +5,8 @@
 ```hcl
 resource "kong_target" "target" {
     target  		= "sample_target:80"
-    weight 	  	= 10
-    upstream_id = "${kong_upstream.upstream.id}"
+    weight 	  	    = 10
+    upstream_id     = "${kong_upstream.upstream.id}"
 }
 ```
 

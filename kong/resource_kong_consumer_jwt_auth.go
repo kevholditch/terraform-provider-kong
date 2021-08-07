@@ -9,12 +9,12 @@ import (
 	"strings"
 )
 
-func resourceKongJWTAuth() *schema.Resource {
+func resourceKongConsumerJWTAuth() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceKongJWTAuthCreate,
-		ReadContext:   resourceKongJWTAuthRead,
-		DeleteContext: resourceKongJWTAuthDelete,
-		UpdateContext: resourceKongJWTAuthUpdate,
+		CreateContext: resourceKongConsumerJWTAuthCreate,
+		ReadContext:   resourceKongConsumerJWTAuthRead,
+		DeleteContext: resourceKongConsumerJWTAuthDelete,
+		UpdateContext: resourceKongConsumerJWTAuthUpdate,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -49,7 +49,7 @@ func resourceKongJWTAuth() *schema.Resource {
 	}
 }
 
-func resourceKongJWTAuthCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceKongConsumerJWTAuthCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	JWTAuthRequest := &kong.JWTAuth{
 		Algorithm:    kong.String(d.Get("algorithm").(string)),
@@ -69,7 +69,7 @@ func resourceKongJWTAuthCreate(ctx context.Context, d *schema.ResourceData, meta
 
 	d.SetId(buildConsumerPairID(*JWTAuth.ID, *consumerId))
 
-	return resourceKongJWTAuthRead(ctx, d, meta)
+	return resourceKongConsumerJWTAuthRead(ctx, d, meta)
 }
 
 func buildConsumerPairID(ID, consumerID string) string {
@@ -89,7 +89,7 @@ func splitConsumerID(value string) (*ConsumerIDPair, error) {
 	return &ConsumerIDPair{ID: v[0], ConsumerID: v[1]}, nil
 }
 
-func resourceKongJWTAuthUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceKongConsumerJWTAuthUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	d.Partial(false)
 
 	id, err := splitConsumerID(d.Id())
@@ -111,10 +111,10 @@ func resourceKongJWTAuthUpdate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(fmt.Errorf("error updating kong JWTAuth: %s", err))
 	}
 
-	return resourceKongJWTAuthRead(ctx, d, meta)
+	return resourceKongConsumerJWTAuthRead(ctx, d, meta)
 }
 
-func resourceKongJWTAuthRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceKongConsumerJWTAuthRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
 	id, err := splitConsumerID(d.Id())
 	if err != nil {
@@ -143,7 +143,7 @@ func resourceKongJWTAuthRead(ctx context.Context, d *schema.ResourceData, meta i
 	return diags
 }
 
-func resourceKongJWTAuthDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceKongConsumerJWTAuthDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
 	id, err := splitConsumerID(d.Id())
 	if err != nil {
