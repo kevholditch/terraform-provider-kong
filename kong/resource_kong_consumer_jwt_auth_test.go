@@ -19,21 +19,21 @@ func TestAccJWTAuth(t *testing.T) {
 			{
 				Config: testCreateJWTAuthConfig,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckJWTAuthExists("kong_jwt_auth.consumer_jwt_config"),
-					resource.TestCheckResourceAttr("kong_jwt_auth.consumer_jwt_config", "algorithm", "HS256"),
-					resource.TestCheckResourceAttr("kong_jwt_auth.consumer_jwt_config", "key", "my_key"),
-					resource.TestCheckResourceAttr("kong_jwt_auth.consumer_jwt_config", "secret", "my_secret"),
-					resource.TestCheckResourceAttr("kong_jwt_auth.consumer_jwt_config", "rsa_public_key", "foo"),
+					testAccCheckJWTAuthExists("kong_consumer_jwt_auth.consumer_jwt_config"),
+					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config", "algorithm", "HS256"),
+					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config", "key", "my_key"),
+					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config", "secret", "my_secret"),
+					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config", "rsa_public_key", "foo"),
 				),
 			},
 			{
 				Config: testUpdateJWTAuthConfig,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckJWTAuthExists("kong_jwt_auth.consumer_jwt_config"),
-					resource.TestCheckResourceAttr("kong_jwt_auth.consumer_jwt_config", "algorithm", "HS256"),
-					resource.TestCheckResourceAttr("kong_jwt_auth.consumer_jwt_config", "key", "updated_key"),
-					resource.TestCheckResourceAttr("kong_jwt_auth.consumer_jwt_config", "secret", "updated_secret"),
-					resource.TestCheckResourceAttr("kong_jwt_auth.consumer_jwt_config", "rsa_public_key", "bar"),
+					testAccCheckJWTAuthExists("kong_consumer_jwt_auth.consumer_jwt_config"),
+					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config", "algorithm", "HS256"),
+					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config", "key", "updated_key"),
+					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config", "secret", "updated_secret"),
+					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config", "rsa_public_key", "bar"),
 				),
 			},
 		},
@@ -50,7 +50,7 @@ func TestAccJWTAuthImport(t *testing.T) {
 				Config: testCreateJWTAuthConfig,
 			},
 			{
-				ResourceName:      "kong_jwt_auth.consumer_jwt_config",
+				ResourceName:      "kong_consumer_jwt_auth.consumer_jwt_config",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -62,7 +62,7 @@ func testAccCheckJWTAuthDestroy(state *terraform.State) error {
 
 	client := testAccProvider.Meta().(*config).adminClient.JWTAuths
 
-	resources := getResourcesByType("kong_jwt_auth", state)
+	resources := getResourcesByType("kong_consumer_jwt_auth", state)
 
 	if len(resources) != 1 {
 		return fmt.Errorf("expecting only 1 jwt auth resource found %v", len(resources))
@@ -127,7 +127,7 @@ resource "kong_plugin" "jwt_plugin" {
 EOT
 }
 
-resource "kong_jwt_auth" "consumer_jwt_config" {
+resource "kong_consumer_jwt_auth" "consumer_jwt_config" {
 	consumer_id    = "${kong_consumer.my_consumer.id}"
 	algorithm      = "HS256"
 	key            = "my_key"
@@ -150,7 +150,7 @@ resource "kong_plugin" "jwt_plugin" {
 EOT
 }
 
-resource "kong_jwt_auth" "consumer_jwt_config" {
+resource "kong_consumer_jwt_auth" "consumer_jwt_config" {
 	consumer_id    = "${kong_consumer.my_consumer.id}"
 	algorithm      = "HS256"
 	key            = "updated_key"

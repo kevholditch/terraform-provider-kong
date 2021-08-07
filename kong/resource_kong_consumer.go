@@ -21,7 +21,7 @@ func resourceKongConsumer() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"username": &schema.Schema{
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: false,
 			},
 			"custom_id": &schema.Schema{

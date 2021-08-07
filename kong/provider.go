@@ -76,7 +76,7 @@ func Provider() *schema.Provider {
 			"kong_target":              resourceKongTarget(),
 			"kong_service":             resourceKongService(),
 			"kong_route":               resourceKongRoute(),
-			"kong_jwt_auth":            resourceKongJWTAuth(),
+			"kong_consumer_jwt_auth":   resourceKongConsumerJWTAuth(),
 		},
 
 		//DataSourcesMap: map[string]*schema.Resource{
