@@ -67,7 +67,7 @@ func readStringPtrFromResource(d *schema.ResourceData, key string) *string {
 }
 
 func readBoolPtrFromResource(d *schema.ResourceData, key string) *bool {
-	if value, ok := d.GetOk(key); ok {
+	if value, ok := d.GetOkExists(key); ok {
 		return kong.Bool(value.(bool))
 	}
 	return nil

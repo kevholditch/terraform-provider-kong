@@ -79,7 +79,6 @@ func resourceKongService() *schema.Resource {
 			"tls_verify": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  nil,
 				ForceNew: false,
 			},
 			"tls_verify_depth": {
@@ -87,6 +86,17 @@ func resourceKongService() *schema.Resource {
 				Optional: true,
 				ForceNew: false,
 				Default:  nil,
+			},
+			"client_certificate_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+			},
+			"ca_certificate_ids": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: false,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}
@@ -215,6 +225,18 @@ func resourceKongServiceRead(ctx context.Context, d *schema.ResourceData, meta i
 				return diag.FromErr(err)
 			}
 		}
+		if service.ClientCertificate != nil {
+			err = d.Set("client_certificate_id", service.ClientCertificate.ID)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+		if service.CACertificates != nil {
+			err = d.Set("ca_certificate_ids", service.CACertificates)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
 	}
 
 	return nil
@@ -247,6 +269,14 @@ func createKongServiceRequestFromResourceData(d *schema.ResourceData) *kong.Serv
 		Tags:           readStringArrayPtrFromResource(d, "tags"),
 		TLSVerify:      readBoolPtrFromResource(d, "tls_verify"),
 		TLSVerifyDepth: readIntPtrFromResource(d, "tls_verify_depth"),
+		CACertificates: readStringArrayPtrFromResource(d, "ca_certificate_ids"),
+	}
+
+	clientCertificateID := readIdPtrFromResource(d, "client_certificate_id")
+	if clientCertificateID != nil {
+		service.ClientCertificate = &kong.Certificate{
+			ID: clientCertificateID,
+		}
 	}
 
 	if d.Id() != "" {

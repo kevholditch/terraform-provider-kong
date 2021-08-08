@@ -78,6 +78,68 @@ func TestAccKongDefaultService(t *testing.T) {
 	})
 }
 
+func TestAccKongServiceWithClientCertificate(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongServiceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(testServiceWithClientCertificateConfig, testCert1, testKey1, testCert2, testKey2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKongServiceExists("kong_service.service"),
+					resource.TestCheckResourceAttr("kong_service.service", "name", "test"),
+					resource.TestCheckResourceAttr("kong_service.service", "protocol", "https"),
+					resource.TestCheckResourceAttr("kong_service.service", "host", "test.org"),
+					func(s *terraform.State) error {
+						module := s.RootModule()
+						cert, ok := module.Resources["kong_certificate.certificate"]
+						if !ok {
+							return fmt.Errorf("could not find certificate resource")
+						}
+
+						service, ok := module.Resources["kong_service.service"]
+						if !ok {
+							return fmt.Errorf("could not find service resource")
+						}
+
+						v, ok := service.Primary.Attributes["client_certificate_id"]
+						if !ok {
+							return fmt.Errorf("could not find client_certificate_id property")
+						}
+
+						if v != cert.Primary.ID {
+							return fmt.Errorf("client_certificate_id does not match certificate id")
+						}
+						return nil
+					},
+					func(s *terraform.State) error {
+						module := s.RootModule()
+						cert, ok := module.Resources["kong_certificate.ca"]
+						if !ok {
+							return fmt.Errorf("could not find ca certificate resource")
+						}
+
+						service, ok := module.Resources["kong_service.service"]
+						if !ok {
+							return fmt.Errorf("could not find service resource")
+						}
+
+						v, ok := service.Primary.Attributes["ca_certificate_ids.0"]
+						if !ok {
+							return fmt.Errorf("could not find ca_certificate_ids property")
+						}
+
+						if v != cert.Primary.ID {
+							return fmt.Errorf("ca_certificate_ids does not match ca certificate id")
+						}
+						return nil
+					},
+				),
+			},
+		},
+	})
+}
+
 func TestAccKongServiceImport(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
@@ -201,6 +263,36 @@ resource "kong_service" "service" {
 	retries         = 0
 }
 `
+
+const testServiceWithClientCertificateConfig = `
+resource "kong_certificate" "certificate" {
+	certificate  = <<EOF
+%s
+EOF
+	private_key =  <<EOF
+%s
+EOF
+   snis			= ["foo.com"]
+}
+
+resource "kong_certificate" "ca" {
+	certificate  = <<EOF
+%s
+EOF
+	private_key =  <<EOF
+%s
+EOF
+   snis			= ["ca.com"]
+}
+
+resource "kong_service" "service" {
+	name                  = "test"
+	protocol              = "https"
+	host                  = "test.org"
+	client_certificate_id = kong_certificate.certificate.id
+	ca_certificate_ids    = [kong_certificate.ca.id]
+}`
+
 const testImportServiceConfig = `
 resource "kong_service" "service" {
 	name     		= "test"
