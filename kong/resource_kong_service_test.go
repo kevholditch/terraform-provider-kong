@@ -28,6 +28,9 @@ func TestAccKongService(t *testing.T) {
 					resource.TestCheckResourceAttr("kong_service.service", "connect_timeout", "1000"),
 					resource.TestCheckResourceAttr("kong_service.service", "write_timeout", "2000"),
 					resource.TestCheckResourceAttr("kong_service.service", "read_timeout", "3000"),
+					resource.TestCheckResourceAttr("kong_service.service", "tags.#", "2"),
+					resource.TestCheckResourceAttr("kong_service.service", "tags.0", "foo"),
+					resource.TestCheckResourceAttr("kong_service.service", "tags.1", "bar"),
 				),
 			},
 			{
@@ -42,11 +45,17 @@ func TestAccKongService(t *testing.T) {
 					resource.TestCheckResourceAttr("kong_service.service", "connect_timeout", "6000"),
 					resource.TestCheckResourceAttr("kong_service.service", "write_timeout", "5000"),
 					resource.TestCheckResourceAttr("kong_service.service", "read_timeout", "4000"),
+					resource.TestCheckResourceAttr("kong_service.service", "tags.#", "1"),
+					resource.TestCheckResourceAttr("kong_service.service", "tags.0", "foo"),
+					resource.TestCheckResourceAttr("kong_service.service", "tls_verify", "true"),
+					resource.TestCheckResourceAttr("kong_service.service", "tls_verify_depth", "2"),
 				),
 			},
 		},
 	})
+}
 
+func TestAccKongDefaultService(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckKongServiceDestroy,
@@ -141,27 +150,30 @@ func testAccCheckKongServiceExists(resourceKey string) resource.TestCheckFunc {
 
 const testCreateServiceConfig = `
 resource "kong_service" "service" {
-	name     		= "test"
-	protocol 		= "http"
-	host     		= "test.org"
-	path     		= "/mypath"
-	retries  		= 5
-	connect_timeout = 1000
-	write_timeout 	= 2000
-	read_timeout  	= 3000
-	
+	name     		 = "test"
+	protocol 		 = "http"
+	host     		 = "test.org"
+	path     		 = "/mypath"
+	retries  		 = 5
+	connect_timeout  = 1000
+	write_timeout 	 = 2000
+	read_timeout  	 = 3000
+	tags             = ["foo", "bar"]
 }
 `
 const testUpdateServiceConfig = `
 resource "kong_service" "service" {
-	name     		= "test2"
-	protocol 		= "https"
-	host     		= "test2.org"
-	port     		= 8081
-	path     		= "/"
-	connect_timeout = 6000
-	write_timeout 	= 5000
-	read_timeout  	= 4000
+	name     		 = "test2"
+	protocol 		 = "https"
+	host     		 = "test2.org"
+	port     		 = 8081
+	path     		 = "/"
+	connect_timeout  = 6000
+	write_timeout 	 = 5000
+	read_timeout  	 = 4000
+	tags             = ["foo"]
+	tls_verify       = true
+	tls_verify_depth = 2
 }
 `
 const testCreateServiceConfigZero = `

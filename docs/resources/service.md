@@ -31,7 +31,7 @@ resource "kong_service" "service" {
 * `read_timeout` - (Optional, int) Read timeout. Default(ms): 60000
 * `tags` - (Optional) A list of strings associated with the Service for grouping and filtering.
 * `client_certificate` - (Optional) Certificate to be used as client certificate while TLS handshaking to the upstream server.
-* `tls_verify` - (Optional) Whether to enable verification of upstream server TLS certificate.
+* `tls_verify` - (Optional) Whether to enable verification of upstream server TLS certificate. If not set then the nginx default is respected.
 * `tls_verify_depth` - (Optional) Maximum depth of chain while verifying Upstream server’s TLS certificate.
 * `ca_certificates` - (Optional) A of CA Certificate IDs (created from the certificate resource). that are used to build the trust store while verifying upstream server’s TLS certificate.
 

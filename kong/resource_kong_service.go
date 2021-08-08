@@ -76,6 +76,18 @@ func resourceKongService() *schema.Resource {
 				ForceNew: false,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"tls_verify": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  nil,
+				ForceNew: false,
+			},
+			"tls_verify_depth": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: false,
+				Default:  nil,
+			},
 		},
 	}
 }
@@ -184,6 +196,25 @@ func resourceKongServiceRead(ctx context.Context, d *schema.ResourceData, meta i
 				return diag.FromErr(err)
 			}
 		}
+
+		err = d.Set("tags", service.Tags)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
+		if service.TLSVerify != nil {
+			err = d.Set("tls_verify", service.TLSVerify)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+
+		if service.TLSVerifyDepth != nil {
+			err = d.Set("tls_verify_depth", service.TLSVerifyDepth)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
 	}
 
 	return nil
@@ -209,11 +240,15 @@ func createKongServiceRequestFromResourceData(d *schema.ResourceData) *kong.Serv
 		Host:           readStringPtrFromResource(d, "host"),
 		Port:           readIntPtrFromResource(d, "port"),
 		Path:           readStringPtrFromResource(d, "path"),
-		Retries:        readIntPtrFromResource(d, "retries"),
+		Retries:        readIntWithZeroPtrFromResource(d, "retries"),
 		ConnectTimeout: readIntPtrFromResource(d, "connect_timeout"),
 		WriteTimeout:   readIntPtrFromResource(d, "write_timeout"),
 		ReadTimeout:    readIntPtrFromResource(d, "read_timeout"),
+		Tags:           readStringArrayPtrFromResource(d, "tags"),
+		TLSVerify:      readBoolPtrFromResource(d, "tls_verify"),
+		TLSVerifyDepth: readIntPtrFromResource(d, "tls_verify_depth"),
 	}
+
 	if d.Id() != "" {
 		service.ID = kong.String(d.Id())
 	}
