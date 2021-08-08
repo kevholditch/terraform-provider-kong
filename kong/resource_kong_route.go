@@ -20,42 +20,42 @@ func resourceKongRoute() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
 			},
-			"protocols": &schema.Schema{
+			"protocols": {
 				Type:     schema.TypeList,
 				Required: true,
 				ForceNew: false,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"methods": &schema.Schema{
+			"methods": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: false,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"hosts": &schema.Schema{
+			"hosts": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: false,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"paths": &schema.Schema{
+			"paths": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: false,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"strip_path": &schema.Schema{
+			"strip_path": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: false,
 				Default:  true,
 			},
-			"source": &schema.Schema{
+			"source": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				ForceNew: false,
@@ -72,7 +72,7 @@ func resourceKongRoute() *schema.Resource {
 					},
 				},
 			},
-			"destination": &schema.Schema{
+			"destination": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				ForceNew: false,
@@ -89,23 +89,23 @@ func resourceKongRoute() *schema.Resource {
 					},
 				},
 			},
-			"snis": &schema.Schema{
+			"snis": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: false,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"preserve_host": &schema.Schema{
+			"preserve_host": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: false,
 			},
-			"regex_priority": &schema.Schema{
+			"regex_priority": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: false,
 			},
-			"service_id": &schema.Schema{
+			"service_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: false,
@@ -158,50 +158,86 @@ func resourceKongRouteRead(ctx context.Context, d *schema.ResourceData, meta int
 		d.SetId("")
 	} else {
 		if route.Name != nil {
-			d.Set("name", route.Name)
+			err := d.Set("name", route.Name)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 		if route.Protocols != nil {
-			d.Set("protocols", StringValueSlice(route.Protocols))
+			err := d.Set("protocols", StringValueSlice(route.Protocols))
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 
 		if route.Methods != nil {
-			d.Set("methods", StringValueSlice(route.Methods))
+			err := d.Set("methods", StringValueSlice(route.Methods))
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 
 		if route.Hosts != nil {
-			d.Set("hosts", StringValueSlice(route.Hosts))
+			err := d.Set("hosts", StringValueSlice(route.Hosts))
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 
 		if route.Paths != nil {
-			d.Set("paths", StringValueSlice(route.Paths))
+			err := d.Set("paths", StringValueSlice(route.Paths))
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 
 		if route.StripPath != nil {
-			d.Set("strip_path", route.StripPath)
+			err := d.Set("strip_path", route.StripPath)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 
 		if route.Sources != nil {
-			d.Set("source", flattenIpCidrArray(route.Sources))
+			err := d.Set("source", flattenIpCidrArray(route.Sources))
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 
 		if route.Destinations != nil {
-			d.Set("destination", flattenIpCidrArray(route.Destinations))
+			err := d.Set("destination", flattenIpCidrArray(route.Destinations))
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 
 		if route.PreserveHost != nil {
-			d.Set("preserve_host", route.PreserveHost)
+			err := d.Set("preserve_host", route.PreserveHost)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 
 		if route.RegexPriority != nil {
-			d.Set("regex_priority", route.RegexPriority)
+			err := d.Set("regex_priority", route.RegexPriority)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 
 		if route.SNIs != nil {
-			d.Set("snis", StringValueSlice(route.SNIs))
+			err := d.Set("snis", StringValueSlice(route.SNIs))
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 
 		if route.Service != nil {
-			d.Set("service_id", route.Service.ID)
+			err := d.Set("service_id", route.Service.ID)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 
 	}

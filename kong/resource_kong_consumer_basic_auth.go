@@ -15,22 +15,22 @@ func resourceKongConsumerBasicAuth() *schema.Resource {
 		DeleteContext: resourceKongConsumerBasicAuthDelete,
 		UpdateContext: resourceKongConsumerBasicAuthUpdate,
 		Schema: map[string]*schema.Schema{
-			"consumer_id": &schema.Schema{
+			"consumer_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: false,
 			},
-			"username": &schema.Schema{
+			"username": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: false,
 			},
-			"password": &schema.Schema{
+			"password": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: false,
 			},
-			"tags": &schema.Schema{
+			"tags": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: false,
@@ -102,9 +102,18 @@ func resourceKongConsumerBasicAuthRead(ctx context.Context, d *schema.ResourceDa
 	if basicAuth == nil {
 		d.SetId("")
 	} else {
-		d.Set("consumer_id", basicAuth.Consumer.ID)
-		d.Set("username", basicAuth.Username)
-		d.Set("tags", basicAuth.Tags)
+		err = d.Set("consumer_id", basicAuth.Consumer.ID)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		err = d.Set("username", basicAuth.Username)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		err = d.Set("tags", basicAuth.Tags)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	return diags

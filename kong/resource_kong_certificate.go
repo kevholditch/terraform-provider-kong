@@ -99,15 +99,24 @@ func resourceKongCertificateRead(ctx context.Context, d *schema.ResourceData, me
 		d.SetId("")
 	} else {
 		if certificate.Cert != nil {
-			d.Set("certificate", &certificate.Cert)
+			err := d.Set("certificate", &certificate.Cert)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 
 		if certificate.Key != nil {
-			d.Set("private_key", &certificate.Key)
+			err := d.Set("private_key", &certificate.Key)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 
 		if certificate.SNIs != nil {
-			d.Set("snis", StringValueSlice(certificate.SNIs))
+			err := d.Set("snis", StringValueSlice(certificate.SNIs))
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 	}
 

@@ -20,55 +20,61 @@ func resourceKongService() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: false,
 			},
-			"protocol": &schema.Schema{
+			"protocol": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: false,
 			},
-			"host": &schema.Schema{
+			"host": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
 			},
-			"port": &schema.Schema{
+			"port": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: false,
 				Default:  80,
 			},
-			"path": &schema.Schema{
+			"path": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
 			},
-			"retries": &schema.Schema{
+			"retries": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: false,
 				Default:  5,
 			},
-			"connect_timeout": &schema.Schema{
+			"connect_timeout": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: false,
 				Default:  60000,
 			},
-			"write_timeout": &schema.Schema{
+			"write_timeout": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: false,
 				Default:  60000,
 			},
-			"read_timeout": &schema.Schema{
+			"read_timeout": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: false,
 				Default:  60000,
+			},
+			"tags": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: false,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}
@@ -117,39 +123,66 @@ func resourceKongServiceRead(ctx context.Context, d *schema.ResourceData, meta i
 		d.SetId("")
 	} else {
 		if service.Name != nil {
-			d.Set("name", service.Name)
+			err := d.Set("name", service.Name)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 
 		if service.Protocol != nil {
-			d.Set("protocol", service.Protocol)
+			err := d.Set("protocol", service.Protocol)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 
 		if service.Host != nil {
-			d.Set("host", service.Host)
+			err := d.Set("host", service.Host)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 
 		if service.Port != nil {
-			d.Set("port", service.Port)
+			err := d.Set("port", service.Port)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 
 		if service.Path != nil {
-			d.Set("path", service.Path)
+			err := d.Set("path", service.Path)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 
 		if service.Retries != nil {
-			d.Set("retries", service.Retries)
+			err := d.Set("retries", service.Retries)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 
 		if service.ConnectTimeout != nil {
-			d.Set("connect_timeout", service.ConnectTimeout)
+			err := d.Set("connect_timeout", service.ConnectTimeout)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 
 		if service.WriteTimeout != nil {
-			d.Set("write_timeout", service.WriteTimeout)
+			err := d.Set("write_timeout", service.WriteTimeout)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 
 		if service.ReadTimeout != nil {
-			d.Set("read_timeout", service.ReadTimeout)
+			err := d.Set("read_timeout", service.ReadTimeout)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 	}
 
