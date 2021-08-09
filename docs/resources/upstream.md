@@ -3,6 +3,20 @@
 ## Example Usage
 
 ```hcl
+resource "kong_certificate" "certificate" {
+  certificate  = <<EOF
+    -----BEGIN CERTIFICATE-----
+    ......
+    -----END CERTIFICATE-----
+EOF
+  private_key =  <<EOF
+    -----BEGIN PRIVATE KEY-----
+    .....
+    -----END PRIVATE KEY-----
+EOF
+  snis			= ["foo.com"]
+}
+
 resource "kong_upstream" "upstream" {
     name                 = "sample_upstream"
     slots                = 10
@@ -12,6 +26,10 @@ resource "kong_upstream" "upstream" {
     hash_fallback_header = "FallbackHeaderName"
     hash_on_cookie       = "CookieName"
     hash_on_cookie_path  = "/path"
+    host_header          = "x-host"
+    tags                 = ["a", "b"]
+    client_certificate_id = kong_certificate.certificate.id
+  
     healthchecks {
         active {
             type                     = "https"

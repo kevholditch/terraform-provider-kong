@@ -49,6 +49,22 @@ func resourceKongUpstream() *schema.Resource {
 				ForceNew: false,
 				Default:  nil,
 			},
+			"host_header": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+			},
+			"tags": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: false,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"client_certificate_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+			},
 			"hash_fallback_header": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -331,6 +347,22 @@ func resourceKongUpstreamRead(ctx context.Context, d *schema.ResourceData, meta 
 		if err := d.Set("healthchecks", flattenHealthCheck(upstream.Healthchecks)); err != nil {
 			return diag.FromErr(err)
 		}
+		err = d.Set("tags", upstream.Tags)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		if upstream.HostHeader != nil {
+			err = d.Set("host_header", upstream.HostHeader)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+		if upstream.ClientCertificate != nil {
+			err = d.Set("client_certificate_id", upstream.ClientCertificate.ID)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
 	}
 
 	return diags
@@ -363,6 +395,15 @@ func createKongUpstreamRequestFromResourceData(d *schema.ResourceData) *kong.Ups
 	upstreamRequest.HashFallbackHeader = readStringPtrFromResource(d, "hash_fallback_header")
 	upstreamRequest.HashOnCookie = readStringPtrFromResource(d, "hash_on_cookie")
 	upstreamRequest.HashOnCookiePath = readStringPtrFromResource(d, "hash_on_cookie_path")
+	upstreamRequest.HostHeader = readStringPtrFromResource(d, "host_header")
+	upstreamRequest.Tags = readStringArrayPtrFromResource(d, "tags")
+
+	clientCertificateID := readIdPtrFromResource(d, "client_certificate_id")
+	if clientCertificateID != nil {
+		upstreamRequest.ClientCertificate = &kong.Certificate{
+			ID: clientCertificateID,
+		}
+	}
 
 	if healthChecksArray := readArrayFromResource(d, "healthchecks"); healthChecksArray != nil && len(healthChecksArray) > 0 {
 		healthChecksMap := healthChecksArray[0].(map[string]interface{})
