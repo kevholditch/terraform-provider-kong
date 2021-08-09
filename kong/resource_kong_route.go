@@ -110,6 +110,36 @@ func resourceKongRoute() *schema.Resource {
 				Required: true,
 				ForceNew: false,
 			},
+			"path_handling": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+				Default:  "v0",
+			},
+			"https_redirect_status_code": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: false,
+				Default:  426,
+			},
+			"request_buffering": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: false,
+				Default:  true,
+			},
+			"response_buffering": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: false,
+				Default:  true,
+			},
+			"tags": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: false,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
@@ -240,6 +270,39 @@ func resourceKongRouteRead(ctx context.Context, d *schema.ResourceData, meta int
 			}
 		}
 
+		if route.PathHandling != nil {
+			err := d.Set("path_handling", route.PathHandling)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+
+		if route.HTTPSRedirectStatusCode != nil {
+			err := d.Set("https_redirect_status_code", route.HTTPSRedirectStatusCode)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+
+		if route.RequestBuffering != nil {
+			err := d.Set("request_buffering", route.RequestBuffering)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+
+		if route.ResponseBuffering != nil {
+			err := d.Set("response_buffering", route.ResponseBuffering)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+
+		err = d.Set("tags", route.Tags)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
 	}
 
 	return diags
@@ -288,6 +351,11 @@ func createKongRouteRequestFromResourceData(d *schema.ResourceData) *kong.Route 
 		Service: &kong.Service{
 			ID: readIdPtrFromResource(d, "service_id"),
 		},
+		PathHandling:            readStringPtrFromResource(d, "path_handling"),
+		HTTPSRedirectStatusCode: readIntPtrFromResource(d, "https_redirect_status_code"),
+		RequestBuffering:        readBoolPtrFromResource(d, "request_buffering"),
+		ResponseBuffering:       readBoolPtrFromResource(d, "response_buffering"),
+		Tags:                    readStringArrayPtrFromResource(d, "tags"),
 	}
 	if d.Id() != "" {
 		route.ID = kong.String(d.Id())
