@@ -18,17 +18,17 @@ func resourceKongConsumerACL() *schema.Resource {
 			State: schema.ImportStatePassthrough,
 		},
 		Schema: map[string]*schema.Schema{
-			"consumer_id": &schema.Schema{
+			"consumer_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: false,
 			},
-			"group": &schema.Schema{
+			"group": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: false,
 			},
-			"tags": &schema.Schema{
+			"tags": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: false,
@@ -98,9 +98,18 @@ func resourceKongConsumerACLRead(ctx context.Context, d *schema.ResourceData, me
 	if ACLGroup == nil {
 		d.SetId("")
 	} else {
-		d.Set("consumer_id", ACLGroup.Consumer.ID)
-		d.Set("group", ACLGroup.Group)
-		d.Set("tags", ACLGroup.Tags)
+		err := d.Set("consumer_id", ACLGroup.Consumer.ID)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		err = d.Set("group", ACLGroup.Group)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		err = d.Set("tags", ACLGroup.Tags)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	return diags

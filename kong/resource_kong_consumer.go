@@ -3,6 +3,7 @@ package kong
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/kong/go-kong/kong"
@@ -10,21 +11,21 @@ import (
 
 func resourceKongConsumer() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceKongConsumerCreate,
-		Read:   resourceKongConsumerRead,
-		Delete: resourceKongConsumerDelete,
-		Update: resourceKongConsumerUpdate,
+		CreateContext: resourceKongConsumerCreate,
+		ReadContext:   resourceKongConsumerRead,
+		DeleteContext: resourceKongConsumerDelete,
+		UpdateContext: resourceKongConsumerUpdate,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
 
 		Schema: map[string]*schema.Schema{
-			"username": &schema.Schema{
+			"username": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
 			},
-			"custom_id": &schema.Schema{
+			"custom_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
@@ -33,7 +34,7 @@ func resourceKongConsumer() *schema.Resource {
 	}
 }
 
-func resourceKongConsumerCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceKongConsumerCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	consumerRequest := &kong.Consumer{
 		Username: kong.String(d.Get("username").(string)),
@@ -41,18 +42,18 @@ func resourceKongConsumerCreate(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	client := meta.(*config).adminClient.Consumers
-	consumer, err := client.Create(context.Background(), consumerRequest)
+	consumer, err := client.Create(ctx, consumerRequest)
 
 	if err != nil {
-		return fmt.Errorf("failed to create kong consumer: %v error: %v", consumerRequest, err)
+		return diag.FromErr(fmt.Errorf("failed to create kong consumer: %v error: %v", consumerRequest, err))
 	}
 
 	d.SetId(*consumer.ID)
 
-	return resourceKongConsumerRead(d, meta)
+	return resourceKongConsumerRead(ctx, d, meta)
 }
 
-func resourceKongConsumerUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceKongConsumerUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	d.Partial(false)
 
 	consumerRequest := &kong.Consumer{
@@ -62,46 +63,54 @@ func resourceKongConsumerUpdate(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	client := meta.(*config).adminClient.Consumers
-	_, err := client.Update(context.Background(), consumerRequest)
+	_, err := client.Update(ctx, consumerRequest)
 
 	if err != nil {
-		return fmt.Errorf("error updating kong consumer: %s", err)
+		return diag.FromErr(fmt.Errorf("error updating kong consumer: %s", err))
 	}
 
-	return resourceKongConsumerRead(d, meta)
+	return resourceKongConsumerRead(ctx, d, meta)
 }
 
-func resourceKongConsumerRead(d *schema.ResourceData, meta interface{}) error {
+func resourceKongConsumerRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
+	var diags diag.Diagnostics
 	id := d.Id()
 
 	client := meta.(*config).adminClient.Consumers
-	consumer, err := client.Get(context.Background(), kong.String(id))
+	consumer, err := client.Get(ctx, kong.String(id))
 
 	if kong.IsNotFoundErr(err) {
 		d.SetId("")
 	} else if err != nil {
-		return fmt.Errorf("could not find kong consumer with id: %s error: %v", id, err)
+		return diag.FromErr(fmt.Errorf("could not find kong consumer with id: %s error: %v", id, err))
 	}
 
 	if consumer == nil {
 		d.SetId("")
 	} else {
-		d.Set("username", consumer.Username)
-		d.Set("custom_id", consumer.CustomID)
+		err := d.Set("username", consumer.Username)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		err = d.Set("custom_id", consumer.CustomID)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
-	return nil
+	return diags
 }
 
-func resourceKongConsumerDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceKongConsumerDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
+	var diags diag.Diagnostics
 	client := meta.(*config).adminClient.Consumers
-	err := client.Delete(context.Background(), kong.String(d.Id()))
+	err := client.Delete(ctx, kong.String(d.Id()))
 
 	if err != nil {
-		return fmt.Errorf("could not delete kong consumer: %v", err)
+		return diag.FromErr(fmt.Errorf("could not delete kong consumer: %v", err))
 	}
 
-	return nil
+	return diags
 }

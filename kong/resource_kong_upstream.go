@@ -20,110 +20,126 @@ func resourceKongUpstream() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: false,
 			},
-			"slots": &schema.Schema{
+			"slots": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: false,
 				Default:  10000,
 			},
-			"hash_on": &schema.Schema{
+			"hash_on": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
 				Default:  "none",
 			},
-			"hash_fallback": &schema.Schema{
+			"hash_fallback": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
 				Default:  "none",
 			},
-			"hash_on_header": &schema.Schema{
+			"hash_on_header": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
 				Default:  nil,
 			},
-			"hash_fallback_header": &schema.Schema{
+			"host_header": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+			},
+			"tags": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: false,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"client_certificate_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+			},
+			"hash_fallback_header": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
 				Default:  nil,
 			},
-			"hash_on_cookie": &schema.Schema{
+			"hash_on_cookie": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
 				Default:  nil,
 			},
-			"hash_on_cookie_path": &schema.Schema{
+			"hash_on_cookie_path": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
 				Default:  "/",
 			},
-			"healthchecks": &schema.Schema{
+			"healthchecks": {
 				Type:     schema.TypeList,
 				Optional: true,
 				MaxItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"active": &schema.Schema{
+						"active": {
 							Type:     schema.TypeList,
 							Optional: true,
 							MaxItems: 1,
 							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"type": &schema.Schema{
+									"type": {
 										Type:     schema.TypeString,
 										Optional: true,
 										Default:  "http",
 									},
-									"timeout": &schema.Schema{
+									"timeout": {
 										Type:     schema.TypeInt,
 										Optional: true,
 										Default:  1,
 									},
-									"concurrency": &schema.Schema{
+									"concurrency": {
 										Type:     schema.TypeInt,
 										Optional: true,
 										Default:  10,
 									},
-									"http_path": &schema.Schema{
+									"http_path": {
 										Type:     schema.TypeString,
 										Optional: true,
 										Default:  "/",
 									},
-									"https_verify_certificate": &schema.Schema{
+									"https_verify_certificate": {
 										Type:     schema.TypeBool,
 										Optional: true,
 										Default:  true,
 									},
-									"https_sni": &schema.Schema{
+									"https_sni": {
 										Type:     schema.TypeString,
 										Optional: true,
 										Default:  nil,
 									},
-									"healthy": &schema.Schema{
+									"healthy": {
 										Type:     schema.TypeList,
 										Optional: true,
 										MaxItems: 1,
 										Computed: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
-												"interval": &schema.Schema{
+												"interval": {
 													Type:     schema.TypeInt,
 													Optional: true,
 													Computed: true,
 												},
-												"http_statuses": &schema.Schema{
+												"http_statuses": {
 													Type:     schema.TypeList,
 													Optional: true,
 													Computed: true,
@@ -131,7 +147,7 @@ func resourceKongUpstream() *schema.Resource {
 														Type: schema.TypeInt,
 													},
 												},
-												"successes": &schema.Schema{
+												"successes": {
 													Type:     schema.TypeInt,
 													Optional: true,
 													Computed: true,
@@ -139,19 +155,19 @@ func resourceKongUpstream() *schema.Resource {
 											},
 										},
 									},
-									"unhealthy": &schema.Schema{
+									"unhealthy": {
 										Type:     schema.TypeList,
 										Optional: true,
 										MaxItems: 1,
 										Computed: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
-												"interval": &schema.Schema{
+												"interval": {
 													Type:     schema.TypeInt,
 													Optional: true,
 													Computed: true,
 												},
-												"http_statuses": &schema.Schema{
+												"http_statuses": {
 													Type:     schema.TypeList,
 													Optional: true,
 													Computed: true,
@@ -159,17 +175,17 @@ func resourceKongUpstream() *schema.Resource {
 														Type: schema.TypeInt,
 													},
 												},
-												"tcp_failures": &schema.Schema{
+												"tcp_failures": {
 													Type:     schema.TypeInt,
 													Optional: true,
 													Computed: true,
 												},
-												"http_failures": &schema.Schema{
+												"http_failures": {
 													Type:     schema.TypeInt,
 													Optional: true,
 													Computed: true,
 												},
-												"timeouts": &schema.Schema{
+												"timeouts": {
 													Type:     schema.TypeInt,
 													Optional: true,
 													Computed: true,
@@ -180,62 +196,62 @@ func resourceKongUpstream() *schema.Resource {
 								},
 							},
 						},
-						"passive": &schema.Schema{
+						"passive": {
 							Type:     schema.TypeList,
 							Optional: true,
 							MaxItems: 1,
 							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"type": &schema.Schema{
+									"type": {
 										Type:     schema.TypeString,
 										Optional: true,
 										Default:  "http",
 									},
-									"healthy": &schema.Schema{
+									"healthy": {
 										Type:     schema.TypeList,
 										Optional: true,
 										MaxItems: 1,
 										Computed: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
-												"http_statuses": &schema.Schema{
+												"http_statuses": {
 													Type:     schema.TypeList,
 													Optional: true,
 													Elem: &schema.Schema{
 														Type: schema.TypeInt,
 													},
 												},
-												"successes": &schema.Schema{
+												"successes": {
 													Type:     schema.TypeInt,
 													Optional: true,
 												},
 											},
 										},
 									},
-									"unhealthy": &schema.Schema{
+									"unhealthy": {
 										Type:     schema.TypeList,
 										Optional: true,
 										MaxItems: 1,
 										Computed: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
-												"http_statuses": &schema.Schema{
+												"http_statuses": {
 													Type:     schema.TypeList,
 													Optional: true,
 													Elem: &schema.Schema{
 														Type: schema.TypeInt,
 													},
 												},
-												"tcp_failures": &schema.Schema{
+												"tcp_failures": {
 													Type:     schema.TypeInt,
 													Optional: true,
 												},
-												"http_failures": &schema.Schema{
+												"http_failures": {
 													Type:     schema.TypeInt,
 													Optional: true,
 												},
-												"timeouts": &schema.Schema{
+												"timeouts": {
 													Type:     schema.TypeInt,
 													Optional: true,
 												},
@@ -296,16 +312,56 @@ func resourceKongUpstreamRead(ctx context.Context, d *schema.ResourceData, meta 
 		d.SetId("")
 	} else {
 		d.SetId(*upstream.ID)
-		d.Set("name", upstream.Name)
-		d.Set("slots", upstream.Slots)
-		d.Set("hash_on", upstream.HashOn)
-		d.Set("hash_fallback", upstream.HashFallback)
-		d.Set("hash_on_header", upstream.HashOnHeader)
-		d.Set("hash_fallback_header", upstream.HashFallbackHeader)
-		d.Set("hash_on_cookie", upstream.HashOnCookie)
-		d.Set("hash_on_cookie_path", upstream.HashOnCookiePath)
+		err := d.Set("name", upstream.Name)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		err = d.Set("slots", upstream.Slots)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		err = d.Set("hash_on", upstream.HashOn)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		err = d.Set("hash_fallback", upstream.HashFallback)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		err = d.Set("hash_on_header", upstream.HashOnHeader)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		err = d.Set("hash_fallback_header", upstream.HashFallbackHeader)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		err = d.Set("hash_on_cookie", upstream.HashOnCookie)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		err = d.Set("hash_on_cookie_path", upstream.HashOnCookiePath)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 		if err := d.Set("healthchecks", flattenHealthCheck(upstream.Healthchecks)); err != nil {
 			return diag.FromErr(err)
+		}
+		err = d.Set("tags", upstream.Tags)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		if upstream.HostHeader != nil {
+			err = d.Set("host_header", upstream.HostHeader)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+		if upstream.ClientCertificate != nil {
+			err = d.Set("client_certificate_id", upstream.ClientCertificate.ID)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 	}
 
@@ -339,6 +395,15 @@ func createKongUpstreamRequestFromResourceData(d *schema.ResourceData) *kong.Ups
 	upstreamRequest.HashFallbackHeader = readStringPtrFromResource(d, "hash_fallback_header")
 	upstreamRequest.HashOnCookie = readStringPtrFromResource(d, "hash_on_cookie")
 	upstreamRequest.HashOnCookiePath = readStringPtrFromResource(d, "hash_on_cookie_path")
+	upstreamRequest.HostHeader = readStringPtrFromResource(d, "host_header")
+	upstreamRequest.Tags = readStringArrayPtrFromResource(d, "tags")
+
+	clientCertificateID := readIdPtrFromResource(d, "client_certificate_id")
+	if clientCertificateID != nil {
+		upstreamRequest.ClientCertificate = &kong.Certificate{
+			ID: clientCertificateID,
+		}
+	}
 
 	if healthChecksArray := readArrayFromResource(d, "healthchecks"); healthChecksArray != nil && len(healthChecksArray) > 0 {
 		healthChecksMap := healthChecksArray[0].(map[string]interface{})

@@ -21,6 +21,27 @@ func readStringArrayPtrFromResource(d *schema.ResourceData, key string) []*strin
 	return nil
 }
 
+func readMapStringArrayFromResource(d *schema.ResourceData, key string) map[string][]string {
+	results := map[string][]string{}
+	if attr, ok := d.GetOk(key); ok {
+		set := attr.(*schema.Set)
+		for _, item := range set.List() {
+			m := item.(map[string]interface{})
+			if name, ok := m["name"].(string); ok {
+				if values, ok := m["values"].([]interface{}); ok {
+					var vals []string
+					for _, v := range values {
+						vals = append(vals, v.(string))
+					}
+					results[name] = vals
+				}
+			}
+		}
+	}
+
+	return results
+}
+
 func readIpPortArrayFromResource(d *schema.ResourceData, key string) []*kong.CIDRPort {
 	if attr, ok := d.GetOk(key); ok {
 		set := attr.(*schema.Set)
@@ -51,13 +72,6 @@ func readArrayFromResource(d *schema.ResourceData, key string) []interface{} {
 	return nil
 }
 
-func readStringFromResource(d *schema.ResourceData, key string) string {
-	if value, ok := d.GetOk(key); ok {
-		return value.(string)
-	}
-	return ""
-}
-
 func readIdPtrFromResource(d *schema.ResourceData, key string) *string {
 	if value, ok := d.GetOk(key); ok {
 		id := value.(string)
@@ -67,26 +81,30 @@ func readIdPtrFromResource(d *schema.ResourceData, key string) *string {
 }
 
 func readStringPtrFromResource(d *schema.ResourceData, key string) *string {
-	if value, ok := d.GetOkExists(key); ok {
+	if value, ok := d.GetOk(key); ok {
 		return kong.String(value.(string))
 	}
 	return nil
 }
 
 func readBoolPtrFromResource(d *schema.ResourceData, key string) *bool {
-	return kong.Bool(d.Get(key).(bool))
-}
-
-func readIntFromResource(d *schema.ResourceData, key string) int {
-	if value, ok := d.GetOk(key); ok {
-		return value.(int)
+	if value, ok := d.GetOkExists(key); ok {
+		return kong.Bool(value.(bool))
 	}
-	return 0
+	return nil
 }
 
 func readIntPtrFromResource(d *schema.ResourceData, key string) *int {
-	if value, ok := d.GetOkExists(key); ok {
+	if value, ok := d.GetOk(key); ok {
 		return kong.Int(value.(int))
 	}
 	return nil
+}
+
+func readIntWithZeroPtrFromResource(d *schema.ResourceData, key string) *int {
+	value := d.Get(key)
+	if value == nil {
+		return nil
+	}
+	return kong.Int(value.(int))
 }

@@ -20,27 +20,27 @@ func resourceKongConsumerJWTAuth() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"consumer_id": &schema.Schema{
+			"consumer_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: false,
 			},
-			"algorithm": &schema.Schema{
+			"algorithm": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
 			},
-			"key": &schema.Schema{
+			"key": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
 			},
-			"rsa_public_key": &schema.Schema{
+			"rsa_public_key": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: false,
 			},
-			"secret": &schema.Schema{
+			"secret": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
@@ -133,11 +133,26 @@ func resourceKongConsumerJWTAuthRead(ctx context.Context, d *schema.ResourceData
 	if JWTAuth == nil {
 		d.SetId("")
 	} else {
-		d.Set("consumer_id", JWTAuth.Consumer.ID)
-		d.Set("key", JWTAuth.Key)
-		d.Set("secret", JWTAuth.Secret)
-		d.Set("rsa_public_key", JWTAuth.RSAPublicKey)
-		d.Set("algorithm", JWTAuth.Algorithm)
+		err = d.Set("consumer_id", JWTAuth.Consumer.ID)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		err = d.Set("key", JWTAuth.Key)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		err = d.Set("secret", JWTAuth.Secret)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		err = d.Set("rsa_public_key", JWTAuth.RSAPublicKey)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		err = d.Set("algorithm", JWTAuth.Algorithm)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	return diags

@@ -23,33 +23,33 @@ func resourceKongPlugin() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"consumer_id": &schema.Schema{
+			"consumer_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
 			},
-			"service_id": &schema.Schema{
+			"service_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
 			},
-			"route_id": &schema.Schema{
+			"route_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
 			},
-			"enabled": &schema.Schema{
+			"enabled": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: false,
 				Default:  true,
 			},
-			"config_json": &schema.Schema{
+			"config_json": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				StateFunc:    normalizeDataJSON,
@@ -59,13 +59,13 @@ func resourceKongPlugin() *schema.Resource {
 					return new == ""
 				},
 			},
-			"strict_match": &schema.Schema{
+			"strict_match": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: false,
 				Default:  false,
 			},
-			"computed_config": &schema.Schema{
+			"computed_config": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -122,33 +122,61 @@ func resourceKongPluginRead(ctx context.Context, d *schema.ResourceData, meta in
 		d.SetId("")
 	} else {
 		d.SetId(*plugin.ID)
-		d.Set("name", plugin.Name)
+		err = d.Set("name", plugin.Name)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 		if plugin.Service != nil {
-			d.Set("service_id", plugin.Service.ID)
+			err = d.Set("service_id", plugin.Service.ID)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 		if plugin.Route != nil {
-			d.Set("route_id", plugin.Route.ID)
+			err = d.Set("route_id", plugin.Route.ID)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 		if plugin.Consumer != nil {
-			d.Set("consumer_id", plugin.Consumer.ID)
+			err = d.Set("consumer_id", plugin.Consumer.ID)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
-		d.Set("enabled", plugin.Enabled)
+		err = d.Set("enabled", plugin.Enabled)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 
 		// We sync this property from upstream as a method to allow you to import a resource with the config tracked in
 		// terraform state. We do not track `config` as it will be a source of a perpetual diff.
 		// https://www.terraform.io/docs/extend/best-practices/detecting-drift.html#capture-all-state-in-read
 		upstreamJSON := pluginConfigJSONToString(plugin.Config)
-		setConfig := func(strict bool) {
+		setConfig := func(strict bool) error {
 			if strict {
-				d.Set("config_json", upstreamJSON)
+				err := d.Set("config_json", upstreamJSON)
+				if err != nil {
+					return err
+				}
 			} else {
-				d.Set("computed_config", upstreamJSON)
+				err := d.Set("computed_config", upstreamJSON)
+				if err != nil {
+					return err
+				}
 			}
+			return nil
 		}
 		if value, ok := d.GetOk("strict_match"); ok {
-			setConfig(value.(bool))
+			err := setConfig(value.(bool))
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		} else {
-			setConfig(meta.(*config).strictPlugins)
+			err := setConfig(meta.(*config).strictPlugins)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 	}
 
@@ -226,7 +254,7 @@ func pluginConfigJSONToString(data map[string]interface{}) string {
 	return string(rawJSON)
 }
 
-func validateDataJSON(configI interface{}, k string) ([]string, []error) {
+func validateDataJSON(configI interface{}, _ string) ([]string, []error) {
 	dataJSON := configI.(string)
 	dataMap := map[string]interface{}{}
 	err := json.Unmarshal([]byte(dataJSON), &dataMap)

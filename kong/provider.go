@@ -16,48 +16,48 @@ type config struct {
 func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
-			"kong_admin_uri": &schema.Schema{
+			"kong_admin_uri": {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: envDefaultFuncWithDefault("KONG_ADMIN_ADDR", "http://localhost:8001"),
 				Description: "The address of the kong admin url e.g. http://localhost:8001",
 			},
-			"kong_admin_username": &schema.Schema{
+			"kong_admin_username": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: envDefaultFuncWithDefault("KONG_ADMIN_USERNAME", ""),
 				Description: "An basic auth user for kong admin",
 			},
-			"kong_admin_password": &schema.Schema{
+			"kong_admin_password": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: envDefaultFuncWithDefault("KONG_ADMIN_PASSWORD", ""),
 				Description: "An basic auth password for kong admin",
 			},
-			"tls_skip_verify": &schema.Schema{
+			"tls_skip_verify": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				DefaultFunc: envDefaultFuncWithDefault("TLS_SKIP_VERIFY", "false"),
 				Description: "Whether to skip tls verify for https kong api endpoint using self signed or untrusted certs",
 			},
-			"kong_api_key": &schema.Schema{
+			"kong_api_key": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: envDefaultFuncWithDefault("KONG_API_KEY", ""),
 				Description: "API key for the kong api (if you have locked it down)",
 			},
-			"kong_admin_token": &schema.Schema{
+			"kong_admin_token": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: envDefaultFuncWithDefault("KONG_ADMIN_TOKEN", ""),
 				Description: "API key for the kong api (Enterprise Edition)",
 			},
-			"kong_workspace": &schema.Schema{
+			"kong_workspace": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Workspace context (Enterprise Edition)",
 			},
-			"strict_plugins_match": &schema.Schema{
+			"strict_plugins_match": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				ForceNew:    false,

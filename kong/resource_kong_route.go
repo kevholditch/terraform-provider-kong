@@ -20,42 +20,42 @@ func resourceKongRoute() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
 			},
-			"protocols": &schema.Schema{
+			"protocols": {
 				Type:     schema.TypeList,
 				Required: true,
 				ForceNew: false,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"methods": &schema.Schema{
+			"methods": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: false,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"hosts": &schema.Schema{
+			"hosts": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: false,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"paths": &schema.Schema{
+			"paths": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: false,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"strip_path": &schema.Schema{
+			"strip_path": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: false,
 				Default:  true,
 			},
-			"source": &schema.Schema{
+			"source": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				ForceNew: false,
@@ -72,7 +72,7 @@ func resourceKongRoute() *schema.Resource {
 					},
 				},
 			},
-			"destination": &schema.Schema{
+			"destination": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				ForceNew: false,
@@ -89,26 +89,76 @@ func resourceKongRoute() *schema.Resource {
 					},
 				},
 			},
-			"snis": &schema.Schema{
+			"snis": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: false,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"preserve_host": &schema.Schema{
+			"preserve_host": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: false,
 			},
-			"regex_priority": &schema.Schema{
+			"regex_priority": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: false,
 			},
-			"service_id": &schema.Schema{
+			"service_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: false,
+			},
+			"path_handling": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+				Default:  "v0",
+			},
+			"https_redirect_status_code": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: false,
+				Default:  426,
+			},
+			"request_buffering": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: false,
+				Default:  true,
+			},
+			"response_buffering": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: false,
+				Default:  true,
+			},
+			"tags": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: false,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"header": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				ForceNew: false,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"values": {
+							Type:     schema.TypeList,
+							Required: true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
+				},
 			},
 		},
 	}
@@ -158,50 +208,119 @@ func resourceKongRouteRead(ctx context.Context, d *schema.ResourceData, meta int
 		d.SetId("")
 	} else {
 		if route.Name != nil {
-			d.Set("name", route.Name)
+			err := d.Set("name", route.Name)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 		if route.Protocols != nil {
-			d.Set("protocols", StringValueSlice(route.Protocols))
+			err := d.Set("protocols", StringValueSlice(route.Protocols))
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 
 		if route.Methods != nil {
-			d.Set("methods", StringValueSlice(route.Methods))
+			err := d.Set("methods", StringValueSlice(route.Methods))
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 
 		if route.Hosts != nil {
-			d.Set("hosts", StringValueSlice(route.Hosts))
+			err := d.Set("hosts", StringValueSlice(route.Hosts))
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 
 		if route.Paths != nil {
-			d.Set("paths", StringValueSlice(route.Paths))
+			err := d.Set("paths", StringValueSlice(route.Paths))
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 
 		if route.StripPath != nil {
-			d.Set("strip_path", route.StripPath)
+			err := d.Set("strip_path", route.StripPath)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 
 		if route.Sources != nil {
-			d.Set("source", flattenIpCidrArray(route.Sources))
+			err := d.Set("source", flattenIpCidrArray(route.Sources))
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 
 		if route.Destinations != nil {
-			d.Set("destination", flattenIpCidrArray(route.Destinations))
+			err := d.Set("destination", flattenIpCidrArray(route.Destinations))
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 
 		if route.PreserveHost != nil {
-			d.Set("preserve_host", route.PreserveHost)
+			err := d.Set("preserve_host", route.PreserveHost)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 
 		if route.RegexPriority != nil {
-			d.Set("regex_priority", route.RegexPriority)
+			err := d.Set("regex_priority", route.RegexPriority)
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 
 		if route.SNIs != nil {
-			d.Set("snis", StringValueSlice(route.SNIs))
+			err := d.Set("snis", StringValueSlice(route.SNIs))
+			if err != nil {
+				return diag.FromErr(err)
+			}
 		}
 
 		if route.Service != nil {
-			d.Set("service_id", route.Service.ID)
+			err := d.Set("service_id", route.Service.ID)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+
+		if route.PathHandling != nil {
+			err := d.Set("path_handling", route.PathHandling)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+
+		if route.HTTPSRedirectStatusCode != nil {
+			err := d.Set("https_redirect_status_code", route.HTTPSRedirectStatusCode)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+
+		if route.RequestBuffering != nil {
+			err := d.Set("request_buffering", route.RequestBuffering)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+
+		if route.ResponseBuffering != nil {
+			err := d.Set("response_buffering", route.ResponseBuffering)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+
+		err = d.Set("tags", route.Tags)
+		if err != nil {
+			return diag.FromErr(err)
 		}
 
 	}
@@ -252,6 +371,12 @@ func createKongRouteRequestFromResourceData(d *schema.ResourceData) *kong.Route 
 		Service: &kong.Service{
 			ID: readIdPtrFromResource(d, "service_id"),
 		},
+		PathHandling:            readStringPtrFromResource(d, "path_handling"),
+		HTTPSRedirectStatusCode: readIntPtrFromResource(d, "https_redirect_status_code"),
+		RequestBuffering:        readBoolPtrFromResource(d, "request_buffering"),
+		ResponseBuffering:       readBoolPtrFromResource(d, "response_buffering"),
+		Tags:                    readStringArrayPtrFromResource(d, "tags"),
+		Headers:                 readMapStringArrayFromResource(d, "header"),
 	}
 	if d.Id() != "" {
 		route.ID = kong.String(d.Id())

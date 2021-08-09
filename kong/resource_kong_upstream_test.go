@@ -82,7 +82,7 @@ func TestAccKongUpstream(t *testing.T) {
 				),
 			},
 			{
-				Config: testUpdateUpstreamConfig,
+				Config: fmt.Sprintf(testUpdateUpstreamConfig, testCert1, testKey1),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKongUpstreamExists("kong_upstream.upstream"),
 					resource.TestCheckResourceAttr("kong_upstream.upstream", "name", "MyUpstream"),
@@ -93,6 +93,33 @@ func TestAccKongUpstream(t *testing.T) {
 					resource.TestCheckResourceAttr("kong_upstream.upstream", "hash_fallback_header", "FallbackHeaderName"),
 					resource.TestCheckResourceAttr("kong_upstream.upstream", "hash_on_cookie", "CookieName"),
 					resource.TestCheckResourceAttr("kong_upstream.upstream", "hash_on_cookie_path", "/path"),
+
+					resource.TestCheckResourceAttr("kong_upstream.upstream", "host_header", "x-host"),
+					resource.TestCheckResourceAttr("kong_upstream.upstream", "tags.#", "2"),
+					resource.TestCheckResourceAttr("kong_upstream.upstream", "tags.0", "a"),
+					resource.TestCheckResourceAttr("kong_upstream.upstream", "tags.1", "b"),
+					func(s *terraform.State) error {
+						module := s.RootModule()
+						cert, ok := module.Resources["kong_certificate.certificate"]
+						if !ok {
+							return fmt.Errorf("could not find certificate resource")
+						}
+
+						service, ok := module.Resources["kong_upstream.upstream"]
+						if !ok {
+							return fmt.Errorf("could not find upstream resource")
+						}
+
+						v, ok := service.Primary.Attributes["client_certificate_id"]
+						if !ok {
+							return fmt.Errorf("could not find client_certificate_id property")
+						}
+
+						if v != cert.Primary.ID {
+							return fmt.Errorf("client_certificate_id does not match certificate id")
+						}
+						return nil
+					},
 
 					resource.TestCheckResourceAttr("kong_upstream.upstream", "healthchecks.0.active.0.type", "https"),
 					resource.TestCheckResourceAttr("kong_upstream.upstream", "healthchecks.0.active.0.timeout", "10"),
@@ -1048,6 +1075,16 @@ resource "kong_upstream" "upstream" {
 }
 `
 const testUpdateUpstreamConfig = `
+resource "kong_certificate" "certificate" {
+	certificate  = <<EOF
+%s
+EOF
+	private_key =  <<EOF
+%s
+EOF
+   snis			= ["foo.com"]
+}
+
 resource "kong_upstream" "upstream" {
 	name  		         = "MyUpstream"
 	slots 		         = 20
@@ -1057,6 +1094,10 @@ resource "kong_upstream" "upstream" {
 	hash_fallback_header = "FallbackHeaderName"
 	hash_on_cookie       = "CookieName"
 	hash_on_cookie_path  = "/path"
+	host_header          = "x-host"
+    tags                 = ["a", "b"]
+    client_certificate_id = kong_certificate.certificate.id
+
 	healthchecks {
 		active {
 			type                     = "https"

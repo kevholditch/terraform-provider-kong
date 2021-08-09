@@ -31,6 +31,20 @@ func TestAccKongRoute(t *testing.T) {
 					resource.TestCheckResourceAttr("kong_route.route", "strip_path", "true"),
 					resource.TestCheckResourceAttr("kong_route.route", "preserve_host", "false"),
 					resource.TestCheckResourceAttr("kong_route.route", "regex_priority", "1"),
+					resource.TestCheckResourceAttr("kong_route.route", "path_handling", "v1"),
+					resource.TestCheckResourceAttr("kong_route.route", "https_redirect_status_code", "301"),
+					resource.TestCheckResourceAttr("kong_route.route", "request_buffering", "false"),
+					resource.TestCheckResourceAttr("kong_route.route", "response_buffering", "false"),
+					resource.TestCheckResourceAttr("kong_route.route", "header.#", "2"),
+					resource.TestCheckResourceAttr("kong_route.route", "header.0.name", "x-test-1"),
+					resource.TestCheckResourceAttr("kong_route.route", "header.0.values.#", "2"),
+					resource.TestCheckResourceAttr("kong_route.route", "header.0.values.0", "a"),
+					resource.TestCheckResourceAttr("kong_route.route", "header.0.values.1", "b"),
+					resource.TestCheckResourceAttr("kong_route.route", "header.1.values.#", "1"),
+					resource.TestCheckResourceAttr("kong_route.route", "header.1.values.0", "c"),
+					resource.TestCheckResourceAttr("kong_route.route", "tags.#", "2"),
+					resource.TestCheckResourceAttr("kong_route.route", "tags.0", "foo"),
+					resource.TestCheckResourceAttr("kong_route.route", "tags.1", "bar"),
 				),
 			},
 			{
@@ -50,6 +64,16 @@ func TestAccKongRoute(t *testing.T) {
 					resource.TestCheckResourceAttr("kong_route.route", "strip_path", "false"),
 					resource.TestCheckResourceAttr("kong_route.route", "preserve_host", "true"),
 					resource.TestCheckResourceAttr("kong_route.route", "regex_priority", "2"),
+					resource.TestCheckResourceAttr("kong_route.route", "path_handling", "v0"),
+					resource.TestCheckResourceAttr("kong_route.route", "https_redirect_status_code", "426"),
+					resource.TestCheckResourceAttr("kong_route.route", "request_buffering", "true"),
+					resource.TestCheckResourceAttr("kong_route.route", "response_buffering", "true"),
+					resource.TestCheckResourceAttr("kong_route.route", "header.#", "1"),
+					resource.TestCheckResourceAttr("kong_route.route", "header.0.name", "x-test-1"),
+					resource.TestCheckResourceAttr("kong_route.route", "header.0.values.#", "1"),
+					resource.TestCheckResourceAttr("kong_route.route", "header.0.values.0", "a"),
+					resource.TestCheckResourceAttr("kong_route.route", "tags.#", "1"),
+					resource.TestCheckResourceAttr("kong_route.route", "tags.0", "foo"),
 				),
 			},
 		},
@@ -69,7 +93,14 @@ func TestAccKongRouteWithSourcesAndDestinations(t *testing.T) {
 					resource.TestCheckResourceAttr("kong_route.route", "strip_path", "true"),
 					resource.TestCheckResourceAttr("kong_route.route", "preserve_host", "false"),
 					resource.TestCheckResourceAttr("kong_route.route", "source.#", "2"),
+					resource.TestCheckResourceAttr("kong_route.route", "source.0.ip", "192.168.1.1"),
+					resource.TestCheckResourceAttr("kong_route.route", "source.0.port", "80"),
+					resource.TestCheckResourceAttr("kong_route.route", "source.1.ip", "192.168.1.2"),
+					resource.TestCheckResourceAttr("kong_route.route", "source.1.port", "82"),
 					resource.TestCheckResourceAttr("kong_route.route", "destination.#", "1"),
+					resource.TestCheckResourceAttr("kong_route.route", "destination.0.ip", "172.10.1.1"),
+					resource.TestCheckResourceAttr("kong_route.route", "destination.0.port", "81"),
+					resource.TestCheckResourceAttr("kong_route.route", "snis.#", "1"),
 					resource.TestCheckResourceAttr("kong_route.route", "snis.0", "foo.com"),
 				),
 			},
@@ -81,7 +112,14 @@ func TestAccKongRouteWithSourcesAndDestinations(t *testing.T) {
 					resource.TestCheckResourceAttr("kong_route.route", "strip_path", "true"),
 					resource.TestCheckResourceAttr("kong_route.route", "preserve_host", "false"),
 					resource.TestCheckResourceAttr("kong_route.route", "source.#", "1"),
+					resource.TestCheckResourceAttr("kong_route.route", "source.0.ip", "192.168.1.1"),
+					resource.TestCheckResourceAttr("kong_route.route", "source.0.port", "80"),
 					resource.TestCheckResourceAttr("kong_route.route", "destination.#", "2"),
+					resource.TestCheckResourceAttr("kong_route.route", "destination.0.ip", "172.10.1.1"),
+					resource.TestCheckResourceAttr("kong_route.route", "destination.0.port", "81"),
+					resource.TestCheckResourceAttr("kong_route.route", "destination.1.ip", "172.10.1.2"),
+					resource.TestCheckResourceAttr("kong_route.route", "destination.1.port", "82"),
+					resource.TestCheckResourceAttr("kong_route.route", "snis.#", "1"),
 					resource.TestCheckResourceAttr("kong_route.route", "snis.0", "bar.com"),
 				),
 			},
@@ -95,11 +133,11 @@ func TestAccKongRouteImport(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckKongRouteDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testImportRouteConfig,
 			},
 
-			resource.TestStep{
+			{
 				ResourceName:      "kong_route.route",
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -176,6 +214,19 @@ resource "kong_route" "route" {
 	preserve_host 	= false
 	regex_priority  = 1
 	service_id  	= "${kong_service.service.id}"
+    path_handling   = "v1"
+    https_redirect_status_code = 301
+    request_buffering  = false
+	response_buffering = false
+    header {
+        name   = "x-test-1"
+        values = ["a", "b"] 
+    }
+	header {
+        name   = "x-test-2"
+        values = ["c"] 
+    }
+    tags               = ["foo", "bar"]
 }
 `
 const testUpdateRouteConfig = `
@@ -195,6 +246,15 @@ resource "kong_route" "route" {
 	preserve_host 	= true
 	regex_priority  = 2
 	service_id 		= "${kong_service.service.id}"
+    path_handling   = "v0"
+    https_redirect_status_code = 426
+    request_buffering  = true
+	response_buffering = true
+	header {
+        name   = "x-test-1"
+        values = ["a"] 
+    }
+    tags               = ["foo"]
 }
 `
 

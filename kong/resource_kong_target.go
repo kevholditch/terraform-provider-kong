@@ -20,17 +20,17 @@ func resourceKongTarget() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"target": &schema.Schema{
+			"target": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"weight": &schema.Schema{
+			"weight": {
 				Type:     schema.TypeInt,
 				Required: true,
 				ForceNew: true,
 			},
-			"upstream_id": &schema.Schema{
+			"upstream_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
@@ -79,9 +79,18 @@ func resourceKongTargetRead(ctx context.Context, d *schema.ResourceData, meta in
 	} else {
 		for _, element := range targets {
 			if *element.ID == ids[1] {
-				d.Set("target", element.Target)
-				d.Set("weight", element.Weight)
-				d.Set("upstream_id", element.Upstream.ID)
+				err := d.Set("target", element.Target)
+				if err != nil {
+					return diag.FromErr(err)
+				}
+				err = d.Set("weight", element.Weight)
+				if err != nil {
+					return diag.FromErr(err)
+				}
+				err = d.Set("upstream_id", element.Upstream.ID)
+				if err != nil {
+					return diag.FromErr(err)
+				}
 			}
 		}
 	}
