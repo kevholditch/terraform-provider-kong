@@ -20,19 +20,19 @@ func resourceKongCertificate() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"certificate": &schema.Schema{
+			"certificate": {
 				Type:      schema.TypeString,
 				Required:  true,
 				ForceNew:  false,
 				Sensitive: false,
 			},
-			"private_key": &schema.Schema{
+			"private_key": {
 				Type:      schema.TypeString,
 				Optional:  true,
 				ForceNew:  false,
 				Sensitive: true,
 			},
-			"snis": &schema.Schema{
+			"snis": {
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: false,
