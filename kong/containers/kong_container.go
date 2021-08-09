@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/ory/dockertest"
+	"github.com/ory/dockertest/v3"
 )
 
 type kongContainer struct {
