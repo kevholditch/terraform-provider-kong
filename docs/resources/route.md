@@ -17,6 +17,10 @@ resource "kong_route" "route" {
 	preserve_host 	= true
 	regex_priority 	= 1
 	service_id 	     = kong_service.service.id
+    header {
+      name   = "x-test-1"
+      values = ["a", "b"]
+    }
 }
 
 ```
@@ -52,7 +56,7 @@ resource "kong_route" "route" {
 * `methods` - (Optional) A list of HTTP methods that match this Route
 * `hosts` - (Optional) A list of domain names that match this Route  
 * `paths` - (Optional) A list of paths that match this Route
-* `headers` - (Optional) One or more lists of values indexed by header name that will cause this Route to match if present in the request. The Host header cannot be used with this attribute: hosts should be specified using the hosts attribute.
+* `header` - (Optional) One or more blocks of `name` to set name of header and `values` which is a list of `string` for the header values to match on.  See above example of how to set.  These headers will cause this Route to match if present in the request. The Host header cannot be used with this attribute: hosts should be specified using the hosts attribute.
 * `https_redirect_status_code` - (Optional) The status code Kong responds with when all properties of a Route match except the protocol i.e. if the protocol of the request is HTTP instead of HTTPS. Location header is injected by Kong if the field is set to `301`, `302`, `307` or `308`. Accepted values are: `426`, `301`, `302`, `307`, `308`. Default: `426`.  
 * `strip_path` - (Optional) When matching a Route via one of the paths, strip the matching prefix from the upstream request URL. Default: true.
 * `regex_priority` - (Optional) A number used to choose which route resolves a given request when several routes match it using regexes simultaneously.

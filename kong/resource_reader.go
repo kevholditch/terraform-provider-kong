@@ -21,6 +21,27 @@ func readStringArrayPtrFromResource(d *schema.ResourceData, key string) []*strin
 	return nil
 }
 
+func readMapStringArrayFromResource(d *schema.ResourceData, key string) map[string][]string {
+	results := map[string][]string{}
+	if attr, ok := d.GetOk(key); ok {
+		set := attr.(*schema.Set)
+		for _, item := range set.List() {
+			m := item.(map[string]interface{})
+			if name, ok := m["name"].(string); ok {
+				if values, ok := m["values"].([]interface{}); ok {
+					var vals []string
+					for _, v := range values {
+						vals = append(vals, v.(string))
+					}
+					results[name] = vals
+				}
+			}
+		}
+	}
+
+	return results
+}
+
 func readIpPortArrayFromResource(d *schema.ResourceData, key string) []*kong.CIDRPort {
 	if attr, ok := d.GetOk(key); ok {
 		set := attr.(*schema.Set)

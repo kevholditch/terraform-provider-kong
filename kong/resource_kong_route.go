@@ -140,6 +140,26 @@ func resourceKongRoute() *schema.Resource {
 				ForceNew: false,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"header": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				ForceNew: false,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"values": {
+							Type:     schema.TypeList,
+							Required: true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -356,6 +376,7 @@ func createKongRouteRequestFromResourceData(d *schema.ResourceData) *kong.Route 
 		RequestBuffering:        readBoolPtrFromResource(d, "request_buffering"),
 		ResponseBuffering:       readBoolPtrFromResource(d, "response_buffering"),
 		Tags:                    readStringArrayPtrFromResource(d, "tags"),
+		Headers:                 readMapStringArrayFromResource(d, "header"),
 	}
 	if d.Id() != "" {
 		route.ID = kong.String(d.Id())
