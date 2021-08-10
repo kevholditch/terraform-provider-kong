@@ -18,7 +18,7 @@ Requirements
 Usage
 -----
 
-First, install the desired [plugin release](https://github.com/kevholditch/terraform-provider-kong/releases) following Terraform's [Third-party plugin docs](https://www.terraform.io/docs/configuration/providers.html#third-party-plugins).
+First, install the desired [plugin release](https://github.com/ContaAzul/terraform-provider-kong/releases) following Terraform's [Third-party plugin docs](https://www.terraform.io/docs/configuration/providers.html#third-party-plugins).
 
 To configure the provider:
 ```hcl
@@ -50,7 +50,7 @@ You can use environment variables to set the provider properties instead.  The f
 | strict_plugins_match           | STRICT_PLUGINS_MATCH          | false                 | Should plugins `config_json` field strictly match plugin configuration          |
 
 # Documentation
-For documentation on how to use the provider see the documentation on the [Hashicorp Terraform Registry for this provider](https://registry.terraform.io/providers/kevholditch/kong/latest/docs)
+For documentation on how to use the provider see the documentation on the [Hashicorp Terraform Registry for this provider](https://registry.terraform.io/providers/ContaAzul/kong/latest/docs)
 
 # Contributing
 I would love to get contributions to the project so please feel free to submit a PR.  To setup your dev station you need go and docker installed.
