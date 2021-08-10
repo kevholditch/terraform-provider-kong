@@ -13,6 +13,8 @@ build:
 clean:
 	rm -rf pkg/
 
+fmt:
+	go fmt ./...
 
 
 .PHONY: build test testacc vet goimports goimportscheck errcheck vendor-status test-compile

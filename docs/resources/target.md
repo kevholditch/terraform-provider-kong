@@ -15,6 +15,7 @@ resource "kong_target" "target" {
 * `target` - (Required) is the target address (IP or hostname) and port. If omitted the port defaults to 8000.
 * `weight` - (Required) is the weight this target gets within the upstream load balancer (0-1000, defaults to 100).
 * `upstream_id` - (Required) is the id of the upstream to apply this target to.
+* `tags` - (Optional) A list set of strings associated with the Plugin for grouping and filtering
 
 ## Import
 

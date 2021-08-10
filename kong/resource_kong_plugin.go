@@ -69,6 +69,12 @@ func resourceKongPlugin() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"tags": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: false,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
@@ -145,6 +151,10 @@ func resourceKongPluginRead(ctx context.Context, d *schema.ResourceData, meta in
 			}
 		}
 		err = d.Set("enabled", plugin.Enabled)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		err = d.Set("tags", plugin.Tags)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -225,6 +235,7 @@ func createKongPluginRequestFromResourceData(d *schema.ResourceData) (*kong.Plug
 
 	pluginRequest.Name = readStringPtrFromResource(d, "name")
 	pluginRequest.Enabled = readBoolPtrFromResource(d, "enabled")
+	pluginRequest.Tags = readStringArrayPtrFromResource(d, "tags")
 
 	if data, ok := d.GetOk("config_json"); ok {
 		var configJSON map[string]interface{}

@@ -45,6 +45,12 @@ func resourceKongConsumerJWTAuth() *schema.Resource {
 				Optional: true,
 				ForceNew: false,
 			},
+			"tags": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: false,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
@@ -56,6 +62,7 @@ func resourceKongConsumerJWTAuthCreate(ctx context.Context, d *schema.ResourceDa
 		Key:          kong.String(d.Get("key").(string)),
 		RSAPublicKey: kong.String(d.Get("rsa_public_key").(string)),
 		Secret:       kong.String(d.Get("secret").(string)),
+		Tags:         readStringArrayPtrFromResource(d, "tags"),
 	}
 
 	consumerId := kong.String(d.Get("consumer_id").(string))
@@ -100,6 +107,7 @@ func resourceKongConsumerJWTAuthUpdate(ctx context.Context, d *schema.ResourceDa
 		Key:          kong.String(d.Get("key").(string)),
 		RSAPublicKey: kong.String(d.Get("rsa_public_key").(string)),
 		Secret:       kong.String(d.Get("secret").(string)),
+		Tags:         readStringArrayPtrFromResource(d, "tags"),
 	}
 
 	consumerId := kong.String(d.Get("consumer_id").(string))
@@ -150,6 +158,10 @@ func resourceKongConsumerJWTAuthRead(ctx context.Context, d *schema.ResourceData
 			return diag.FromErr(err)
 		}
 		err = d.Set("algorithm", JWTAuth.Algorithm)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		err = d.Set("tags", JWTAuth.Tags)
 		if err != nil {
 			return diag.FromErr(err)
 		}

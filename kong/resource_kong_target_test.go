@@ -23,6 +23,9 @@ func TestAccKongTarget(t *testing.T) {
 					testAccCheckKongTargetExists("kong_target.target"),
 					resource.TestCheckResourceAttr("kong_target.target", "target", "mytarget:4000"),
 					resource.TestCheckResourceAttr("kong_target.target", "weight", "100"),
+					resource.TestCheckResourceAttr("kong_target.target", "tags.#", "2"),
+					resource.TestCheckResourceAttr("kong_target.target", "tags.0", "a"),
+					resource.TestCheckResourceAttr("kong_target.target", "tags.1", "b"),
 				),
 			},
 			{
@@ -31,6 +34,8 @@ func TestAccKongTarget(t *testing.T) {
 					testAccCheckKongTargetExists("kong_target.target"),
 					resource.TestCheckResourceAttr("kong_target.target", "target", "mytarget:4000"),
 					resource.TestCheckResourceAttr("kong_target.target", "weight", "200"),
+					resource.TestCheckResourceAttr("kong_target.target", "tags.#", "1"),
+					resource.TestCheckResourceAttr("kong_target.target", "tags.0", "a"),
 				),
 			},
 		},
@@ -223,7 +228,8 @@ resource "kong_upstream" "upstream" {
 resource "kong_target" "target" {
 	target			= "mytarget:4000"
 	weight			= 100
-	upstream_id	= "${kong_upstream.upstream.id}"
+	upstream_id	    = "${kong_upstream.upstream.id}"
+    tags            = ["a", "b"]
 }
 `
 const testUpdateTargetConfig = `
@@ -235,7 +241,8 @@ resource "kong_upstream" "upstream" {
 resource "kong_target" "target" {
 	target			= "mytarget:4000"
 	weight			= 200
-	upstream_id	= "${kong_upstream.upstream.id}"
+	upstream_id  	= "${kong_upstream.upstream.id}"
+	tags            = ["a"]
 }
 `
 const testDeleteTargetConfig = `

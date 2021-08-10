@@ -97,6 +97,9 @@ func TestAccKongPluginForASpecificService(t *testing.T) {
 					testAccCheckKongServiceExists("kong_service.service"),
 					testAccCheckForChildIDCorrect("kong_service.service", "kong_plugin.rate_limit", "service_id"),
 					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "name", "rate-limiting"),
+					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "tags.#", "2"),
+					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "tags.0", "foo"),
+					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "tags.1", "bar"),
 				),
 			},
 			{
@@ -106,6 +109,8 @@ func TestAccKongPluginForASpecificService(t *testing.T) {
 					testAccCheckKongServiceExists("kong_service.service"),
 					testAccCheckForChildIDCorrect("kong_service.service", "kong_plugin.rate_limit", "service_id"),
 					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "name", "rate-limiting"),
+					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "tags.#", "1"),
+					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "tags.0", "foo"),
 				),
 			},
 		},
@@ -354,11 +359,13 @@ resource "kong_service" "service" {
 resource "kong_plugin" "rate_limit" {
 	name        = "rate-limiting"
 	service_id = "${kong_service.service.id}"
+	tags       = ["foo", "bar"]
 	config_json = <<EOT
 	{
 		"second": 10,
 		"hour" : 2000
 	}
+	
 EOT
 }
 `
@@ -373,6 +380,7 @@ resource "kong_service" "service" {
 resource "kong_plugin" "rate_limit" {
 	name        = "rate-limiting"
 	service_id = "${kong_service.service.id}"
+	tags       = ["foo"]
 	config_json = <<EOT
 	{
 		"second": 11,

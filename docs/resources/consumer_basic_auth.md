@@ -27,4 +27,4 @@ resource "kong_consumer_basic_auth" "consumer_basic_auth" {
 * `consumer_id` - (Required) the id of the consumer to be configured with basic auth
 * `username` - (Required) username to be used for basic auth
 * `password` - (Required) password to be used for basic auth
-* `tags` - (Optional) A list of strings associated with the consumer basic auth for grouping and filtering.
+* `tags` - (Optional) A list of strings associated with the consumer basic auth for grouping and filtering

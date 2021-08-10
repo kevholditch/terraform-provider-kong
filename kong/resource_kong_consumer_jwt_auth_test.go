@@ -24,6 +24,9 @@ func TestAccJWTAuth(t *testing.T) {
 					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config", "key", "my_key"),
 					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config", "secret", "my_secret"),
 					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config", "rsa_public_key", "foo"),
+					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config", "tags.#", "2"),
+					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config", "tags.0", "foo"),
+					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config", "tags.1", "bar"),
 				),
 			},
 			{
@@ -34,6 +37,8 @@ func TestAccJWTAuth(t *testing.T) {
 					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config", "key", "updated_key"),
 					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config", "secret", "updated_secret"),
 					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config", "rsa_public_key", "bar"),
+					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config", "tags.#", "1"),
+					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config", "tags.0", "foo"),
 				),
 			},
 		},
@@ -133,6 +138,7 @@ resource "kong_consumer_jwt_auth" "consumer_jwt_config" {
 	key            = "my_key"
 	rsa_public_key = "foo"
 	secret         = "my_secret"
+    tags           = ["foo", "bar"]
 }
 `
 const testUpdateJWTAuthConfig = `
@@ -156,5 +162,6 @@ resource "kong_consumer_jwt_auth" "consumer_jwt_config" {
 	key            = "updated_key"
 	rsa_public_key = "bar"
 	secret         = "updated_secret"
+	tags           = ["foo"]
 }
 `
