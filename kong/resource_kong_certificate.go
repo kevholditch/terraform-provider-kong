@@ -38,20 +38,20 @@ func resourceKongCertificate() *schema.Resource {
 				ForceNew: false,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"tags": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: false,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
 
 func resourceKongCertificateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
-	certificateRequest := &kong.Certificate{
-		Cert: kong.String(d.Get("certificate").(string)),
-		Key:  kong.String(d.Get("private_key").(string)),
-		SNIs: readStringArrayPtrFromResource(d, "snis"),
-	}
-
+	certificateRequest := buildCertificateRequestFromResourceData(d)
 	client := meta.(*config).adminClient.Certificates
-
 	certificate, err := client.Create(ctx, certificateRequest)
 
 	if err != nil {
@@ -66,15 +66,10 @@ func resourceKongCertificateCreate(ctx context.Context, d *schema.ResourceData, 
 func resourceKongCertificateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	d.Partial(false)
 
-	certificateRequest := &kong.Certificate{
-		ID:   kong.String(d.Id()),
-		Cert: kong.String(d.Get("certificate").(string)),
-		Key:  kong.String(d.Get("private_key").(string)),
-		SNIs: readStringArrayPtrFromResource(d, "snis"),
-	}
+	certificateRequest := buildCertificateRequestFromResourceData(d)
+	certificateRequest.ID = kong.String(d.Id())
 
 	client := meta.(*config).adminClient.Certificates
-
 	_, err := client.Update(ctx, certificateRequest)
 
 	if err != nil {
@@ -82,6 +77,16 @@ func resourceKongCertificateUpdate(ctx context.Context, d *schema.ResourceData, 
 	}
 
 	return resourceKongCertificateRead(ctx, d, meta)
+}
+
+func buildCertificateRequestFromResourceData(d *schema.ResourceData) *kong.Certificate {
+	certificateRequest := &kong.Certificate{
+		Cert: kong.String(d.Get("certificate").(string)),
+		Key:  kong.String(d.Get("private_key").(string)),
+		SNIs: readStringArrayPtrFromResource(d, "snis"),
+		Tags: readStringArrayPtrFromResource(d, "tags"),
+	}
+	return certificateRequest
 }
 
 func resourceKongCertificateRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -117,6 +122,10 @@ func resourceKongCertificateRead(ctx context.Context, d *schema.ResourceData, me
 			if err != nil {
 				return diag.FromErr(err)
 			}
+		}
+		err = d.Set("tags", certificate.Tags)
+		if err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
