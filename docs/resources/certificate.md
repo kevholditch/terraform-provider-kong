@@ -18,7 +18,7 @@ resource "kong_certificate" "certificate" {
 * `certificate` - (Required) should be the public key of your certificate it is mapped to the `Cert` parameter on the Kong API.
 * `private_key` - (Required) should be the private key of your certificate it is mapped to the `Key` parameter on the Kong API.
 * `snis` - (Optional) a list of SNIs (alternative hosts on the certificate), under the bonnet this will create an SNI object in kong
-* `snis` - (Optional) A list of strings associated with the Certificate for grouping and filtering.
+* `snis` - (Optional) A list of strings associated with the Certificate for grouping and filtering
 
 ## Import
 

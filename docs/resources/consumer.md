@@ -8,6 +8,7 @@ The consumer resource maps directly onto the json for creating a Consumer in Kon
 resource "kong_consumer" "consumer" {
     username  = "User1"
     custom_id = "123"
+    tags      = ["mySuperTag"]
 }
 ```
 
@@ -15,6 +16,7 @@ resource "kong_consumer" "consumer" {
 
 * `username` - (Semi-optional) The username to use, you must set either the username or custom_id
 * `custom_id` - (Semi-optional) A custom id for the consumer, you must set either the username or custom_id
+* `tags` - (Optional) A list of strings associated with the Consumer for grouping and filtering
 
 ## Import
 
