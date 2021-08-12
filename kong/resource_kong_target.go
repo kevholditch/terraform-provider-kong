@@ -35,6 +35,12 @@ func resourceKongTarget() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"tags": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
@@ -91,6 +97,10 @@ func resourceKongTargetRead(ctx context.Context, d *schema.ResourceData, meta in
 				if err != nil {
 					return diag.FromErr(err)
 				}
+				err = d.Set("tags", element.Tags)
+				if err != nil {
+					return diag.FromErr(err)
+				}
 			}
 		}
 	}
@@ -117,5 +127,6 @@ func createKongTargetRequestFromResourceData(d *schema.ResourceData) *kong.Targe
 		Target:   readStringPtrFromResource(d, "target"),
 		Weight:   readIntPtrFromResource(d, "weight"),
 		Upstream: &upstream,
+		Tags:     readStringArrayPtrFromResource(d, "tags"),
 	}
 }

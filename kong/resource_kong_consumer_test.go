@@ -22,6 +22,9 @@ func TestAccKongConsumer(t *testing.T) {
 					testAccCheckKongConsumerExists("kong_consumer.consumer"),
 					resource.TestCheckResourceAttr("kong_consumer.consumer", "username", "User1"),
 					resource.TestCheckResourceAttr("kong_consumer.consumer", "custom_id", "123"),
+					resource.TestCheckResourceAttr("kong_consumer.consumer", "tags.#", "2"),
+					resource.TestCheckResourceAttr("kong_consumer.consumer", "tags.0", "a"),
+					resource.TestCheckResourceAttr("kong_consumer.consumer", "tags.1", "b"),
 				),
 			},
 			{
@@ -30,6 +33,8 @@ func TestAccKongConsumer(t *testing.T) {
 					testAccCheckKongConsumerExists("kong_consumer.consumer"),
 					resource.TestCheckResourceAttr("kong_consumer.consumer", "username", "User2"),
 					resource.TestCheckResourceAttr("kong_consumer.consumer", "custom_id", "456"),
+					resource.TestCheckResourceAttr("kong_consumer.consumer", "tags.#", "1"),
+					resource.TestCheckResourceAttr("kong_consumer.consumer", "tags.0", "a"),
 				),
 			},
 		},
@@ -111,11 +116,13 @@ const testCreateConsumerConfig = `
 resource "kong_consumer" "consumer" {
 	username  = "User1"
 	custom_id = "123"
+    tags      = ["a", "b"]
 }
 `
 const testUpdateConsumerConfig = `
 resource "kong_consumer" "consumer" {
 	username  = "User2"
 	custom_id = "456"
+    tags      = ["a"] 
 }
 `

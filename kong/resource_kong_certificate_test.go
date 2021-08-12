@@ -22,6 +22,9 @@ func TestAccKongCertificate(t *testing.T) {
 					testAccCheckKongCertificateExists("kong_certificate.certificate"),
 					resource.TestCheckResourceAttr("kong_certificate.certificate", "certificate", testCert1+"\n"),
 					resource.TestCheckResourceAttr("kong_certificate.certificate", "private_key", testKey1+"\n"),
+					resource.TestCheckResourceAttr("kong_certificate.certificate", "tags.#", "2"),
+					resource.TestCheckResourceAttr("kong_certificate.certificate", "tags.0", "a"),
+					resource.TestCheckResourceAttr("kong_certificate.certificate", "tags.1", "b"),
 				),
 			},
 			{
@@ -30,6 +33,8 @@ func TestAccKongCertificate(t *testing.T) {
 					testAccCheckKongCertificateExists("kong_certificate.certificate"),
 					resource.TestCheckResourceAttr("kong_certificate.certificate", "certificate", testCert2+"\n"),
 					resource.TestCheckResourceAttr("kong_certificate.certificate", "private_key", testKey2+"\n"),
+					resource.TestCheckResourceAttr("kong_certificate.certificate", "tags.#", "1"),
+					resource.TestCheckResourceAttr("kong_certificate.certificate", "tags.0", "a"),
 				),
 			},
 		},
@@ -116,6 +121,7 @@ EOF
 %s
 EOF
    snis			= ["foo.com"]
+   tags         = ["a", "b"]
 }
 `
 const testUpdateCertificateConfig = `
@@ -127,6 +133,7 @@ EOF
 %s
 EOF
 	snis			= ["foo.com"]
+    tags            = ["a"]
 }
 `
 

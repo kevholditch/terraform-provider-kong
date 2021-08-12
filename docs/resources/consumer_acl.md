@@ -30,4 +30,4 @@ resource "kong_consumer_acl" "consumer_acl" {
 
 * `consumer_id` - (Required) the id of the consumer to be configured
 * `group` - (Required) the acl group
-* `tags` - (Optional) A list of strings associated with the consumer acl for grouping and filtering.
+* `tags` - (Optional) A list of strings associated with the consumer acl for grouping and filtering

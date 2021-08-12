@@ -30,6 +30,12 @@ func resourceKongConsumer() *schema.Resource {
 				Optional: true,
 				ForceNew: false,
 			},
+			"tags": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: false,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
@@ -39,6 +45,7 @@ func resourceKongConsumerCreate(ctx context.Context, d *schema.ResourceData, met
 	consumerRequest := &kong.Consumer{
 		Username: kong.String(d.Get("username").(string)),
 		CustomID: kong.String(d.Get("custom_id").(string)),
+		Tags:     readStringArrayPtrFromResource(d, "tags"),
 	}
 
 	client := meta.(*config).adminClient.Consumers
@@ -60,6 +67,7 @@ func resourceKongConsumerUpdate(ctx context.Context, d *schema.ResourceData, met
 		ID:       kong.String(d.Id()),
 		Username: kong.String(d.Get("username").(string)),
 		CustomID: kong.String(d.Get("custom_id").(string)),
+		Tags:     readStringArrayPtrFromResource(d, "tags"),
 	}
 
 	client := meta.(*config).adminClient.Consumers
@@ -94,6 +102,10 @@ func resourceKongConsumerRead(ctx context.Context, d *schema.ResourceData, meta 
 			return diag.FromErr(err)
 		}
 		err = d.Set("custom_id", consumer.CustomID)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		err = d.Set("tags", consumer.Tags)
 		if err != nil {
 			return diag.FromErr(err)
 		}
