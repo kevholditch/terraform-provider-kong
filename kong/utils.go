@@ -154,3 +154,13 @@ func IDToString(v *string) string {
 	}
 	return *v
 }
+
+// NilString converts a string to a string pointer,
+// or if empty returns nil.
+func NilString(str string) *string {
+	if str == "" {
+		return nil
+	} else {
+		return kong.String(str)
+	}
+}

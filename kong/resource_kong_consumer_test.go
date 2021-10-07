@@ -41,6 +41,26 @@ func TestAccKongConsumer(t *testing.T) {
 	})
 }
 
+func TestAccKongConsumerNilIDs(t *testing.T) {
+
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongConsumerDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testCreateConsumerConfigNoCustomID,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKongConsumerExists("kong_consumer.consumer"),
+					resource.TestCheckResourceAttr("kong_consumer.consumer", "username", "User3"),
+					resource.TestCheckResourceAttr("kong_consumer.consumer", "custom_id", ""),
+					resource.TestCheckResourceAttr("kong_consumer.consumer", "tags.#", "1"),
+					resource.TestCheckResourceAttr("kong_consumer.consumer", "tags.0", "c"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccKongConsumerImport(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
@@ -124,5 +144,11 @@ resource "kong_consumer" "consumer" {
 	username  = "User2"
 	custom_id = "456"
     tags      = ["a"] 
+}
+`
+const testCreateConsumerConfigNoCustomID = `
+resource "kong_consumer" "consumer" {
+	username = "User3"
+	tags     = ["c"]
 }
 `
