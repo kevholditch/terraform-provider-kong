@@ -5,66 +5,65 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/kong/go-kong/kong"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/kong/go-kong/kong"
 )
 
-func TestAccConsumerBasicAuth(t *testing.T) {
+func TestAccConsumerKeyAuth(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckConsumerBasicAuthDestroy,
+		CheckDestroy: testAccCheckConsumerKeyAuthDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testCreateConsumerBasicAuthConfig,
+				Config: testCreateConsumerKeyAuthConfig,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckConsumerBasicAuthExists("kong_consumer_basic_auth.consumer_basic_auth"),
-					resource.TestCheckResourceAttr("kong_consumer_basic_auth.consumer_basic_auth", "username", "foo"),
-					resource.TestCheckResourceAttr("kong_consumer_basic_auth.consumer_basic_auth", "tags.#", "1"),
-					resource.TestCheckResourceAttr("kong_consumer_basic_auth.consumer_basic_auth", "tags.0", "myTag"),
+					testAccCheckConsumerKeyAuthExists("kong_consumer_key_auth.consumer_key_auth"),
+					resource.TestCheckResourceAttr("kong_consumer_key_auth.consumer_key_auth", "key", "foo"),
+					resource.TestCheckResourceAttr("kong_consumer_key_auth.consumer_key_auth", "tags.#", "1"),
+					resource.TestCheckResourceAttr("kong_consumer_key_auth.consumer_key_auth", "tags.0", "myTag"),
 				),
 			},
 			{
-				Config: testUpdateConsumerBasicAuthConfig,
+				Config: testUpdateConsumerKeyAuthConfig,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckConsumerBasicAuthExists("kong_consumer_basic_auth.consumer_basic_auth"),
-					resource.TestCheckResourceAttr("kong_consumer_basic_auth.consumer_basic_auth", "username", "foo_updated"),
-					resource.TestCheckResourceAttr("kong_consumer_basic_auth.consumer_basic_auth", "tags.#", "2"),
-					resource.TestCheckResourceAttr("kong_consumer_basic_auth.consumer_basic_auth", "tags.0", "myTag"),
-					resource.TestCheckResourceAttr("kong_consumer_basic_auth.consumer_basic_auth", "tags.1", "anotherTag"),
+					testAccCheckConsumerKeyAuthExists("kong_consumer_key_auth.consumer_key_auth"),
+					resource.TestCheckResourceAttr("kong_consumer_key_auth.consumer_key_auth", "key", "foo_updated"),
+					resource.TestCheckResourceAttr("kong_consumer_key_auth.consumer_key_auth", "tags.#", "2"),
+					resource.TestCheckResourceAttr("kong_consumer_key_auth.consumer_key_auth", "tags.0", "myTag"),
+					resource.TestCheckResourceAttr("kong_consumer_key_auth.consumer_key_auth", "tags.1", "anotherTag"),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckConsumerBasicAuthDestroy(state *terraform.State) error {
+func testAccCheckConsumerKeyAuthDestroy(state *terraform.State) error {
 
-	client := testAccProvider.Meta().(*config).adminClient.BasicAuths
+	client := testAccProvider.Meta().(*config).adminClient.KeyAuths
 
-	resources := getResourcesByType("kong_consumer_basic_auth", state)
+	resources := getResourcesByType("kong_consumer_key_auth", state)
 
 	if len(resources) != 1 {
-		return fmt.Errorf("expecting only 1 consumer basic auth resource found %v", len(resources))
+		return fmt.Errorf("expecting only 1 consumer key auth resource found %v", len(resources))
 	}
 
 	id, err := splitConsumerID(resources[0].Primary.ID)
-	ConsumerBasicAuth, err := client.Get(context.Background(), kong.String(id.ConsumerID), kong.String(id.ID))
+	ConsumerKeyAuth, err := client.Get(context.Background(), kong.String(id.ConsumerID), kong.String(id.ID))
 
 	if !kong.IsNotFoundErr(err) && err != nil {
 		return fmt.Errorf("error calling get consumer auth by id: %v", err)
 	}
 
-	if ConsumerBasicAuth != nil {
-		return fmt.Errorf("jwt auth %s still exists, %+v", id.ID, ConsumerBasicAuth)
+	if ConsumerKeyAuth != nil {
+		return fmt.Errorf("key auth %s still exists, %+v", id.ID, ConsumerKeyAuth)
 	}
 
 	return nil
 }
 
-func testAccCheckConsumerBasicAuthExists(resourceKey string) resource.TestCheckFunc {
+func testAccCheckConsumerKeyAuthExists(resourceKey string) resource.TestCheckFunc {
 
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resourceKey]
@@ -77,54 +76,52 @@ func testAccCheckConsumerBasicAuthExists(resourceKey string) resource.TestCheckF
 			return fmt.Errorf("no ID is set")
 		}
 
-		client := testAccProvider.Meta().(*config).adminClient.BasicAuths
+		client := testAccProvider.Meta().(*config).adminClient.KeyAuths
 		id, err := splitConsumerID(rs.Primary.ID)
 
-		ConsumerBasicAuth, err := client.Get(context.Background(), kong.String(id.ConsumerID), kong.String(id.ID))
+		ConsumerKeyAuth, err := client.Get(context.Background(), kong.String(id.ConsumerID), kong.String(id.ID))
 
 		if err != nil {
 			return err
 		}
 
-		if ConsumerBasicAuth == nil {
-			return fmt.Errorf("ConsumerBasicAuth with id %v not found", id.ID)
+		if ConsumerKeyAuth == nil {
+			return fmt.Errorf("ConsumerKeyAuth with id %v not found", id.ID)
 		}
 
 		return nil
 	}
 }
 
-const testCreateConsumerBasicAuthConfig = `
+const testCreateConsumerKeyAuthConfig = `
 resource "kong_consumer" "my_consumer" {
 	username  = "User1"
 	custom_id = "123"
 }
 
-resource "kong_plugin" "basic_auth_plugin" {
-	name        = "basic-auth"
+resource "kong_plugin" "key_auth_plugin" {
+	name = "key-auth"
 }
 
-resource "kong_consumer_basic_auth" "consumer_basic_auth" {
-	consumer_id    = "${kong_consumer.my_consumer.id}"
-	username       = "foo"
-	password       = "bar"
-	tags           = ["myTag"]
+resource "kong_consumer_key_auth" "consumer_key_auth" {
+	consumer_id = "${kong_consumer.my_consumer.id}"
+	key         = "foo"
+	tags        = ["myTag"]
 }
 `
-const testUpdateConsumerBasicAuthConfig = `
+const testUpdateConsumerKeyAuthConfig = `
 resource "kong_consumer" "my_consumer" {
 	username  = "User1"
 	custom_id = "123"
 }
 
-resource "kong_plugin" "basic_auth_plugin" {
-	name        = "basic-auth"
+resource "kong_plugin" "key_auth_plugin" {
+	name = "key-auth"
 }
 
-resource "kong_consumer_basic_auth" "consumer_basic_auth" {
-	consumer_id    = "${kong_consumer.my_consumer.id}"
-	username       = "foo_updated"
-	password       = "bar_updated"
-	tags           = ["myTag", "anotherTag"]
+resource "kong_consumer_key_auth" "consumer_key_auth" {
+	consumer_id = "${kong_consumer.my_consumer.id}"
+	key         = "foo_updated"
+	tags        = ["myTag", "anotherTag"]
 }
 `
