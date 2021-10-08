@@ -43,8 +43,8 @@ func resourceKongConsumer() *schema.Resource {
 func resourceKongConsumerCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	consumerRequest := &kong.Consumer{
-		Username: NilString(d.Get("username").(string)),
-		CustomID: NilString(d.Get("custom_id").(string)),
+		Username: readStringPtrFromResource(d, "username"),
+		CustomID: readStringPtrFromResource(d, "custom_id"),
 		Tags:     readStringArrayPtrFromResource(d, "tags"),
 	}
 
