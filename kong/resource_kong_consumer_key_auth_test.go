@@ -39,6 +39,35 @@ func TestAccConsumerKeyAuth(t *testing.T) {
 	})
 }
 
+func TestAccConsumerKeyAuthComputed(t *testing.T) {
+
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckConsumerKeyAuthDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testCreateConsumerKeyAuthConfigKeyComputed,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckConsumerKeyAuthExists("kong_consumer_key_auth.consumer_key_auth"),
+					resource.TestCheckResourceAttrSet("kong_consumer_key_auth.consumer_key_auth", "key"),
+					resource.TestCheckResourceAttr("kong_consumer_key_auth.consumer_key_auth", "tags.#", "1"),
+					resource.TestCheckResourceAttr("kong_consumer_key_auth.consumer_key_auth", "tags.0", "myTag"),
+				),
+			},
+			{
+				Config: testUpdateConsumerKeyAuthConfig,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckConsumerKeyAuthExists("kong_consumer_key_auth.consumer_key_auth"),
+					resource.TestCheckResourceAttr("kong_consumer_key_auth.consumer_key_auth", "key", "foo_updated"),
+					resource.TestCheckResourceAttr("kong_consumer_key_auth.consumer_key_auth", "tags.#", "2"),
+					resource.TestCheckResourceAttr("kong_consumer_key_auth.consumer_key_auth", "tags.0", "myTag"),
+					resource.TestCheckResourceAttr("kong_consumer_key_auth.consumer_key_auth", "tags.1", "anotherTag"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckConsumerKeyAuthDestroy(state *terraform.State) error {
 
 	client := testAccProvider.Meta().(*config).adminClient.KeyAuths
@@ -123,5 +152,20 @@ resource "kong_consumer_key_auth" "consumer_key_auth" {
 	consumer_id = "${kong_consumer.my_consumer.id}"
 	key         = "foo_updated"
 	tags        = ["myTag", "anotherTag"]
+}
+`
+const testCreateConsumerKeyAuthConfigKeyComputed = `
+resource "kong_consumer" "my_consumer" {
+	username  = "User1"
+	custom_id = "123"
+}
+
+resource "kong_plugin" "key_auth_plugin" {
+	name = "key-auth"
+}
+
+resource "kong_consumer_key_auth" "consumer_key_auth" {
+	consumer_id = "${kong_consumer.my_consumer.id}"
+	tags        = ["myTag"]
 }
 `

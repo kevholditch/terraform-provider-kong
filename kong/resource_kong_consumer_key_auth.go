@@ -24,6 +24,7 @@ func resourceKongConsumerKeyAuth() *schema.Resource {
 			"key": {
 				Type:      schema.TypeString,
 				Optional:  true,
+				Computed:  true,
 				ForceNew:  false,
 				Sensitive: true,
 			},
