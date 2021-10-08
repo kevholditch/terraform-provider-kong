@@ -57,7 +57,7 @@ func testAccCheckConsumerBasicAuthDestroy(state *terraform.State) error {
 	}
 
 	if ConsumerBasicAuth != nil {
-		return fmt.Errorf("jwt auth %s still exists, %+v", id.ID, ConsumerBasicAuth)
+		return fmt.Errorf("basic auth %s still exists, %+v", id.ID, ConsumerBasicAuth)
 	}
 
 	return nil

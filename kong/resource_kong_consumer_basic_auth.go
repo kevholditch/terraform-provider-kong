@@ -96,7 +96,7 @@ func resourceKongConsumerBasicAuthRead(ctx context.Context, d *schema.ResourceDa
 	if kong.IsNotFoundErr(err) {
 		d.SetId("")
 	} else if err != nil {
-		return diag.FromErr(fmt.Errorf("could not find kong ACLGroup with id: %s error: %v", id, err))
+		return diag.FromErr(fmt.Errorf("could not find kong basic auth with id: %s error: %v", id, err))
 	}
 
 	if basicAuth == nil {
