@@ -78,7 +78,10 @@ func GetKongClient(opt Config) (*kong.Client, error) {
 
 	var headers []string
 	if opt.APIKey != "" {
-		headers = append(headers, fmt.Sprintf("kong-admin-token:%v", opt.APIKey))
+		headers = append(headers, fmt.Sprintf("apikey:%v", opt.APIKey))
+	}
+	if opt.AdminToken != "" {
+		headers = append(headers, fmt.Sprintf("kong-admin-token:%v", opt.AdminToken))
 	}
 	if opt.Username != "" || opt.Password != "" {
 		headers = append(headers, fmt.Sprintf("Authorization: Basic %v", basicAuth(opt.Username, opt.Password)))
