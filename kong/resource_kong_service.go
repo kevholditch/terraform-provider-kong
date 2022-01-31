@@ -137,7 +137,7 @@ func resourceKongServiceRead(ctx context.Context, d *schema.ResourceData, meta i
 	client := meta.(*config).adminClient.Services
 	service, err := client.Get(ctx, kong.String(d.Id()))
 
-	if err != nil {
+	if !kong.IsNotFoundErr(err) && err != nil {
 		return diag.FromErr(fmt.Errorf("could not find kong service: %v", err))
 	}
 
