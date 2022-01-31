@@ -141,7 +141,6 @@ func TestAccKongServiceWithClientCertificate(t *testing.T) {
 }
 
 func TestAccKongServiceImport(t *testing.T) {
-
 	resource.Test(t, resource.TestCase{
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckKongServiceDestroy,
@@ -159,8 +158,29 @@ func TestAccKongServiceImport(t *testing.T) {
 	})
 }
 
-func testAccCheckKongServiceDestroy(state *terraform.State) error {
+func TestAccKongServiceRecreate(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		Providers: testAccProviders,
 
+		Steps: []resource.TestStep{
+			{
+				Config: testCreateServiceConfigZero,
+				Check: resource.ComposeTestCheckFunc(
+					testAccDeleteExistingKongService("kong_service.service"),
+				),
+				ExpectNonEmptyPlan: true,
+			},
+			{
+				Config: testUpdateServiceConfigZero,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKongServiceExists("kong_service.service"),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckKongServiceDestroy(state *terraform.State) error {
 	client := testAccProvider.Meta().(*config).adminClient.Services
 
 	services := getResourcesByType("kong_service", state)
@@ -183,7 +203,6 @@ func testAccCheckKongServiceDestroy(state *terraform.State) error {
 }
 
 func testAccCheckKongServiceExists(resourceKey string) resource.TestCheckFunc {
-
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resourceKey]
 
@@ -197,7 +216,6 @@ func testAccCheckKongServiceExists(resourceKey string) resource.TestCheckFunc {
 
 		client := testAccProvider.Meta().(*config).adminClient.Services
 		service, err := client.Get(context.Background(), kong.String(rs.Primary.ID))
-
 		if err != nil {
 			return err
 		}
@@ -207,6 +225,33 @@ func testAccCheckKongServiceExists(resourceKey string) resource.TestCheckFunc {
 		}
 
 		return nil
+	}
+}
+
+func testAccDeleteExistingKongService(resourceKey string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceKey]
+
+		if !ok {
+			return fmt.Errorf("not found: %s", resourceKey)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("no ID is set")
+		}
+
+		client := testAccProvider.Meta().(*config).adminClient.Services
+		serviceID := kong.String(rs.Primary.ID)
+		service, err := client.Get(context.Background(), serviceID)
+		if err != nil {
+			return err
+		}
+
+		if service == nil {
+			return fmt.Errorf("service with id %v not found", rs.Primary.ID)
+		}
+
+		return client.Delete(context.Background(), serviceID)
 	}
 }
 
@@ -223,6 +268,7 @@ resource "kong_service" "service" {
 	tags             = ["foo", "bar"]
 }
 `
+
 const testUpdateServiceConfig = `
 resource "kong_service" "service" {
 	name     		 = "test2"
@@ -238,6 +284,7 @@ resource "kong_service" "service" {
 	tls_verify_depth = 2
 }
 `
+
 const testCreateServiceConfigZero = `
 resource "kong_service" "service" {
 	name     		= "test"
@@ -250,6 +297,7 @@ resource "kong_service" "service" {
 	read_timeout  	= 3000
 }
 `
+
 const testUpdateServiceConfigZero = `
 resource "kong_service" "service" {
 	name     		= "test2"
