@@ -165,6 +165,28 @@ func TestAccKongPluginImportConfigJson(t *testing.T) {
 	})
 }
 
+func TestAccKongPluginRecreate(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongPluginDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testCreateGlobalPluginConfig,
+				Check: resource.ComposeTestCheckFunc(
+					testAccDeleteExistingKongPlugin("kong_plugin.hmac_auth"),
+				),
+				ExpectNonEmptyPlan: true,
+			},
+			{
+				Config: testCreateGlobalPluginConfig,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKongPluginExists("kong_plugin.hmac_auth"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckKongPluginDestroy(state *terraform.State) error {
 
 	client := testAccProvider.Meta().(*config).adminClient.Plugins
@@ -248,6 +270,34 @@ func testAccCheckKongPluginExists(resourceKey string) resource.TestCheckFunc {
 		}
 
 		return nil
+	}
+}
+
+func testAccDeleteExistingKongPlugin(resourceKey string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceKey]
+
+		if !ok {
+			return fmt.Errorf("not found: %s", resourceKey)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("no ID is set")
+		}
+
+		client := testAccProvider.Meta().(*config).adminClient.Plugins
+		pluginID := kong.String(rs.Primary.ID)
+		api, err := client.Get(context.Background(), pluginID)
+
+		if !kong.IsNotFoundErr(err) && err != nil {
+			return err
+		}
+
+		if api == nil {
+			return fmt.Errorf("plugin with id %v not found", rs.Primary.ID)
+		}
+
+		return client.Delete(context.Background(), pluginID)
 	}
 }
 
