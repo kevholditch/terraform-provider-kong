@@ -120,7 +120,7 @@ func resourceKongPluginRead(ctx context.Context, d *schema.ResourceData, meta in
 	client := meta.(*config).adminClient.Plugins
 	plugin, err := client.Get(ctx, kong.String(d.Id()))
 
-	if err != nil {
+	if !kong.IsNotFoundErr(err) && err != nil {
 		return diag.FromErr(fmt.Errorf("could not find kong plugin: %v", err))
 	}
 

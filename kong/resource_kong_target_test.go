@@ -105,6 +105,28 @@ func TestAccKongTargetImport(t *testing.T) {
 	})
 }
 
+func TestAccKongTargetRecreate(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKongTargetDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testCreateTargetConfig,
+				Check: resource.ComposeTestCheckFunc(
+					testAccDeleteExistingKongTarget("kong_target.target"),
+				),
+				ExpectNonEmptyPlan: true,
+			},
+			{
+				Config: testCreateTargetConfig,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKongTargetExists("kong_target.target"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckKongTargetDestroy(state *terraform.State) error {
 
 	client := testAccProvider.Meta().(*config).adminClient.Targets
@@ -199,6 +221,44 @@ func testAccCheckKongTargetDoesNotExist(targetResourceKey string, upstreamResour
 		}
 
 		return nil
+	}
+}
+
+func testAccDeleteExistingKongTarget(resourceKey string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceKey]
+
+		if !ok {
+			return fmt.Errorf("not found: %s", resourceKey)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("no ID is set")
+		}
+
+		ids := strings.Split(rs.Primary.ID, "/")
+		client := testAccProvider.Meta().(*config).adminClient.Targets
+		upstreamID := kong.String(ids[0])
+		api, _, err := client.List(context.Background(), upstreamID, nil)
+
+		if !kong.IsNotFoundErr(err) && err != nil {
+			return err
+		}
+
+		if api == nil {
+			return fmt.Errorf("target with id %v not found", rs.Primary.ID)
+		}
+
+		targetID := ids[1]
+		for _, element := range api {
+			if *element.ID == ids[1] {
+				break
+			}
+
+			return fmt.Errorf("target with id %v not found", rs.Primary.ID)
+		}
+
+		return client.Delete(context.Background(), upstreamID, kong.String(targetID))
 	}
 }
 
