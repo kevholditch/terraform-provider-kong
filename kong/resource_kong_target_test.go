@@ -205,7 +205,7 @@ func testAccCheckKongTargetExists(resourceKey string) resource.TestCheckFunc {
 			}
 		}
 
-		if ! targetFound {
+		if !targetFound {
 			return fmt.Errorf("target with id %v not found", rs.Primary.ID)
 		}
 
@@ -282,7 +282,7 @@ func testAccDeleteExistingKongTarget(resourceKey string) resource.TestCheckFunc 
 			}
 		}
 
-		if ! targetFound {
+		if !targetFound {
 			return fmt.Errorf("target with id %v not found", rs.Primary.ID)
 		}
 
