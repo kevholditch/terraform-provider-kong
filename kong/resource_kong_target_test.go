@@ -26,6 +26,11 @@ func TestAccKongTarget(t *testing.T) {
 					resource.TestCheckResourceAttr("kong_target.target", "tags.#", "2"),
 					resource.TestCheckResourceAttr("kong_target.target", "tags.0", "a"),
 					resource.TestCheckResourceAttr("kong_target.target", "tags.1", "b"),
+					testAccCheckKongTargetExists("kong_target.fallback_target"),
+					resource.TestCheckResourceAttr("kong_target.fallback_target", "target", "myfallbacktarget:4000"),
+					resource.TestCheckResourceAttr("kong_target.fallback_target", "weight", "50"),
+					resource.TestCheckResourceAttr("kong_target.fallback_target", "tags.#", "1"),
+					resource.TestCheckResourceAttr("kong_target.fallback_target", "tags.0", "c"),
 				),
 			},
 			{
@@ -36,6 +41,11 @@ func TestAccKongTarget(t *testing.T) {
 					resource.TestCheckResourceAttr("kong_target.target", "weight", "200"),
 					resource.TestCheckResourceAttr("kong_target.target", "tags.#", "1"),
 					resource.TestCheckResourceAttr("kong_target.target", "tags.0", "a"),
+					testAccCheckKongTargetExists("kong_target.fallback_target"),
+					resource.TestCheckResourceAttr("kong_target.fallback_target", "target", "myfallbacktarget:4000"),
+					resource.TestCheckResourceAttr("kong_target.fallback_target", "weight", "150"),
+					resource.TestCheckResourceAttr("kong_target.fallback_target", "tags.#", "1"),
+					resource.TestCheckResourceAttr("kong_target.fallback_target", "tags.0", "d"),
 				),
 			},
 		},
@@ -54,12 +64,16 @@ func TestAccKongTargetDelete(t *testing.T) {
 					testAccCheckKongTargetExists("kong_target.target"),
 					resource.TestCheckResourceAttr("kong_target.target", "target", "mytarget:4000"),
 					resource.TestCheckResourceAttr("kong_target.target", "weight", "100"),
+					testAccCheckKongTargetExists("kong_target.fallback_target"),
+					resource.TestCheckResourceAttr("kong_target.fallback_target", "target", "myfallbacktarget:4000"),
+					resource.TestCheckResourceAttr("kong_target.fallback_target", "weight", "50"),
 				),
 			},
 			{
 				Config: testDeleteTargetConfig,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKongTargetDoesNotExist("kong_target.target", "kong_upstream.upstream"),
+					testAccCheckKongTargetDoesNotExist("kong_target.fallback_target", "kong_upstream.upstream"),
 				),
 			},
 		},
@@ -78,6 +92,9 @@ func TestAccKongTargetCreateAndRefreshFromNonExistentUpstream(t *testing.T) {
 					testAccCheckKongTargetExists("kong_target.target"),
 					resource.TestCheckResourceAttr("kong_target.target", "target", "mytarget:4000"),
 					resource.TestCheckResourceAttr("kong_target.target", "weight", "100"),
+					testAccCheckKongTargetExists("kong_target.fallback_target"),
+					resource.TestCheckResourceAttr("kong_target.fallback_target", "target", "myfallbacktarget:4000"),
+					resource.TestCheckResourceAttr("kong_target.fallback_target", "weight", "50"),
 					deleteUpstream("kong_upstream.upstream"),
 				),
 				ExpectNonEmptyPlan: true,
@@ -133,7 +150,7 @@ func testAccCheckKongTargetDestroy(state *terraform.State) error {
 
 	targets := getResourcesByType("kong_target", state)
 
-	if len(targets) > 1 {
+	if len(targets) > 2 {
 		return fmt.Errorf("expecting max 1 target resource found %v", len(targets))
 	}
 
@@ -179,11 +196,16 @@ func testAccCheckKongTargetExists(resourceKey string) resource.TestCheckFunc {
 			return fmt.Errorf("target with id %v not found", rs.Primary.ID)
 		}
 
+		var targetFound = false
+
 		for _, element := range api {
 			if *element.ID == ids[1] {
+				targetFound = true
 				break
 			}
+		}
 
+		if ! targetFound {
 			return fmt.Errorf("target with id %v not found", rs.Primary.ID)
 		}
 
@@ -212,8 +234,10 @@ func testAccCheckKongTargetDoesNotExist(targetResourceKey string, upstreamResour
 		client := testAccProvider.Meta().(*config).adminClient.Targets
 		targets, _, err := client.List(context.Background(), kong.String(rs.Primary.ID), nil)
 
-		if len(targets) > 0 {
-			return fmt.Errorf("expecting zero target resources found %v", len(targets))
+		resourceTargets := getResourcesByType("kong_target", s)
+
+		if len(targets) > len(resourceTargets) {
+			return fmt.Errorf("expecting %v target resources found %v", len(resourceTargets), len(targets))
 		}
 
 		if err != nil {
@@ -249,16 +273,20 @@ func testAccDeleteExistingKongTarget(resourceKey string) resource.TestCheckFunc 
 			return fmt.Errorf("target with id %v not found", rs.Primary.ID)
 		}
 
-		targetID := ids[1]
+		var targetFound = false
+
 		for _, element := range api {
 			if *element.ID == ids[1] {
+				targetFound = true
 				break
 			}
+		}
 
+		if ! targetFound {
 			return fmt.Errorf("target with id %v not found", rs.Primary.ID)
 		}
 
-		return client.Delete(context.Background(), upstreamID, kong.String(targetID))
+		return client.Delete(context.Background(), upstreamID, kong.String(ids[1]))
 	}
 }
 
@@ -291,6 +319,13 @@ resource "kong_target" "target" {
 	upstream_id	    = "${kong_upstream.upstream.id}"
     tags            = ["a", "b"]
 }
+
+resource "kong_target" "fallback_target" {
+	target			= "myfallbacktarget:4000"
+	weight			= 50
+	upstream_id	    = "${kong_upstream.upstream.id}"
+    tags            = ["c"]
+}
 `
 const testUpdateTargetConfig = `
 resource "kong_upstream" "upstream" {
@@ -303,6 +338,13 @@ resource "kong_target" "target" {
 	weight			= 200
 	upstream_id  	= "${kong_upstream.upstream.id}"
 	tags            = ["a"]
+}
+
+resource "kong_target" "fallback_target" {
+	target			= "myfallbacktarget:4000"
+	weight			= 150
+	upstream_id	    = "${kong_upstream.upstream.id}"
+    tags            = ["d"]
 }
 `
 const testDeleteTargetConfig = `

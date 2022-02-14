@@ -80,11 +80,13 @@ func resourceKongTargetRead(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(fmt.Errorf("could not find kong target: %v", err))
 	}
 
-	if targets == nil {
-		d.SetId("")
-	} else {
+	var recreate = true
+
+	if targets != nil {
 		for _, element := range targets {
 			if *element.ID == ids[1] {
+				recreate = false
+
 				err := d.Set("target", element.Target)
 				if err != nil {
 					return diag.FromErr(err)
@@ -103,6 +105,10 @@ func resourceKongTargetRead(ctx context.Context, d *schema.ResourceData, meta in
 				}
 			}
 		}
+	}
+
+	if recreate {
+		d.SetId("")
 	}
 
 	return diags
