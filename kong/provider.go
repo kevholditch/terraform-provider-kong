@@ -72,6 +72,7 @@ func Provider() *schema.Provider {
 			"kong_consumer_acl":        resourceKongConsumerACL(),
 			"kong_consumer_basic_auth": resourceKongConsumerBasicAuth(),
 			"kong_consumer_key_auth":   resourceKongConsumerKeyAuth(),
+      "kong_consumer_oauth2":     resourceKongConsumerOAuth2(),
 			"kong_plugin":              resourceKongPlugin(),
 			"kong_upstream":            resourceKongUpstream(),
 			"kong_target":              resourceKongTarget(),
