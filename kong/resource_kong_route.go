@@ -107,7 +107,7 @@ func resourceKongRoute() *schema.Resource {
 			},
 			"service_id": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: false,
 			},
 			"path_handling": {
