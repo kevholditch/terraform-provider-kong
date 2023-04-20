@@ -101,6 +101,7 @@ resource "kong_consumer" "my_consumer" {
 
 resource "kong_plugin" "basic_auth_plugin" {
 	name        = "basic-auth"
+	protocols = ["grpc", "grpcs", "http", "https"]
 }
 
 resource "kong_consumer_basic_auth" "consumer_basic_auth" {
@@ -118,6 +119,7 @@ resource "kong_consumer" "my_consumer" {
 
 resource "kong_plugin" "basic_auth_plugin" {
 	name        = "basic-auth"
+	protocols = ["grpc", "grpcs", "http", "https"]
 }
 
 resource "kong_consumer_basic_auth" "consumer_basic_auth" {

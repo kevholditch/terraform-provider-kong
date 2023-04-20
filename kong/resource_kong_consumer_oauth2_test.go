@@ -111,6 +111,7 @@ resource "kong_consumer" "my_consumer" {
 
 resource "kong_plugin" "oauth2_plugin" {
 	name = "oauth2"
+	protocols = ["grpc", "grpcs", "http", "https"]
 	config_json = <<EOT
 	{
 		"global_credentials": true,
@@ -139,6 +140,7 @@ resource "kong_consumer" "my_consumer" {
 
 resource "kong_plugin" "oauth2_plugin" {
 	name = "oauth2"
+	protocols = ["grpc", "grpcs", "http", "https"]
 	config_json = <<EOT
 	{
 		"global_credentials": true,

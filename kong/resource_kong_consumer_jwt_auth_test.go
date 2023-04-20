@@ -125,6 +125,7 @@ resource "kong_consumer" "my_consumer" {
 
 resource "kong_plugin" "jwt_plugin" {
 	name        = "jwt"
+	protocols = ["grpc", "grpcs", "http", "https"]
 	config_json = <<EOT
 	{
 		"claims_to_verify": ["exp"]
@@ -149,6 +150,7 @@ resource "kong_consumer" "my_consumer" {
 
 resource "kong_plugin" "jwt_plugin" {
 	name        = "jwt"
+	protocols = ["grpc", "grpcs", "http", "https"]
 	config_json = <<EOT
 	{
 		"claims_to_verify": ["exp"]
