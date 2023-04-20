@@ -75,6 +75,12 @@ func resourceKongPlugin() *schema.Resource {
 				ForceNew: false,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"protocols": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: false,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
@@ -158,6 +164,10 @@ func resourceKongPluginRead(ctx context.Context, d *schema.ResourceData, meta in
 		if err != nil {
 			return diag.FromErr(err)
 		}
+		err = d.Set("protocols", plugin.Protocols)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 
 		// We sync this property from upstream as a method to allow you to import a resource with the config tracked in
 		// terraform state. We do not track `config` as it will be a source of a perpetual diff.
@@ -236,6 +246,7 @@ func createKongPluginRequestFromResourceData(d *schema.ResourceData) (*kong.Plug
 	pluginRequest.Name = readStringPtrFromResource(d, "name")
 	pluginRequest.Enabled = readBoolPtrFromResource(d, "enabled")
 	pluginRequest.Tags = readStringArrayPtrFromResource(d, "tags")
+	pluginRequest.Protocols = readStringArrayPtrFromResource(d, "protocols")
 
 	if data, ok := d.GetOk("config_json"); ok {
 		var configJSON map[string]interface{}

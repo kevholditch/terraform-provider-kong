@@ -130,6 +130,7 @@ resource "kong_consumer" "my_consumer" {
 
 resource "kong_plugin" "key_auth_plugin" {
 	name = "key-auth"
+	protocols = ["grpc", "grpcs", "http", "https"]
 }
 
 resource "kong_consumer_key_auth" "consumer_key_auth" {
@@ -146,6 +147,7 @@ resource "kong_consumer" "my_consumer" {
 
 resource "kong_plugin" "key_auth_plugin" {
 	name = "key-auth"
+	protocols = ["grpc", "grpcs", "http", "https"]
 }
 
 resource "kong_consumer_key_auth" "consumer_key_auth" {
@@ -162,6 +164,7 @@ resource "kong_consumer" "my_consumer" {
 
 resource "kong_plugin" "key_auth_plugin" {
 	name = "key-auth"
+	protocols = ["grpc", "grpcs", "http", "https"]
 }
 
 resource "kong_consumer_key_auth" "consumer_key_auth" {

@@ -119,6 +119,7 @@ resource "kong_consumer" "my_consumer" {
 
 resource "kong_plugin" "acl_plugin" {
 	name        = "acl"
+	protocols = ["grpc", "grpcs", "http", "https"]
 	config_json = <<EOT
 	{
 		"allow": ["group1", "group2"]
@@ -140,6 +141,7 @@ resource "kong_consumer" "my_consumer" {
 
 resource "kong_plugin" "acl_plugin" {
 	name        = "acl"
+	protocols = ["grpc", "grpcs", "http", "https"]
 	config_json = <<EOT
 	{
 		"allow": ["group1", "group2"]
