@@ -69,7 +69,7 @@ func TestProvider_configure_strict(t *testing.T) {
 
 func TestMain(m *testing.M) {
 
-	testContext := containers.StartKong(defaultKongRepository, GetEnvVarOrDefault("KONG_VERSION", defaultKongVersion), defaultKongLicense)
+	testContext := containers.StartKong(defaultKongRepository, GetEnvVarOrDefault("KONG_VERSION", defaultKongVersion), GetEnvVarOrDefault("KONG_LICENSE_DATA", defaultKongLicense))
 
 	err := os.Setenv(EnvKongAdminHostAddress, testContext.KongHostAddress)
 	if err != nil {
