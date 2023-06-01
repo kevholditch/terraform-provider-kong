@@ -79,6 +79,7 @@ func Provider() *schema.Provider {
 			"kong_service":             resourceKongService(),
 			"kong_route":               resourceKongRoute(),
 			"kong_consumer_jwt_auth":   resourceKongConsumerJWTAuth(),
+			"kong_workspace":           resourceKongWorkspace(),
 		},
 
 		//DataSourcesMap: map[string]*schema.Resource{
