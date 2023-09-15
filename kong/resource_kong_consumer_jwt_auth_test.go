@@ -3,8 +3,9 @@ package kong
 import (
 	"context"
 	"fmt"
-	"github.com/kong/go-kong/kong"
 	"testing"
+
+	"github.com/kong/go-kong/kong"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -39,6 +40,19 @@ func TestAccJWTAuth(t *testing.T) {
 					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config", "rsa_public_key", "bar"),
 					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config", "tags.#", "1"),
 					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config", "tags.0", "foo"),
+				),
+			},
+			{
+				Config: testCreateJWTAuthConfigRsaPublicKeyNull,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckJWTAuthExists("kong_consumer_jwt_auth.consumer_jwt_config"),
+					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config", "algorithm", "HS256"),
+					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config", "key", "my_key"),
+					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config", "secret", "my_secret"),
+					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config", "rsa_public_key", ""),
+					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config", "tags.#", "2"),
+					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config", "tags.0", "foo"),
+					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config", "tags.1", "bar"),
 				),
 			},
 		},
@@ -163,5 +177,28 @@ resource "kong_consumer_jwt_auth" "consumer_jwt_config" {
 	rsa_public_key = "bar"
 	secret         = "updated_secret"
 	tags           = ["foo"]
+}
+`
+const testCreateJWTAuthConfigRsaPublicKeyNull = `
+resource "kong_consumer" "my_consumer" {
+	username  = "User2"
+	custom_id = "456"
+}
+
+resource "kong_plugin" "jwt_plugin" {
+	name        = "jwt2"
+	config_json = <<EOT
+	{
+		"claims_to_verify": ["exp"]
+	}
+EOT
+}
+
+resource "kong_consumer_jwt_auth" "consumer_jwt_config" {
+	consumer_id    = "${kong_consumer.my_consumer.id}"
+	algorithm      = "HS256"
+	key            = "my_key"
+	secret         = "my_secret"
+  tags           = ["foo", "bar"]
 }
 `

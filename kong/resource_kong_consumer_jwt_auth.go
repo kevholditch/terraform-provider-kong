@@ -3,10 +3,11 @@ package kong
 import (
 	"context"
 	"fmt"
+	"strings"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/kong/go-kong/kong"
-	"strings"
 )
 
 func resourceKongConsumerJWTAuth() *schema.Resource {
@@ -37,7 +38,7 @@ func resourceKongConsumerJWTAuth() *schema.Resource {
 			},
 			"rsa_public_key": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: false,
 			},
 			"secret": {
