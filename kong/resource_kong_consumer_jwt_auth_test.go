@@ -3,6 +3,7 @@ package kong
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/kong/go-kong/kong"
@@ -43,17 +44,16 @@ func TestAccJWTAuth(t *testing.T) {
 				),
 			},
 			{
-				Config: testCreateJWTAuthConfigRsaPublicKeyNull,
+				Config: testCreateJWTAuthConfigDefaults,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckJWTAuthExists("kong_consumer_jwt_auth.consumer_jwt_config2"),
-					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config2", "algorithm", "HS256"),
-					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config2", "key", "my_key"),
-					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config2", "secret", "my_secret"),
-					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config2", "rsa_public_key", ""),
-					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config2", "tags.#", "2"),
-					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config2", "tags.0", "foo"),
-					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config2", "tags.1", "bar"),
+					testAccCheckJWTAuthExists("kong_consumer_jwt_auth.consumer_jwt_config_defaults"),
+					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config_defaults", "algorithm", "HS256"),
+					resource.TestMatchResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config_defaults", "key", regexp.MustCompile(".+")),
+					resource.TestMatchResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config_defaults", "secret", regexp.MustCompile(".+")),
+					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config_defaults", "rsa_public_key", ""),
+					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config_defaults", "tags.#", "0"),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 		},
 	})
@@ -179,17 +179,13 @@ resource "kong_consumer_jwt_auth" "consumer_jwt_config" {
 	tags           = ["foo"]
 }
 `
-const testCreateJWTAuthConfigRsaPublicKeyNull = `
-resource "kong_consumer" "my_consumer2" {
-	username  = "User2"
-	custom_id = "456"
+const testCreateJWTAuthConfigDefaults = `
+resource "kong_consumer" "consumer_jwt_defaults" {
+	username  = "consumer_jwt"
+	custom_id = "666"
 }
 
-resource "kong_consumer_jwt_auth" "consumer_jwt_config2" {
-	consumer_id    = "${kong_consumer.my_consumer2.id}"
-	algorithm      = "HS256"
-	key            = "my_key"
-	secret         = "my_secret"
-  tags           = ["foo", "bar"]
+resource "kong_consumer_jwt_auth" "consumer_jwt_config_defaults" {
+	consumer_id    = "${kong_consumer.consumer_jwt_defaults.id}"
 }
 `

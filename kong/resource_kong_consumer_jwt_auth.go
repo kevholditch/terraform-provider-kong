@@ -59,10 +59,10 @@ func resourceKongConsumerJWTAuth() *schema.Resource {
 func resourceKongConsumerJWTAuthCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	JWTAuthRequest := &kong.JWTAuth{
-		Algorithm:    kong.String(d.Get("algorithm").(string)),
-		Key:          kong.String(d.Get("key").(string)),
+		Algorithm:    readStringPtrFromResource(d, "algorithm"),
+		Key:          readStringPtrFromResource(d, "key"),
 		RSAPublicKey: readStringPtrFromResource(d, "rsa_public_key"),
-		Secret:       kong.String(d.Get("secret").(string)),
+		Secret:       readStringPtrFromResource(d, "secret"),
 		Tags:         readStringArrayPtrFromResource(d, "tags"),
 	}
 
