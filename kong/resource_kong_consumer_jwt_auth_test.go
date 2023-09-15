@@ -3,8 +3,10 @@ package kong
 import (
 	"context"
 	"fmt"
-	"github.com/kong/go-kong/kong"
+	"regexp"
 	"testing"
+
+	"github.com/kong/go-kong/kong"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -39,6 +41,28 @@ func TestAccJWTAuth(t *testing.T) {
 					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config", "rsa_public_key", "bar"),
 					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config", "tags.#", "1"),
 					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config", "tags.0", "foo"),
+				),
+			},
+			{
+				Config: testCreateJWTAuthConfigDefaults,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckJWTAuthExists("kong_consumer_jwt_auth.consumer_jwt_config_defaults"),
+					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config_defaults", "algorithm", "HS256"),
+					resource.TestMatchResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config_defaults", "key", regexp.MustCompile(".+")),
+					resource.TestMatchResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config_defaults", "secret", regexp.MustCompile(".+")),
+					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config_defaults", "rsa_public_key", ""),
+					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config_defaults", "tags.#", "0"),
+				),
+				ExpectNonEmptyPlan: true,
+			},
+			{
+				Config: testCreateJWTAuthConfigDefaultsUpdate,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckJWTAuthExists("kong_consumer_jwt_auth.consumer_jwt_config_defaults"),
+					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config_defaults", "algorithm", "HS256"),
+					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config_defaults", "key", "updated_key"),
+					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config_defaults", "secret", "updated_secret"),
+					resource.TestCheckResourceAttr("kong_consumer_jwt_auth.consumer_jwt_config_defaults", "tags.#", "0"),
 				),
 			},
 		},
@@ -163,5 +187,28 @@ resource "kong_consumer_jwt_auth" "consumer_jwt_config" {
 	rsa_public_key = "bar"
 	secret         = "updated_secret"
 	tags           = ["foo"]
+}
+`
+const testCreateJWTAuthConfigDefaults = `
+resource "kong_consumer" "consumer_jwt_defaults" {
+	username  = "consumer_jwt"
+	custom_id = "666"
+}
+
+resource "kong_consumer_jwt_auth" "consumer_jwt_config_defaults" {
+	consumer_id    = "${kong_consumer.consumer_jwt_defaults.id}"
+}
+`
+const testCreateJWTAuthConfigDefaultsUpdate = `
+resource "kong_consumer" "consumer_jwt_defaults" {
+	username  = "consumer_jwt"
+	custom_id = "666"
+}
+
+resource "kong_consumer_jwt_auth" "consumer_jwt_config_defaults" {
+	consumer_id    = "${kong_consumer.consumer_jwt_defaults.id}"
+	algorithm      = "HS256"
+	key            = "updated_key"
+	secret         = "updated_secret"
 }
 `
