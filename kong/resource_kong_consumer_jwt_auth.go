@@ -61,7 +61,7 @@ func resourceKongConsumerJWTAuthCreate(ctx context.Context, d *schema.ResourceDa
 	JWTAuthRequest := &kong.JWTAuth{
 		Algorithm:    kong.String(d.Get("algorithm").(string)),
 		Key:          kong.String(d.Get("key").(string)),
-		RSAPublicKey: kong.String(d.Get("rsa_public_key").(string)),
+		RSAPublicKey: readStringPtrFromResource(d, "rsa_public_key"),
 		Secret:       kong.String(d.Get("secret").(string)),
 		Tags:         readStringArrayPtrFromResource(d, "tags"),
 	}
