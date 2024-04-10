@@ -126,13 +126,11 @@ func resourceKongRoute() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: false,
-				Default:  true,
 			},
 			"response_buffering": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: false,
-				Default:  true,
 			},
 			"tags": {
 				Type:     schema.TypeList,
