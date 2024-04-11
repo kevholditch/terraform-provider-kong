@@ -3,10 +3,11 @@ package kong
 import (
 	"context"
 	"fmt"
+	"strings"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/kong/go-kong/kong"
-	"strings"
 )
 
 func resourceKongConsumerJWTAuth() *schema.Resource {
@@ -37,7 +38,7 @@ func resourceKongConsumerJWTAuth() *schema.Resource {
 			},
 			"rsa_public_key": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: false,
 			},
 			"secret": {
@@ -58,10 +59,10 @@ func resourceKongConsumerJWTAuth() *schema.Resource {
 func resourceKongConsumerJWTAuthCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 
 	JWTAuthRequest := &kong.JWTAuth{
-		Algorithm:    kong.String(d.Get("algorithm").(string)),
-		Key:          kong.String(d.Get("key").(string)),
-		RSAPublicKey: kong.String(d.Get("rsa_public_key").(string)),
-		Secret:       kong.String(d.Get("secret").(string)),
+		Algorithm:    readStringPtrFromResource(d, "algorithm"),
+		Key:          readStringPtrFromResource(d, "key"),
+		RSAPublicKey: readStringPtrFromResource(d, "rsa_public_key"),
+		Secret:       readStringPtrFromResource(d, "secret"),
 		Tags:         readStringArrayPtrFromResource(d, "tags"),
 	}
 
@@ -103,10 +104,10 @@ func resourceKongConsumerJWTAuthUpdate(ctx context.Context, d *schema.ResourceDa
 
 	JWTAuthRequest := &kong.JWTAuth{
 		ID:           kong.String(id.ID),
-		Algorithm:    kong.String(d.Get("algorithm").(string)),
-		Key:          kong.String(d.Get("key").(string)),
-		RSAPublicKey: kong.String(d.Get("rsa_public_key").(string)),
-		Secret:       kong.String(d.Get("secret").(string)),
+		Algorithm:    readStringPtrFromResource(d, "algorithm"),
+		Key:          readStringPtrFromResource(d, "key"),
+		RSAPublicKey: readStringPtrFromResource(d, "rsa_public_key"),
+		Secret:       readStringPtrFromResource(d, "secret"),
 		Tags:         readStringArrayPtrFromResource(d, "tags"),
 	}
 
