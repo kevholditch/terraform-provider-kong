@@ -100,6 +100,11 @@ func TestAccKongPluginForASpecificService(t *testing.T) {
 					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "tags.#", "2"),
 					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "tags.0", "foo"),
 					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "tags.1", "bar"),
+					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "protocols.#", "4"),
+					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "protocols.0", "grpc"),
+					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "protocols.1", "grpcs"),
+					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "protocols.2", "http"),
+					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "protocols.3", "https"),
 				),
 			},
 			{
@@ -111,6 +116,9 @@ func TestAccKongPluginForASpecificService(t *testing.T) {
 					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "name", "rate-limiting"),
 					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "tags.#", "1"),
 					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "tags.0", "foo"),
+					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "protocols.#", "2"),
+					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "protocols.0", "http"),
+					resource.TestCheckResourceAttr("kong_plugin.rate_limit", "protocols.1", "https"),
 				),
 			},
 		},
@@ -305,6 +313,7 @@ const testCreateGlobalPluginConfig = `
 resource "kong_plugin" "hmac_auth" {
 	name  = "hmac-auth"
 	enabled = "true"
+	protocols = ["grpc", "grpcs", "http", "https"]
 	config_json = <<EOT
 	{
     	"algorithms": [
@@ -326,6 +335,7 @@ const testCreateGlobalPluginConfigDisabled = `
 resource "kong_plugin" "hmac_auth" {
 	name  = "hmac-auth"
 	enabled = "false"
+	protocols = ["grpc", "grpcs", "http", "https"]
 	config_json = <<EOT
 	{
     	"algorithms": [
@@ -346,6 +356,7 @@ EOT
 const testUpdateGlobalPluginConfig = `
 resource "kong_plugin" "hmac_auth" {
 	name  = "hmac-auth"
+	protocols = ["grpc", "grpcs", "http", "https"]
 	config_json = <<EOT
 	{
     	"algorithms": [
@@ -372,6 +383,7 @@ resource "kong_consumer" "plugin_consumer" {
 resource "kong_plugin" "rate_limit" {
 	name        = "rate-limiting"
 	consumer_id = "${kong_consumer.plugin_consumer.id}"
+	protocols = ["grpc", "grpcs", "http", "https"]
 	config_json = <<EOT
 	{
 		"second": 5,
@@ -390,6 +402,7 @@ resource "kong_consumer" "plugin_consumer" {
 resource "kong_plugin" "rate_limit" {
 	name        = "rate-limiting"
 	consumer_id = "${kong_consumer.plugin_consumer.id}"
+	protocols = ["grpc", "grpcs", "http", "https"]
 	config_json = <<EOT
 	{
 		"second": 10,
@@ -409,6 +422,7 @@ resource "kong_service" "service" {
 resource "kong_plugin" "rate_limit" {
 	name        = "rate-limiting"
 	service_id = "${kong_service.service.id}"
+	protocols = ["grpc", "grpcs", "http", "https"]
 	tags       = ["foo", "bar"]
 	config_json = <<EOT
 	{
@@ -430,6 +444,7 @@ resource "kong_service" "service" {
 resource "kong_plugin" "rate_limit" {
 	name        = "rate-limiting"
 	service_id = "${kong_service.service.id}"
+	protocols = ["http", "https"]
 	tags       = ["foo"]
 	config_json = <<EOT
 	{
@@ -460,6 +475,7 @@ resource "kong_route" "route" {
 resource "kong_plugin" "rate_limit" {
 	name        = "rate-limiting"
 	route_id = "${kong_route.route.id}"
+	protocols = ["grpc", "grpcs", "http", "https"]
 	config_json = <<EOT
 	{
 		"second": 12,
@@ -490,6 +506,7 @@ resource "kong_route" "route" {
 resource "kong_plugin" "rate_limit" {
 	name        = "rate-limiting"
 	route_id = "${kong_route.route.id}"
+	protocols = ["grpc", "grpcs", "http", "https"]
 	config_json = <<EOT
 	{
 		"second": 14,

@@ -81,6 +81,7 @@ resource "kong_plugin" "hmac_auth" {
 	name  = "hmac-auth"
 	enabled = "true"
     strict_match = true
+	protocols = ["grpc", "grpcs", "http", "https"]
 	config_json = <<EOT
 	{
    	"algorithms": [
@@ -106,6 +107,7 @@ provider "kong" {
 resource "kong_plugin" "hmac_auth" {
 	name  = "hmac-auth"
 	enabled = "true"
+	protocols = ["grpc", "grpcs", "http", "https"]
 	config_json = <<EOT
 	{
    	"algorithms": [
@@ -127,6 +129,7 @@ const testUpdateExplicitStrictGlobalPluginConfig = `
 resource "kong_plugin" "hmac_auth" {
 	name  = "hmac-auth"
     strict_match = true
+	protocols = ["grpc", "grpcs", "http", "https"]
 	config_json = <<EOT
 	{
    	"algorithms": [
@@ -151,6 +154,7 @@ provider "kong" {
 
 resource "kong_plugin" "hmac_auth" {
 	name  = "hmac-auth"
+	protocols = ["grpc", "grpcs", "http", "https"]
 	config_json = <<EOT
 	{
    	"algorithms": [

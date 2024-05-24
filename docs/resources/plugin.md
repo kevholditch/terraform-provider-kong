@@ -1,7 +1,7 @@
 # kong_plugin
 
-The plugin resource maps directly onto the json for the API endpoint in Kong.  For more information on the parameters [see the Kong Api create documentation](https://docs.konghq.com/gateway-oss/2.5.x/admin-api/#plugin-object).
-The `config_json` is passed through to the plugin to configure it as is.  
+The plugin resource maps directly onto the json for the API endpoint in Kong. For more information on the parameters [see the Kong Api create documentation](https://docs.konghq.com/gateway-oss/2.5.x/admin-api/#plugin-object).
+The `config_json` is passed through to the plugin to configure it as is.
 
 ## Example Usage
 
@@ -16,6 +16,7 @@ resource "kong_plugin" "rate_limit" {
 EOT
 }
 ```
+
 To apply a plugin to a consumer use the `consumer_id` property, for example:
 
 ```hcl
@@ -81,14 +82,15 @@ EOT
 
 ## Argument reference
 
-* `plugin_name` - (Required) the name of the plugin you want to configure
-* `consumer_id` - (Optional) the consumer id you want to configure the plugin for
-* `service_id`  - (Optional) the service id that you want to configure the plugin for
-* `route_id` - (Optional) the route id that you want to configure the plugin for
-* `enabled` - (Optional) whether the plugin is enabled or not, use if you want to keep the plugin installed but disable it
-* `config_json` - (Optional) this is the configuration json for how you want to configure the plugin.  The json is passed straight through to kong as is.  You can get the json config from the Kong documentation
-page of the plugin you are configuring
-* `tags` - (Optional) A list of strings associated with the Plugin for grouping and filtering
+- `plugin_name` - (Required) the name of the plugin you want to configure
+- `consumer_id` - (Optional) the consumer id you want to configure the plugin for
+- `service_id` - (Optional) the service id that you want to configure the plugin for
+- `route_id` - (Optional) the route id that you want to configure the plugin for
+- `enabled` - (Optional) whether the plugin is enabled or not, use if you want to keep the plugin installed but disable it
+- `config_json` - (Optional) this is the configuration json for how you want to configure the plugin. The json is passed straight through to kong as is. You can get the json config from the Kong documentation
+  page of the plugin you are configuring
+- `tags` - (Optional) A list of strings associated with the Plugin for grouping and filtering
+- `protocols` - (Optional) The list of allowed protocols
 
 ## Import
 
