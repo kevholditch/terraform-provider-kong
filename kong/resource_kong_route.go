@@ -122,18 +122,18 @@ func resourceKongRoute() *schema.Resource {
 				ForceNew: false,
 				Default:  426,
 			},
-			"request_buffering": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: false,
-				Default:  true,
-			},
-			"response_buffering": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: false,
-				Default:  true,
-			},
+			// "request_buffering": {
+			// 	Type:     schema.TypeBool,
+			// 	Optional: true,
+			// 	ForceNew: false,
+			// 	Default:  true,
+			// },
+			// "response_buffering": {
+			// 	Type:     schema.TypeBool,
+			// 	Optional: true,
+			// 	ForceNew: false,
+			// 	Default:  true,
+			// },
 			"tags": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -304,19 +304,19 @@ func resourceKongRouteRead(ctx context.Context, d *schema.ResourceData, meta int
 			}
 		}
 
-		if route.RequestBuffering != nil {
-			err := d.Set("request_buffering", route.RequestBuffering)
-			if err != nil {
-				return diag.FromErr(err)
-			}
-		}
+		// if route.RequestBuffering != nil {
+		// 	err := d.Set("request_buffering", route.RequestBuffering)
+		// 	if err != nil {
+		// 		return diag.FromErr(err)
+		// 	}
+		// }
 
-		if route.ResponseBuffering != nil {
-			err := d.Set("response_buffering", route.ResponseBuffering)
-			if err != nil {
-				return diag.FromErr(err)
-			}
-		}
+		// if route.ResponseBuffering != nil {
+		// 	err := d.Set("response_buffering", route.ResponseBuffering)
+		// 	if err != nil {
+		// 		return diag.FromErr(err)
+		// 	}
+		// }
 
 		err = d.Set("tags", route.Tags)
 		if err != nil {
@@ -373,8 +373,8 @@ func createKongRouteRequestFromResourceData(d *schema.ResourceData) *kong.Route 
 		},
 		PathHandling:            readStringPtrFromResource(d, "path_handling"),
 		HTTPSRedirectStatusCode: readIntPtrFromResource(d, "https_redirect_status_code"),
-		RequestBuffering:        readBoolPtrFromResource(d, "request_buffering"),
-		ResponseBuffering:       readBoolPtrFromResource(d, "response_buffering"),
+		// RequestBuffering:        readBoolPtrFromResource(d, "request_buffering"),
+		// ResponseBuffering:       readBoolPtrFromResource(d, "response_buffering"),
 		Tags:                    readStringArrayPtrFromResource(d, "tags"),
 		Headers:                 readMapStringArrayFromResource(d, "header"),
 	}

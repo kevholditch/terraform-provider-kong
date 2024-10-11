@@ -33,8 +33,8 @@ func TestAccKongRoute(t *testing.T) {
 					resource.TestCheckResourceAttr("kong_route.route", "regex_priority", "1"),
 					resource.TestCheckResourceAttr("kong_route.route", "path_handling", "v1"),
 					resource.TestCheckResourceAttr("kong_route.route", "https_redirect_status_code", "301"),
-					resource.TestCheckResourceAttr("kong_route.route", "request_buffering", "false"),
-					resource.TestCheckResourceAttr("kong_route.route", "response_buffering", "false"),
+					// resource.TestCheckResourceAttr("kong_route.route", "request_buffering", "false"),
+					// resource.TestCheckResourceAttr("kong_route.route", "response_buffering", "false"),
 					resource.TestCheckResourceAttr("kong_route.route", "header.#", "2"),
 					resource.TestCheckResourceAttr("kong_route.route", "header.0.name", "x-test-1"),
 					resource.TestCheckResourceAttr("kong_route.route", "header.0.values.#", "2"),
@@ -66,8 +66,8 @@ func TestAccKongRoute(t *testing.T) {
 					resource.TestCheckResourceAttr("kong_route.route", "regex_priority", "2"),
 					resource.TestCheckResourceAttr("kong_route.route", "path_handling", "v0"),
 					resource.TestCheckResourceAttr("kong_route.route", "https_redirect_status_code", "426"),
-					resource.TestCheckResourceAttr("kong_route.route", "request_buffering", "true"),
-					resource.TestCheckResourceAttr("kong_route.route", "response_buffering", "true"),
+					// resource.TestCheckResourceAttr("kong_route.route", "request_buffering", "true"),
+					// resource.TestCheckResourceAttr("kong_route.route", "response_buffering", "true"),
 					resource.TestCheckResourceAttr("kong_route.route", "header.#", "1"),
 					resource.TestCheckResourceAttr("kong_route.route", "header.0.name", "x-test-1"),
 					resource.TestCheckResourceAttr("kong_route.route", "header.0.values.#", "1"),
@@ -216,8 +216,8 @@ resource "kong_route" "route" {
 	service_id  	= "${kong_service.service.id}"
     path_handling   = "v1"
     https_redirect_status_code = 301
-    request_buffering  = false
-	response_buffering = false
+    // request_buffering  = false
+	// response_buffering = false
     header {
         name   = "x-test-1"
         values = ["a", "b"] 
@@ -248,8 +248,8 @@ resource "kong_route" "route" {
 	service_id 		= "${kong_service.service.id}"
     path_handling   = "v0"
     https_redirect_status_code = 426
-    request_buffering  = true
-	response_buffering = true
+    // request_buffering  = true
+	// response_buffering = true
 	header {
         name   = "x-test-1"
         values = ["a"] 
