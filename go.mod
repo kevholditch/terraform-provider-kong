@@ -1,6 +1,6 @@
 module github.com/kevholditch/terraform-provider-kong
 
-go 1.16
+go 1.24
 
 replace github.com/kevholditch/terraform-provider-kong/kong => ./kong
 
